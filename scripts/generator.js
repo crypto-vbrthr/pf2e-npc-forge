@@ -59,7 +59,7 @@ export async function createGeneratedNpc({ name, level, role, profession }) {
   const actor = await Actor.create(actorData);
 
   const items = [
-    createStrikeActionItem(professionData, stats),
+    createStrikeItem(professionData, stats),
     ...createAbilityItems(roleData, professionData, stats, level)
   ];
 
@@ -150,11 +150,14 @@ function buildSkills(professionData, stats) {
   return skills;
 }
 
-function createStrikeActionItem(professionData, stats) {
+function createStrikeItem(professionData, stats) {
   const weapon = professionData.weapon ?? {
     name: "Faust",
+    kind: "melee",
     damageDie: "d4",
-    damageType: "bludgeoning"
+    damageType: "bludgeoning",
+    traits: ["agile", "nonlethal", "unarmed"],
+    group: "brawling"
   };
 
   const dice = stats.damageDice ?? 1;
@@ -165,26 +168,47 @@ function createStrikeActionItem(professionData, stats) {
     ? `${dice}${die}+${bonus}`
     : `${dice}${die}`;
 
+  const isRanged = weapon.kind === "ranged";
+
   return {
     name: weapon.name,
-    type: "action",
+    type: "melee",
     system: {
-      actionType: {
-        value: "action"
-      },
-      actions: {
-        value: 1
-      },
-      traits: {
-        value: ["attack"]
-      },
       description: {
-        value: `
-          <p><strong>Angriff</strong> +${stats.attack}</p>
-          <p><strong>Schaden</strong> ${damageFormula} ${weapon.damageType ?? "bludgeoning"}</p>
-        `
+        value: ""
       },
-      deathNote: false
+
+      traits: {
+        value: filterWeaponTraits(weapon.traits ?? []),
+        rarity: "common"
+      },
+
+      weaponType: {
+        value: isRanged ? "ranged" : "melee"
+      },
+
+      group: {
+        value: weapon.group ?? "club"
+      },
+
+      bonus: {
+        value: stats.attack
+      },
+
+      damageRolls: {
+        main: {
+          damage: damageFormula,
+          damageType: weapon.damageType ?? "bludgeoning"
+        }
+      },
+
+      attackEffects: {
+        value: []
+      },
+
+      range: {
+        value: isRanged ? weapon.range ?? 30 : null
+      }
     }
   };
 }
@@ -262,6 +286,44 @@ function filterAbilityTraits(traits) {
     "mental",
     "move",
     "visual"
+  ]);
+
+  return traits.filter((trait) => allowed.has(trait));
+}
+
+function filterWeaponTraits(traits) {
+  const allowed = new Set([
+    "agile",
+    "backswing",
+    "backstabber",
+    "deadly-d6",
+    "deadly-d8",
+    "deadly-d10",
+    "deadly-d12",
+    "disarm",
+    "finesse",
+    "forceful",
+    "free-hand",
+    "grapple",
+    "jousting-d6",
+    "nonlethal",
+    "parry",
+    "propulsive",
+    "reach",
+    "shove",
+    "sweep",
+    "thrown-10",
+    "thrown-20",
+    "thrown-30",
+    "trip",
+    "two-hand-d6",
+    "two-hand-d8",
+    "two-hand-d10",
+    "two-hand-d12",
+    "unarmed",
+    "versatile-b",
+    "versatile-p",
+    "versatile-s"
   ]);
 
   return traits.filter((trait) => allowed.has(trait));
