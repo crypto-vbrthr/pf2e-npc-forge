@@ -1,0 +1,26 @@
+{
+  "id": "pf2e-npc-forge",
+  "title": "PF2e NPC Forge",
+  "description": "Minimaler NPC-Generator für PF2e.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "Bully"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf2e",
+        "type": "system"
+      }
+    ]
+  }
+}
