@@ -15,11 +15,7 @@ export const PROFESSIONS = {
 
     equipment: {
       compendiumItems: [
-        {
-          pack: "pf2e.equipment-srd",
-          name: "Repair Toolkit",
-          quantity: 1
-        }
+        { pack: "pf2e.equipment-srd", name: "Repair Toolkit", quantity: 1 }
       ],
       fallbackLoot: [
         { name: "Schmiedewerkzeug", quantity: 1 },
@@ -31,7 +27,7 @@ export const PROFESSIONS = {
       {
         name: "Funkenflug",
         actions: 1,
-        traits: ["manipulate"],
+        traits: ["manipulate", "fire"],
         text: "Der Schmied schleudert glühende Funken. Eine Kreatur innerhalb von 3 m muss einen Reflexwurf gegen SG {dc} ablegen oder erleidet {level} Feuerschaden."
       }
     ]
@@ -155,6 +151,27 @@ export const PROFESSIONS = {
       group: "club"
     },
 
+    spellcasting: {
+      profile: "divine",
+      attackName: "Göttliche Flamme",
+      damageType: "spirit",
+
+      spells: [
+        {
+          name: "Heilender Segen",
+          actions: 2,
+          traits: ["healing"],
+          text: "Der Heiler heilt eine Kreatur innerhalb von 9 m um {spellHealing} Trefferpunkte."
+        },
+        {
+          name: "Schützendes Gebet",
+          actions: 1,
+          traits: [],
+          text: "Ein Verbündeter innerhalb von 9 m erhält bis zum Beginn des nächsten Zuges des Heilers +1 auf RK."
+        }
+      ]
+    },
+
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Healer's Toolkit", quantity: 1 },
@@ -189,6 +206,21 @@ export const PROFESSIONS = {
       group: "knife"
     },
 
+    spellcasting: {
+      profile: "occult",
+      attackName: "Unheiliges Flüstern",
+      damageType: "mental",
+
+      spells: [
+        {
+          name: "Dunkler Zwang",
+          actions: 2,
+          traits: ["mental", "auditory"],
+          text: "Eine Kreatur innerhalb von 9 m muss einen Willenswurf gegen SG {dc} ablegen. Bei einem Fehlschlag ist sie für 1 Runde benommen 1."
+        }
+      ]
+    },
+
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Religious Symbol", quantity: 1 }
@@ -207,5 +239,106 @@ export const PROFESSIONS = {
         text: "Eine Kreatur innerhalb von 9 m muss einen Willenswurf gegen SG {dc} ablegen. Bei einem Fehlschlag ist sie bis zum Beginn des nächsten Zuges des Kultisten verängstigt 1."
       }
     ]
+  },
+
+  mage: {
+    label: "Magier",
+    skills: ["arcana", "society"],
+    lore: "Magietheorie",
+
+    weapon: {
+      name: "Stab",
+      kind: "melee",
+      damageDie: "d6",
+      damageType: "bludgeoning",
+      traits: ["two-hand-d8"],
+      group: "club"
+    },
+
+    spellcasting: {
+      profile: "arcane",
+      attackName: "Arkane Entladung",
+      damageType: "force",
+
+      spells: [
+        {
+          name: "Magisches Geschoss",
+          actions: 2,
+          traits: ["force"],
+          text: "Der Magier schleudert magische Energie auf eine Kreatur innerhalb von 18 m. Zauberangriff +{attack}, Schaden {spellDamage} Kraftschaden."
+        },
+        {
+          name: "Schimmernder Schild",
+          actions: 1,
+          traits: ["force"],
+          text: "Der Magier erhält bis zum Beginn seines nächsten Zuges einen Situationsbonus von +1 auf RK."
+        },
+        {
+          name: "Erschütternde Rune",
+          actions: 2,
+          traits: ["force"],
+          text: "Eine Kreatur innerhalb von 9 m muss einen Reflexwurf gegen SG {dc} ablegen. Bei einem Fehlschlag erleidet sie {spellDamage} Kraftschaden."
+        }
+      ]
+    },
+
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Writing Set", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Zaubernotizen", quantity: 1 },
+        { name: "Kreidestaub", quantity: 1 }
+      ]
+    },
+
+    abilities: []
+  },
+
+  druid: {
+    label: "Druide",
+    skills: ["nature", "survival"],
+    lore: "Wildnis",
+
+    weapon: {
+      name: "Speer",
+      kind: "melee",
+      damageDie: "d6",
+      damageType: "piercing",
+      traits: ["thrown-20"],
+      group: "spear"
+    },
+
+    spellcasting: {
+      profile: "primal",
+      attackName: "Dornenstoß",
+      damageType: "piercing",
+
+      spells: [
+        {
+          name: "Rankengriff",
+          actions: 2,
+          traits: ["plant"],
+          text: "Eine Kreatur innerhalb von 9 m muss einen Reflexwurf gegen SG {dc} ablegen. Bei einem Fehlschlag erhält sie bis zum Ende ihres nächsten Zuges -3 m auf ihre Bewegungsraten."
+        },
+        {
+          name: "Lebenshauch",
+          actions: 2,
+          traits: ["healing", "vitality"],
+          text: "Der Druide heilt eine Kreatur innerhalb von 9 m um {spellHealing} Trefferpunkte."
+        }
+      ]
+    },
+
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Leather Armor", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Kräuterbeutel", quantity: 1 }
+      ]
+    },
+
+    abilities: []
   }
 };

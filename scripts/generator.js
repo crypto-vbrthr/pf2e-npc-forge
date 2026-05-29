@@ -1,6 +1,7 @@
 import { ROLES } from "./data/roles.js";
 import { PROFESSIONS } from "./data/professions.js";
 import { LEVEL_STATS } from "./data/level-stats.js";
+import { SPELLCASTING_PROFILES } from "./data/spellcasting.js";
 
 export async function createGeneratedNpc({ name, level, role, profession }) {
   const roleData = ROLES[role];
@@ -57,12 +58,12 @@ export async function createGeneratedNpc({ name, level, role, profession }) {
   };
 
   const actor = await Actor.create(actorData);
-
   const equipmentItems = await createEquipmentItemsFromCompendia(professionData);
 
   const items = [
     createStrikeItem(professionData, stats),
     ...createAbilityItems(roleData, professionData, stats, level),
+    ...createSpellcastingItems(professionData, stats, level),
     ...equipmentItems
   ];
 
@@ -128,6 +129,7 @@ function buildSkills(professionData, stats) {
   const skills = {};
 
   const professionSkills = professionData.skills ?? [];
+  const spellcasting = professionData.spellcasting;
   const loreName = professionData.lore;
 
   for (const skill of professionSkills) {
@@ -136,6 +138,18 @@ function buildSkills(professionData, stats) {
       value: stats.skill,
       visible: true
     };
+  }
+
+  if (spellcasting) {
+    const profile = SPELLCASTING_PROFILES[spellcasting.profile];
+
+    if (profile?.skill && !skills[profile.skill]) {
+      skills[profile.skill] = {
+        base: stats.skill,
+        value: stats.skill,
+        visible: true
+      };
+    }
   }
 
   if (loreName) {
@@ -240,7 +254,9 @@ function createAbilityItem(ability, stats, level) {
     skill: stats.skill,
     attack: stats.attack,
     level: Number(level),
-    damageBonus: stats.damageBonus
+    damageBonus: stats.damageBonus,
+    spellDamage: calculateSpellDamage(stats, level),
+    spellHealing: calculateSpellHealing(stats, level)
   });
 
   return {
@@ -258,6 +274,94 @@ function createAbilityItem(ability, stats, level) {
       },
       traits: {
         value: filterAbilityTraits(ability.traits ?? [])
+      },
+      deathNote: false
+    }
+  };
+}
+
+function createSpellcastingItems(professionData, stats, level) {
+  const spellcasting = professionData.spellcasting;
+
+  if (!spellcasting) return [];
+
+  const profile = SPELLCASTING_PROFILES[spellcasting.profile];
+
+  if (!profile) {
+    console.warn(`NPC Forge | Unbekanntes Spellcasting-Profil: ${spellcasting.profile}`);
+    return [];
+  }
+
+  const items = [];
+
+  items.push(createSpellAttackItem(spellcasting, profile, stats, level));
+
+  for (const spell of spellcasting.spells ?? []) {
+    items.push(createSpellActionItem(spell, profile, stats, level));
+  }
+
+  return items;
+}
+
+function createSpellAttackItem(spellcasting, profile, stats, level) {
+  const spellDamage = calculateSpellDamage(stats, level);
+
+  return {
+    name: spellcasting.attackName ?? `${profile.label}er Angriff`,
+    type: "action",
+    system: {
+      actionType: {
+        value: "action"
+      },
+      actions: {
+        value: 2
+      },
+      description: {
+        value: `
+          <p><strong>Zauberangriff</strong> +${stats.attack}</p>
+          <p><strong>Schaden</strong> ${spellDamage} ${spellcasting.damageType ?? "force"}</p>
+          <p><strong>Zauber-SG</strong> ${stats.dc}</p>
+        `
+      },
+      traits: {
+        value: filterAbilityTraits(profile.traits ?? [])
+      },
+      deathNote: false
+    }
+  };
+}
+
+function createSpellActionItem(spell, profile, stats, level) {
+  const text = renderTemplateText(spell.text, {
+    dc: stats.dc,
+    skill: stats.skill,
+    attack: stats.attack,
+    level: Number(level),
+    damageBonus: stats.damageBonus,
+    spellDamage: calculateSpellDamage(stats, level),
+    spellHealing: calculateSpellHealing(stats, level)
+  });
+
+  const traits = [
+    ...(profile.traits ?? []),
+    ...(spell.traits ?? [])
+  ];
+
+  return {
+    name: spell.name,
+    type: "action",
+    system: {
+      actionType: {
+        value: spell.actionType ?? "action"
+      },
+      actions: {
+        value: spell.actions ?? 2
+      },
+      description: {
+        value: `<p>${text}</p>`
+      },
+      traits: {
+        value: filterAbilityTraits(traits)
       },
       deathNote: false
     }
@@ -334,13 +438,29 @@ function createSimpleLootItem(name, quantity = 1) {
   };
 }
 
+function calculateSpellDamage(stats, level) {
+  const dice = Math.max(1, Math.ceil(Number(level) / 2));
+  const bonus = stats.damageBonus ?? 0;
+
+  return `${dice}d6+${bonus}`;
+}
+
+function calculateSpellHealing(stats, level) {
+  const dice = Math.max(1, Math.ceil(Number(level) / 2));
+  const bonus = stats.damageBonus ?? 0;
+
+  return `${dice}d8+${bonus}`;
+}
+
 function renderTemplateText(text, values) {
   return String(text ?? "")
     .replaceAll("{dc}", String(values.dc))
     .replaceAll("{skill}", String(values.skill))
     .replaceAll("{attack}", String(values.attack))
     .replaceAll("{level}", String(values.level))
-    .replaceAll("{damageBonus}", String(values.damageBonus));
+    .replaceAll("{damageBonus}", String(values.damageBonus))
+    .replaceAll("{spellDamage}", String(values.spellDamage))
+    .replaceAll("{spellHealing}", String(values.spellHealing));
 }
 
 function filterAbilityTraits(traits) {
@@ -358,7 +478,21 @@ function filterAbilityTraits(traits) {
     "manipulate",
     "mental",
     "move",
-    "visual"
+    "visual",
+
+    "arcane",
+    "divine",
+    "occult",
+    "primal",
+
+    "force",
+    "spirit",
+    "fire",
+    "cold",
+    "electricity",
+    "acid",
+    "void",
+    "vitality"
   ]);
 
   return traits.filter((trait) => allowed.has(trait));
