@@ -3,7 +3,6 @@ export const PROFESSIONS = {
     label: "Schmied",
     skills: ["crafting", "athletics"],
     lore: "Schmiedekunst",
-
     weapon: {
       name: "Schmiedehammer",
       kind: "melee",
@@ -12,7 +11,6 @@ export const PROFESSIONS = {
       traits: ["shove"],
       group: "hammer"
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Repair Toolkit", quantity: 1 }
@@ -22,7 +20,6 @@ export const PROFESSIONS = {
         { name: "Eisenbarren", quantity: 2 }
       ]
     },
-
     abilities: [
       {
         name: "Funkenflug",
@@ -37,7 +34,6 @@ export const PROFESSIONS = {
     label: "Stadtwache",
     skills: ["athletics", "intimidation"],
     lore: "Wachdienst",
-
     weapon: {
       name: "Kurzschwert",
       kind: "melee",
@@ -46,17 +42,13 @@ export const PROFESSIONS = {
       traits: ["agile", "finesse"],
       group: "sword"
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Steel Shield", quantity: 1 },
         { pack: "pf2e.equipment-srd", name: "Chain Mail", quantity: 1 }
       ],
-      fallbackLoot: [
-        { name: "Wachabzeichen", quantity: 1 }
-      ]
+      fallbackLoot: [{ name: "Wachabzeichen", quantity: 1 }]
     },
-
     abilities: [
       {
         name: "Festsetzen",
@@ -71,7 +63,6 @@ export const PROFESSIONS = {
     label: "Jäger",
     skills: ["survival", "stealth"],
     lore: "Jagd",
-
     weapon: {
       name: "Kurzbogen",
       kind: "ranged",
@@ -81,7 +72,6 @@ export const PROFESSIONS = {
       traits: [],
       group: "bow"
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Arrows", quantity: 20 },
@@ -92,7 +82,6 @@ export const PROFESSIONS = {
         { name: "Tierfalle", quantity: 1 }
       ]
     },
-
     abilities: [
       {
         name: "Beute im Blick",
@@ -107,7 +96,6 @@ export const PROFESSIONS = {
     label: "Gelehrter",
     skills: ["arcana", "society"],
     lore: "Akademisches Wissen",
-
     weapon: {
       name: "Dolch",
       kind: "melee",
@@ -116,7 +104,6 @@ export const PROFESSIONS = {
       traits: ["agile", "finesse", "thrown-10"],
       group: "knife"
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Writing Set", quantity: 1 }
@@ -126,7 +113,6 @@ export const PROFESSIONS = {
         { name: "Akademische Unterlagen", quantity: 1 }
       ]
     },
-
     abilities: [
       {
         name: "Belehrender Einwurf",
@@ -141,7 +127,6 @@ export const PROFESSIONS = {
     label: "Heiler",
     skills: ["medicine", "religion"],
     lore: "Heilkunde",
-
     weapon: {
       name: "Stab",
       kind: "melee",
@@ -150,12 +135,14 @@ export const PROFESSIONS = {
       traits: ["two-hand-d8"],
       group: "club"
     },
-
     spellcasting: {
       profile: "divine",
       attackName: "Göttliche Flamme",
       damageType: "spirit",
-
+      compendiumSpells: [
+        { pack: "pf2e.spells-srd", name: "Heal", rank: 1 },
+        { pack: "pf2e.spells-srd", name: "Shield", rank: 1 }
+      ],
       spells: [
         {
           name: "Heilender Segen",
@@ -171,17 +158,13 @@ export const PROFESSIONS = {
         }
       ]
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Healer's Toolkit", quantity: 1 },
         { pack: "pf2e.equipment-srd", name: "Minor Healing Potion", quantity: 1 }
       ],
-      fallbackLoot: [
-        { name: "Verbandszeug", quantity: 2 }
-      ]
+      fallbackLoot: [{ name: "Verbandszeug", quantity: 2 }]
     },
-
     abilities: [
       {
         name: "Schnelle Behandlung",
@@ -196,7 +179,6 @@ export const PROFESSIONS = {
     label: "Kultist",
     skills: ["religion", "deception"],
     lore: "Kulte",
-
     weapon: {
       name: "Krummer Dolch",
       kind: "melee",
@@ -205,12 +187,14 @@ export const PROFESSIONS = {
       traits: ["agile", "finesse"],
       group: "knife"
     },
-
     spellcasting: {
       profile: "occult",
       attackName: "Unheiliges Flüstern",
       damageType: "mental",
-
+      compendiumSpells: [
+        { pack: "pf2e.spells-srd", name: "Daze", rank: 1 },
+        { pack: "pf2e.spells-srd", name: "Fear", rank: 1 }
+      ],
       spells: [
         {
           name: "Dunkler Zwang",
@@ -220,7 +204,6 @@ export const PROFESSIONS = {
         }
       ]
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Religious Symbol", quantity: 1 }
@@ -230,7 +213,6 @@ export const PROFESSIONS = {
         { name: "Ritualnotizen", quantity: 1 }
       ]
     },
-
     abilities: [
       {
         name: "Dunkles Murmeln",
@@ -245,7 +227,6 @@ export const PROFESSIONS = {
     label: "Magier",
     skills: ["arcana", "society"],
     lore: "Magietheorie",
-
     weapon: {
       name: "Stab",
       kind: "melee",
@@ -254,18 +235,21 @@ export const PROFESSIONS = {
       traits: ["two-hand-d8"],
       group: "club"
     },
-
     spellcasting: {
       profile: "arcane",
       attackName: "Arkane Entladung",
       damageType: "force",
-
+      compendiumSpells: [
+        { pack: "pf2e.spells-srd", name: "Force Barrage", rank: 1 },
+        { pack: "pf2e.spells-srd", name: "Shield", rank: 1 },
+        { pack: "pf2e.spells-srd", name: "Ignition", rank: 1 }
+      ],
       spells: [
         {
-          name: "Magisches Geschoss",
+          name: "Arkane Entladung",
           actions: 2,
           traits: ["force"],
-          text: "Der Magier schleudert magische Energie auf eine Kreatur innerhalb von 18 m. Zauberangriff +{attack}, Schaden {spellDamage} Kraftschaden."
+          text: "Zauberangriff +{attack}, Schaden {spellDamage} Kraftschaden."
         },
         {
           name: "Schimmernder Schild",
@@ -281,7 +265,6 @@ export const PROFESSIONS = {
         }
       ]
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Writing Set", quantity: 1 }
@@ -291,7 +274,6 @@ export const PROFESSIONS = {
         { name: "Kreidestaub", quantity: 1 }
       ]
     },
-
     abilities: []
   },
 
@@ -299,7 +281,6 @@ export const PROFESSIONS = {
     label: "Druide",
     skills: ["nature", "survival"],
     lore: "Wildnis",
-
     weapon: {
       name: "Speer",
       kind: "melee",
@@ -308,12 +289,15 @@ export const PROFESSIONS = {
       traits: ["thrown-20"],
       group: "spear"
     },
-
     spellcasting: {
       profile: "primal",
       attackName: "Dornenstoß",
       damageType: "piercing",
-
+      compendiumSpells: [
+        { pack: "pf2e.spells-srd", name: "Heal", rank: 1 },
+        { pack: "pf2e.spells-srd", name: "Ignition", rank: 1 },
+        { pack: "pf2e.spells-srd", name: "Tangle Vine", rank: 1 }
+      ],
       spells: [
         {
           name: "Rankengriff",
@@ -329,16 +313,12 @@ export const PROFESSIONS = {
         }
       ]
     },
-
     equipment: {
       compendiumItems: [
         { pack: "pf2e.equipment-srd", name: "Leather Armor", quantity: 1 }
       ],
-      fallbackLoot: [
-        { name: "Kräuterbeutel", quantity: 1 }
-      ]
+      fallbackLoot: [{ name: "Kräuterbeutel", quantity: 1 }]
     },
-
     abilities: []
   }
 };
