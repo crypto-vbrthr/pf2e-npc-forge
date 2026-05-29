@@ -13,6 +13,20 @@ export const PROFESSIONS = {
       group: "hammer"
     },
 
+    equipment: {
+      compendiumItems: [
+        {
+          pack: "pf2e.equipment-srd",
+          name: "Repair Toolkit",
+          quantity: 1
+        }
+      ],
+      fallbackLoot: [
+        { name: "Schmiedewerkzeug", quantity: 1 },
+        { name: "Eisenbarren", quantity: 2 }
+      ]
+    },
+
     abilities: [
       {
         name: "Funkenflug",
@@ -35,6 +49,16 @@ export const PROFESSIONS = {
       damageType: "piercing",
       traits: ["agile", "finesse"],
       group: "sword"
+    },
+
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Steel Shield", quantity: 1 },
+        { pack: "pf2e.equipment-srd", name: "Chain Mail", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Wachabzeichen", quantity: 1 }
+      ]
     },
 
     abilities: [
@@ -62,6 +86,17 @@ export const PROFESSIONS = {
       group: "bow"
     },
 
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Arrows", quantity: 20 },
+        { pack: "pf2e.equipment-srd", name: "Leather Armor", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Jagdmesser", quantity: 1 },
+        { name: "Tierfalle", quantity: 1 }
+      ]
+    },
+
     abilities: [
       {
         name: "Beute im Blick",
@@ -84,6 +119,16 @@ export const PROFESSIONS = {
       damageType: "piercing",
       traits: ["agile", "finesse", "thrown-10"],
       group: "knife"
+    },
+
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Writing Set", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Notizbuch", quantity: 1 },
+        { name: "Akademische Unterlagen", quantity: 1 }
+      ]
     },
 
     abilities: [
@@ -110,6 +155,16 @@ export const PROFESSIONS = {
       group: "club"
     },
 
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Healer's Toolkit", quantity: 1 },
+        { pack: "pf2e.equipment-srd", name: "Minor Healing Potion", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Verbandszeug", quantity: 2 }
+      ]
+    },
+
     abilities: [
       {
         name: "Schnelle Behandlung",
@@ -132,6 +187,16 @@ export const PROFESSIONS = {
       damageType: "piercing",
       traits: ["agile", "finesse"],
       group: "knife"
+    },
+
+    equipment: {
+      compendiumItems: [
+        { pack: "pf2e.equipment-srd", name: "Religious Symbol", quantity: 1 }
+      ],
+      fallbackLoot: [
+        { name: "Unheimliches Amulett", quantity: 1 },
+        { name: "Ritualnotizen", quantity: 1 }
+      ]
     },
 
     abilities: [

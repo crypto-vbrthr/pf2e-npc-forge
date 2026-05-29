@@ -58,9 +58,12 @@ export async function createGeneratedNpc({ name, level, role, profession }) {
 
   const actor = await Actor.create(actorData);
 
+  const equipmentItems = await createEquipmentItemsFromCompendia(professionData);
+
   const items = [
     createStrikeItem(professionData, stats),
-    ...createAbilityItems(roleData, professionData, stats, level)
+    ...createAbilityItems(roleData, professionData, stats, level),
+    ...equipmentItems
   ];
 
   console.log("NPC Forge | Items werden erstellt:", items);
@@ -69,7 +72,7 @@ export async function createGeneratedNpc({ name, level, role, profession }) {
     await actor.createEmbeddedDocuments("Item", items);
   } catch (error) {
     console.error("NPC Forge | Fehler beim Erstellen der Items:", error);
-    ui.notifications.error("Fehler beim Erstellen von Angriffen/Fähigkeiten. Siehe Konsole.");
+    ui.notifications.error("Fehler beim Erstellen von Angriffen/Fähigkeiten/Ausrüstung. Siehe Konsole.");
   }
 
   actor.sheet.render(true);
@@ -257,6 +260,76 @@ function createAbilityItem(ability, stats, level) {
         value: filterAbilityTraits(ability.traits ?? [])
       },
       deathNote: false
+    }
+  };
+}
+
+async function createEquipmentItemsFromCompendia(professionData) {
+  const equipment = professionData.equipment ?? {};
+  const items = [];
+
+  for (const entry of equipment.compendiumItems ?? []) {
+    const item = await findCompendiumItem(entry);
+
+    if (item) {
+      const source = item.toObject();
+
+      source.system ??= {};
+      source.system.quantity = entry.quantity ?? 1;
+
+      items.push(source);
+    } else {
+      console.warn("NPC Forge | Kompendium-Item nicht gefunden:", entry);
+
+      items.push(
+        createSimpleLootItem(
+          entry.name ?? entry.slug ?? "Unbekannter Gegenstand",
+          entry.quantity ?? 1
+        )
+      );
+    }
+  }
+
+  for (const loot of equipment.fallbackLoot ?? []) {
+    items.push(createSimpleLootItem(loot.name, loot.quantity ?? 1));
+  }
+
+  return items;
+}
+
+async function findCompendiumItem(entry) {
+  const pack = game.packs.get(entry.pack);
+
+  if (!pack) {
+    console.warn(`NPC Forge | Pack nicht gefunden: ${entry.pack}`);
+    return null;
+  }
+
+  const index = await pack.getIndex({
+    fields: ["name", "type", "system.slug"]
+  });
+
+  const match = index.find((i) => {
+    if (entry.uuid && i.uuid === entry.uuid) return true;
+    if (entry.slug && i.system?.slug === entry.slug) return true;
+    if (entry.name && i.name === entry.name) return true;
+    return false;
+  });
+
+  if (!match) return null;
+
+  return await pack.getDocument(match._id);
+}
+
+function createSimpleLootItem(name, quantity = 1) {
+  return {
+    name,
+    type: "treasure",
+    system: {
+      quantity,
+      description: {
+        value: ""
+      }
     }
   };
 }
