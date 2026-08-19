@@ -1,79 +1,51 @@
-import { ROLES } from "./data/roles.js";
-import { PROFESSIONS } from "./data/professions.js";
-import { createGeneratedNpc } from "./generator.js";
+import { MODULE_ID } from "./constants.js";
+import { ContentRegistry } from "./engine/content/content-registry.js";
+import { registerCoreContent } from "./engine/content/core-content.js";
+import { NpcEngine } from "./engine/npc-engine.js";
+import { Pf2eDocumentAdapter } from "./adapters/pf2e-document-adapter.js";
+import { createExternalIntegrations } from "./integrations/integration-service.js";
+import { NpcForgeApi } from "./api/public-api.js";
+import { NpcForgeApp } from "./ui/npc-forge-app.js";
 
-const MODULE_ID = "pf2e-npc-forge";
+let api = null;
 
-Hooks.once("ready", () => {
-  console.log(`${MODULE_ID} | bereit`);
+function findTargetFolder(app) {
+  return app?.folder?.id ?? app?.currentFolder?.id ?? null;
+}
 
-  game.pf2eNpcForge = {
-    open: openNpcForge
+function installDirectoryButton(app, html) {
+  if (!game.user.isGM) return;
+  const root = html instanceof HTMLElement ? html : html?.[0];
+  if (!root || root.querySelector(".pf2e-npc-forge-directory-button")) return;
+
+  const createButton = root.querySelector('button[data-action="createEntry"], button[data-action="createDocument"], .create-entry');
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "pf2e-npc-forge-directory-button icon fa-solid fa-user-gear";
+  button.dataset.tooltip = "NPCFORGE.Controls.Open";
+  button.setAttribute("aria-label", game.i18n.localize("NPCFORGE.Controls.Open"));
+  button.addEventListener("click", () => api.ui.open({ targetFolderId: findTargetFolder(app) }));
+
+  if (createButton?.parentElement) createButton.insertAdjacentElement("afterend", button);
+  else root.querySelector(".directory-header")?.append(button);
+}
+
+Hooks.once("init", () => {
+  console.log("PF2E NPC Forge | Initializing 0.1.0 Architecture Baseline");
+  const registry = new ContentRegistry();
+  registerCoreContent(registry);
+  const integrations = createExternalIntegrations();
+  const engine = new NpcEngine({ registry });
+  const documents = new Pf2eDocumentAdapter({ integrations });
+  const openApplication = ({ targetFolderId = null } = {}) => {
+    const app = new NpcForgeApp({ api, targetFolderId });
+    app.render(true);
+    return app;
   };
+  api = new NpcForgeApi({ engine, registry, documents, integrations, openApplication });
+  const module = game.modules.get(MODULE_ID);
+  if (module) module.api = api;
+  Hooks.callAll("pf2eNpcForgeReady", api);
 });
 
-async function openNpcForge() {
-  const roleOptions = Object.entries(ROLES)
-    .map(([key, role]) => `<option value="${key}">${role.label}</option>`)
-    .join("");
-
-  const professionOptions = Object.entries(PROFESSIONS)
-    .map(([key, profession]) => `<option value="${key}">${profession.label}</option>`)
-    .join("");
-
-  const content = `
-    <form>
-      <div class="form-group">
-        <label>Name</label>
-        <input name="name" type="text" value="NSC" />
-      </div>
-
-      <div class="form-group">
-        <label>Stufe</label>
-        <input name="level" type="number" value="1" min="-1" max="25" />
-      </div>
-
-      <div class="form-group">
-        <label>Rolle</label>
-        <select name="role">
-          ${roleOptions}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Beruf</label>
-        <select name="profession">
-          ${professionOptions}
-        </select>
-      </div>
-    </form>
-  `;
-
-  new foundry.applications.api.DialogV2({
-    window: {
-      title: "PF2e NPC Forge"
-    },
-    content,
-    buttons: [
-      {
-        action: "create",
-        label: "NPC erstellen",
-        default: true,
-        callback: async (event, button) => {
-          const form = button.form;
-
-          await createGeneratedNpc({
-            name: form.name.value || "NSC",
-            level: Number(form.level.value || 1),
-            role: form.role.value,
-            profession: form.profession.value
-          });
-        }
-      },
-      {
-        action: "cancel",
-        label: "Abbrechen"
-      }
-    ]
-  }).render(true);
-}
+Hooks.on("renderActorDirectory", installDirectoryButton);

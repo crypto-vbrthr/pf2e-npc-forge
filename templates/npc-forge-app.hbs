@@ -1,0 +1,38 @@
+<div class="npc-forge-shell">
+  <form data-npc-forge-request class="npc-forge-controls">
+    <h2>{{localize "NPCFORGE.App.BaselineHeading"}}</h2>
+    <p>{{localize "NPCFORGE.App.BaselineText"}}</p>
+    <label>{{localize "NPCFORGE.Fields.Level"}}<input type="number" name="level" value="3" min="-1" max="25"></label>
+    <label>{{localize "NPCFORGE.Fields.Ancestry"}}
+      <select name="ancestry"><option value="core.human">{{localize "NPCFORGE.Content.Ancestry.Human"}}</option><option value="core.dwarf">{{localize "NPCFORGE.Content.Ancestry.Dwarf"}}</option></select>
+    </label>
+    <label>{{localize "NPCFORGE.Fields.ClassProfile"}}
+      <select name="classProfile"><option value="core.fighter">{{localize "NPCFORGE.Content.ClassProfile.Fighter"}}</option></select>
+    </label>
+    <label>{{localize "NPCFORGE.Fields.Profession"}}
+      <select name="profession">
+        <option value="core.guard">{{localize "NPCFORGE.Content.Profession.Guard"}}</option>
+        <option value="core.blacksmith">{{localize "NPCFORGE.Content.Profession.Blacksmith"}}</option>
+        <option value="core.thief">{{localize "NPCFORGE.Content.Profession.Thief"}}</option>
+        <option value="core.highwayman">{{localize "NPCFORGE.Content.Profession.Highwayman"}}</option>
+        <option value="core.assassin">{{localize "NPCFORGE.Content.Profession.Assassin"}}</option>
+      </select>
+    </label>
+    <div class="npc-forge-actions"><button type="button" data-action="generate"><i class="fa-solid fa-dice"></i> {{localize "NPCFORGE.Controls.Generate"}}</button></div>
+  </form>
+
+  <section class="npc-forge-preview">
+    {{#if hasPreview}}
+      <h2>{{preview.identity.name}}</h2>
+      <p>{{preview.build.profession.id}} · {{preview.build.classProfile.id}} · {{localize "NPCFORGE.Fields.Level"}} {{preview.build.level}}</p>
+      <div class="npc-forge-statline"><span>AC {{preview.statistics.ac}}</span><span>HP {{preview.statistics.hp}}</span><span>Perception +{{preview.statistics.perception}}</span></div>
+      <h3>{{localize "NPCFORGE.Fields.Skills"}}</h3>
+      <ul>{{#each preview.skills}}<li>{{slug}} +{{modifier}}</li>{{/each}}</ul>
+      <h3>{{localize "NPCFORGE.Fields.Attacks"}}</h3>
+      <ul>{{#each preview.attacks}}<li>{{label}} +{{modifier}} ({{damage.formula}} {{damage.type}})</li>{{/each}}</ul>
+      <button type="button" data-action="createActor"><i class="fa-solid fa-user-plus"></i> {{localize "NPCFORGE.Controls.CreateActor"}}</button>
+    {{else}}
+      <div class="npc-forge-empty">{{localize "NPCFORGE.App.NoPreview"}}</div>
+    {{/if}}
+  </section>
+</div>
