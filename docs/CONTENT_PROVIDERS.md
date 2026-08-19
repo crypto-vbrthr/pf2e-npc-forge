@@ -142,3 +142,10 @@ Automatic generation ignores packs that do not support the requested locale unle
 Appearance is content-driven. Register one or more `appearancePacks`; each pack owns a list of semantic physical traits. Keep IDs namespaced to your module and provide localization keys rather than localized strings when possible. Traits should describe observable appearance, not hidden personality or mechanical penalties.
 
 The engine treats these traits as descriptive by default. A scar, heavy build, limp, wrinkles, or other feature does not change combat statistics unless another explicit content provider does so.
+
+
+## Personality content providers
+
+Use `api.content.registerPersonalityPack(moduleId, definition)` to add localized, weighted personality material. Personality packs are UI-independent and are consumed directly by the NPC Engine. Keep visible text behind localization keys where possible.
+
+Personality traits use one of six categories: demeanor, trait, motivation, flaw, quirk, or secret. Contextual fields such as `preferredTags` and `requiresTags` allow a pack to favor material appropriate to professions, classes, roles, or other content tags without hard-coding those relationships into the engine.

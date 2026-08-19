@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 – Personality & Roleplaying
+
+- Added structured, deterministic personality generation.
+- Added demeanor, traits, motivation, weakness, quirk, and optional secret.
+- Added a table-facing roleplaying kit for first impression, conversation, pressure behavior, and driving goal.
+- Added context-aware personality weighting using existing ancestry, profession, class, role, and age metadata.
+- Added external personality pack registration through the public content API.
+- Added standalone editor controls and Creature-Forge-aligned personality preview.
+- Added PF2e adapter persistence; secrets are stored in private GM notes.
+- Added EN/DE localization and regression tests.
+
+
 ## 0.5.4 - Appearance & Physical Traits
 
 - Added deterministic, optional physical appearance generation to the neutral NPC Engine.

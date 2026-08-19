@@ -92,3 +92,13 @@
 .npc-forge-checkbox-row input[type="checkbox"] { width:auto; flex:0 0 auto; margin:0; }
 .npc-forge-appearance-row > span { opacity:0.72; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; }
 .npc-forge-appearance-row > strong { text-align:right; }
+
+/* 0.6.0 personality & roleplaying */
+.npc-forge-personality-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0.55rem; }
+.npc-forge-personality-tile { padding:0.65rem 0.75rem; border:1px solid color-mix(in srgb, var(--color-border-light-primary) 60%, transparent); border-radius:6px; background:color-mix(in srgb, var(--color-bg-option,#1c1c1c) 72%, transparent); }
+.npc-forge-personality-tile > span { display:block; font-size:0.76rem; font-weight:750; text-transform:uppercase; opacity:0.68; margin-bottom:0.22rem; }
+.npc-forge-personality-tile > strong { font-size:1rem; }
+.npc-forge-personality-tile > p { margin:0.32rem 0 0; opacity:0.78; line-height:1.35; }
+.npc-forge-personality-secret { border-style:dashed; }
+.npc-forge-subheading { margin:0.8rem 0 0.4rem; font-size:1rem; opacity:0.82; }
+@media (max-width:620px) { .npc-forge-personality-grid { grid-template-columns:1fr; } }

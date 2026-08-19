@@ -46,7 +46,11 @@ export function normalizeRequest(request = {}) {
       allowPosture: request.appearance?.allowPosture !== false,
       maxTraits: Number.isInteger(request.appearance?.maxTraits) ? Math.max(1, Math.min(6, request.appearance.maxTraits)) : null
     },
-    personality: { enabled: request.personality?.enabled !== false },
+    personality: {
+      enabled: request.personality?.enabled !== false,
+      intensity: ["low", "medium", "high"].includes(request.personality?.intensity) ? request.personality.intensity : "medium",
+      allowSecrets: request.personality?.allowSecrets !== false
+    },
     inventory: {
       enabled: request.inventory?.enabled !== false,
       personalItems: request.inventory?.personalItems === true,

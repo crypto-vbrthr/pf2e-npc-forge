@@ -11,6 +11,7 @@ import { buildInventory, buildAncestryAttacks } from "./builders/inventory-build
 import { buildIdentity, resolveGender } from "./builders/identity-builder.js";
 import { generateNameData } from "./names/name-generator.js";
 import { buildAppearance } from "./builders/appearance-builder.js";
+import { buildPersonality } from "./builders/personality-builder.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -82,6 +83,18 @@ export class NpcEngine {
       registry: this.registry
     });
 
+    const personality = buildPersonality({
+      request: normalized.personality,
+      ancestry,
+      profession,
+      professionSpecialization,
+      classProfile,
+      role,
+      age: identity.age,
+      resolver,
+      registry: this.registry
+    });
+
     const npc = {
       schemaVersion: SCHEMA_VERSION,
       generation: {
@@ -99,7 +112,7 @@ export class NpcEngine {
         professionCategory: profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null,
         role
       },
-      personality: normalized.personality.enabled ? { generated: false, traits: [] } : null,
+      personality,
       statistics,
       skills,
       abilities,

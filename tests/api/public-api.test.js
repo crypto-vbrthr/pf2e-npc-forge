@@ -44,3 +44,13 @@ test("public API exposes appearance pack registration", () => {
   assert.ok(api.capabilities.has("appearance-pack-registration"));
   assert.ok(api.capabilities.has("appearance-generation"));
 });
+
+test("public API exposes personality pack registration and roleplaying capabilities", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  api.content.registerPersonalityPack("personality-addon", { id: "personality-addon.pack", traits: [{ id: "personality-addon.trait", category: "trait", label: "Distinct" }] });
+  assert.equal(api.content.get("personalityPacks", "personality-addon.pack").sourceModule, "personality-addon");
+  assert.ok(api.capabilities.has("personality-pack-registration"));
+  assert.ok(api.capabilities.has("personality-generation"));
+  assert.ok(api.capabilities.has("roleplaying-kit"));
+});

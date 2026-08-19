@@ -155,3 +155,14 @@ test("adapter preserves semantic appearance provenance in actor flags", () => {
   assert.deepEqual(source.flags["pf2e-npc-forge"].appearanceTraitIds, npc.identity.appearance.traits.map((trait) => trait.id));
   assert.match(source.system.details.publicNotes, /Appearance|Erscheinung/);
 });
+
+test("adapter writes generated personality to public notes and keeps secrets private", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const npc = new NpcEngine({ registry }).generate({ seed: "personality-adapter", personality: { enabled: true, allowSecrets: true } });
+  const source = new Pf2eDocumentAdapter().toActorSource(npc);
+  assert.ok(source.flags["pf2e-npc-forge"].personality.demeanorId);
+  assert.deepEqual(source.flags["pf2e-npc-forge"].personality.traitIds, npc.personality.traits.map((trait) => trait.id));
+  assert.match(source.system.details.publicNotes, /Personality|Persönlichkeit|NPCFORGE\.Sections\.Personality/);
+  assert.ok(source.system.details.privateNotes.length > 0);
+  assert.ok(!source.system.details.publicNotes.includes(npc.personality.secret?.id ?? "__never__"));
+});

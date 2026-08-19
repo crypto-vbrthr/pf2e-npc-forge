@@ -96,6 +96,30 @@ function presentAppearance(appearance, localize) {
   };
 }
 
+
+function presentPersonality(personality, localize) {
+  if (!personality?.generated) return null;
+  const show = (entry) => entry ? {
+    id: entry.id,
+    displayName: entry.labelKey ? localize(entry.labelKey) : (entry.label ?? entry.id),
+    displayDescription: entry.descriptionKey ? localize(entry.descriptionKey) : (entry.description ?? "")
+  } : null;
+  return {
+    demeanor: show(personality.demeanor),
+    traits: (personality.traits ?? []).map(show).filter(Boolean),
+    motivation: show(personality.motivation),
+    flaw: show(personality.flaw),
+    quirk: show(personality.quirk),
+    secret: show(personality.secret),
+    roleplaying: {
+      firstImpression: personality.roleplaying?.firstImpressionKey ? localize(personality.roleplaying.firstImpressionKey) : "",
+      conversation: personality.roleplaying?.conversationKey ? localize(personality.roleplaying.conversationKey) : "",
+      underPressure: personality.roleplaying?.underPressureKey ? localize(personality.roleplaying.underPressureKey) : "",
+      drivingGoal: personality.roleplaying?.drivingGoalKey ? localize(personality.roleplaying.drivingGoalKey) : ""
+    }
+  };
+}
+
 export function presentNpc(npc, localize = (key) => key) {
   if (!npc) return null;
   const profession = localizeDefinition(npc.build?.profession, localize);
@@ -183,7 +207,8 @@ export function presentNpc(npc, localize = (key) => key) {
     skills,
     inventory,
     attacks,
-    abilities
+    abilities,
+    personality: presentPersonality(npc.personality, localize)
   };
 }
 

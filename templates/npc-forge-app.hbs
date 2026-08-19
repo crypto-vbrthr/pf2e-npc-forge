@@ -66,6 +66,17 @@
     </details>
 
     <details class="npc-forge-section">
+      <summary>{{localize "NPCFORGE.Sections.Personality"}}</summary>
+      <div class="npc-forge-section-body npc-forge-form-grid">
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Personality.Generate"}}</span><input type="checkbox" name="personalityEnabled" {{#if personalityEnabled}}checked{{/if}}></label>
+        <label>{{localize "NPCFORGE.Personality.Intensity"}}
+          <select name="personalityIntensity">{{#each personalityIntensityOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+        </label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Personality.AllowSecrets"}}</span><input type="checkbox" name="personalityAllowSecrets" {{#if personalityAllowSecrets}}checked{{/if}}></label>
+      </div>
+    </details>
+
+    <details class="npc-forge-section">
       <summary>{{localize "NPCFORGE.Sections.Appearance"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.Generate"}}</span><input type="checkbox" name="appearanceEnabled" {{#if appearanceEnabled}}checked{{/if}}></label>
@@ -117,6 +128,27 @@
           {{#each view.identity.appearance.traits}}
             <div class="npc-forge-sheet-list-row npc-forge-appearance-row"><span>{{displayCategory}}</span><strong>{{displayName}}</strong></div>
           {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
+      {{#if view.personality}}
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Personality"}}</h2>
+        <div class="npc-forge-personality-grid">
+          {{#if view.personality.demeanor}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Demeanor"}}</span><strong>{{view.personality.demeanor.displayName}}</strong><p>{{view.personality.demeanor.displayDescription}}</p></article>{{/if}}
+          {{#if view.personality.motivation}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Motivation"}}</span><strong>{{view.personality.motivation.displayName}}</strong><p>{{view.personality.motivation.displayDescription}}</p></article>{{/if}}
+          {{#if view.personality.traits.length}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Trait"}}</span><strong>{{#each view.personality.traits}}{{displayName}}{{#unless @last}}, {{/unless}}{{/each}}</strong></article>{{/if}}
+          {{#if view.personality.flaw}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Flaw"}}</span><strong>{{view.personality.flaw.displayName}}</strong><p>{{view.personality.flaw.displayDescription}}</p></article>{{/if}}
+          {{#if view.personality.quirk}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Quirk"}}</span><strong>{{view.personality.quirk.displayName}}</strong><p>{{view.personality.quirk.displayDescription}}</p></article>{{/if}}
+          {{#if view.personality.secret}}<article class="npc-forge-personality-tile npc-forge-personality-secret"><span>{{localize "NPCFORGE.Personality.Category.Secret"}}</span><strong>{{view.personality.secret.displayName}}</strong><p>{{view.personality.secret.displayDescription}}</p></article>{{/if}}
+        </div>
+        <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Personality.RoleplayingKit"}}</h3>
+        <div class="npc-forge-sheet-list">
+          <div class="npc-forge-sheet-entry"><header><strong>{{localize "NPCFORGE.Personality.FirstImpression"}}</strong></header><p>{{view.personality.roleplaying.firstImpression}}</p></div>
+          <div class="npc-forge-sheet-entry"><header><strong>{{localize "NPCFORGE.Personality.InConversation"}}</strong></header><p>{{view.personality.roleplaying.conversation}}</p></div>
+          <div class="npc-forge-sheet-entry"><header><strong>{{localize "NPCFORGE.Personality.UnderPressure"}}</strong></header><p>{{view.personality.roleplaying.underPressure}}</p></div>
+          <div class="npc-forge-sheet-entry"><header><strong>{{localize "NPCFORGE.Personality.DrivingGoal"}}</strong></header><p>{{view.personality.roleplaying.drivingGoal}}</p></div>
         </div>
       </section>
       {{/if}}

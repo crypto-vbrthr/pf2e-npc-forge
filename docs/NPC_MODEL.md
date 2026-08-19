@@ -101,3 +101,9 @@ When enabled, 0.5.4 adds a structured appearance record:
 ```
 
 Consumers should use `id`/`category` for logic and render `labelKey` through the active locale.
+
+## Personality model (schema 7)
+
+`npc.personality` is either `null` or a structured generated personality object. It contains semantic entries for `demeanor`, `traits`, `motivation`, `flaw`, `quirk`, and optional `secret`, plus a derived `roleplaying` object. Visible strings remain localization-layer concerns; engine data stores stable IDs and localization keys.
+
+The roleplaying object provides immediate table-facing guidance for first impression, normal conversation, behavior under pressure, and driving goal. Consumers should treat `secret` as GM-private information unless the user explicitly chooses otherwise.

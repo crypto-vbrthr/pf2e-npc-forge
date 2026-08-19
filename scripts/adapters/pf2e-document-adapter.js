@@ -179,12 +179,32 @@ export class Pf2eDocumentAdapter {
     const appearance = npc.identity.appearance?.generated
       ? (npc.identity.appearance.traits ?? []).map((trait) => trait.labelKey ? localized(trait.labelKey, trait.label ?? trait.id) : (trait.label ?? trait.id)).join(", ")
       : "";
+    const personalityLabel = (entry) => entry?.labelKey ? localized(entry.labelKey, entry.label ?? entry.id) : (entry?.label ?? entry?.id ?? "");
+    const personalityDescription = (entry) => entry?.descriptionKey ? localized(entry.descriptionKey, entry.description ?? "") : (entry?.description ?? "");
+    const personalityBits = npc.personality?.generated ? [
+      npc.personality.demeanor ? `${localized("NPCFORGE.Personality.Category.Demeanor", "Demeanor")}: ${personalityLabel(npc.personality.demeanor)}` : "",
+      npc.personality.traits?.length ? `${localized("NPCFORGE.Personality.Category.Trait", "Traits")}: ${npc.personality.traits.map(personalityLabel).join(", ")}` : "",
+      npc.personality.motivation ? `${localized("NPCFORGE.Personality.Category.Motivation", "Motivation")}: ${personalityLabel(npc.personality.motivation)}` : "",
+      npc.personality.flaw ? `${localized("NPCFORGE.Personality.Category.Flaw", "Weakness")}: ${personalityLabel(npc.personality.flaw)}` : "",
+      npc.personality.quirk ? `${localized("NPCFORGE.Personality.Category.Quirk", "Quirk")}: ${personalityLabel(npc.personality.quirk)}` : ""
+    ].filter(Boolean) : [];
+    const roleplayingBits = npc.personality?.generated ? [
+      npc.personality.demeanor ? `<strong>${localized("NPCFORGE.Personality.FirstImpression", "First impression")}:</strong> ${personalityDescription(npc.personality.demeanor)}` : "",
+      npc.personality.quirk ? `<strong>${localized("NPCFORGE.Personality.InConversation", "In conversation")}:</strong> ${personalityDescription(npc.personality.quirk)}` : "",
+      npc.personality.flaw ? `<strong>${localized("NPCFORGE.Personality.UnderPressure", "Under pressure")}:</strong> ${personalityDescription(npc.personality.flaw)}` : "",
+      npc.personality.motivation ? `<strong>${localized("NPCFORGE.Personality.DrivingGoal", "Driving goal")}:</strong> ${personalityDescription(npc.personality.motivation)}` : ""
+    ].filter(Boolean) : [];
     const publicNotes = [
       `<p><strong>${identityBits}</strong></p>`,
       `<p>${localized("NPCFORGE.Fields.Age", "Age")}: ${npc.identity.age?.years ?? "–"} · ${localized("NPCFORGE.Fields.Gender", "Gender")}: ${localized(`NPCFORGE.Identity.Gender${String(npc.identity.gender ?? "").replace(/^./, c => c.toUpperCase())}`, npc.identity.gender ?? "–")}</p>`,
       appearance ? `<p><strong>${localized("NPCFORGE.Fields.Appearance", "Appearance")}:</strong> ${appearance}</p>` : "",
+      personalityBits.length ? `<p><strong>${localized("NPCFORGE.Sections.Personality", "Personality & Roleplaying")}:</strong> ${personalityBits.join(" · ")}</p>` : "",
+      roleplayingBits.length ? `<p>${roleplayingBits.join("<br>")}</p>` : "",
       lore.length ? `<p><strong>${localized("NPCFORGE.Fields.Lore", "Lore")}:</strong> ${lore.join(", ")}</p>` : ""
     ].filter(Boolean).join("");
+    const privateNotes = npc.personality?.secret
+      ? `<p><strong>${localized("NPCFORGE.Personality.Category.Secret", "Secret")}:</strong> ${personalityLabel(npc.personality.secret)}. ${personalityDescription(npc.personality.secret)}</p>`
+      : "";
 
     return {
       name: npc.identity?.nameParts ? renderGeneratedName(npc.identity.nameParts, (key) => localized(key, key)) : npc.identity.name,
@@ -192,7 +212,7 @@ export class Pf2eDocumentAdapter {
       folder,
       system: {
         abilities: attributeSource(npc.statistics.attributes),
-        details: { level: { value: npc.build.level }, publicNotes, privateNotes: "" },
+        details: { level: { value: npc.build.level }, publicNotes, privateNotes },
         traits: { value: [...(npc.identity.traits ?? [])], rarity: npc.identity.ancestry?.rarity ?? "common", size: { value: npc.identity.size ?? "med" }, languages: { value: [...(npc.identity.languages ?? [])] } },
         attributes: {
           ac: { value: npc.statistics.ac },
@@ -218,6 +238,14 @@ export class Pf2eDocumentAdapter {
           ageCategory: npc.identity.age?.category ?? null,
           ageYears: npc.identity.age?.years ?? null,
           appearanceTraitIds: (npc.identity.appearance?.traits ?? []).map((trait) => trait.id),
+          personality: npc.personality?.generated ? {
+            demeanorId: npc.personality.demeanor?.id ?? null,
+            traitIds: (npc.personality.traits ?? []).map((trait) => trait.id),
+            motivationId: npc.personality.motivation?.id ?? null,
+            flawId: npc.personality.flaw?.id ?? null,
+            quirkId: npc.personality.quirk?.id ?? null,
+            secretId: npc.personality.secret?.id ?? null
+          } : null,
           classProfileId: npc.build.classProfile?.id ?? null,
           classSpecializationId: npc.build.classSpecialization?.id ?? null,
           professionId: npc.build.profession?.id ?? null,

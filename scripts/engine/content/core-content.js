@@ -392,6 +392,69 @@ export function registerCoreContent(registry) {
   ];
   for (const pack of namePacks) registry.register("namePacks", source, { ...pack, weight: 10 });
 
+  registry.register("personalityPacks", source, {
+    id: "core.personality.general",
+    labelKey: "NPCFORGE.Personality.Packs.General",
+    weight: 10,
+    traits: [
+      { id:"core.personality.demeanor.reserved", category:"demeanor", labelKey:"NPCFORGE.Personality.Traits.Reserved.Name", descriptionKey:"NPCFORGE.Personality.Traits.Reserved.Description", weight:9, preferredTags:["scholar","knowledge"] },
+      { id:"core.personality.demeanor.warm", category:"demeanor", labelKey:"NPCFORGE.Personality.Traits.Warm.Name", descriptionKey:"NPCFORGE.Personality.Traits.Warm.Description", weight:8, preferredTags:["support","medical","social"] },
+      { id:"core.personality.demeanor.stern", category:"demeanor", labelKey:"NPCFORGE.Personality.Traits.Stern.Name", descriptionKey:"NPCFORGE.Personality.Traits.Stern.Description", weight:8, preferredTags:["military","martial","leader"] },
+      { id:"core.personality.demeanor.alert", category:"demeanor", labelKey:"NPCFORGE.Personality.Traits.Alert.Name", descriptionKey:"NPCFORGE.Personality.Traits.Alert.Description", weight:7, preferredTags:["criminal","wilderness","military"] },
+      { id:"core.personality.demeanor.cheerful", category:"demeanor", labelKey:"NPCFORGE.Personality.Traits.Cheerful.Name", descriptionKey:"NPCFORGE.Personality.Traits.Cheerful.Description", weight:6, preferredTags:["entertainment","social"] },
+      { id:"core.personality.demeanor.weary", category:"demeanor", labelKey:"NPCFORGE.Personality.Traits.Weary.Name", descriptionKey:"NPCFORGE.Personality.Traits.Weary.Description", weight:5, preferredTags:["labor","veteran","maritime"] },
+
+      { id:"core.personality.trait.practical", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Practical.Name", descriptionKey:"NPCFORGE.Personality.Traits.Practical.Description", weight:9, preferredTags:["artisan","labor","medical"] },
+      { id:"core.personality.trait.loyal", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Loyal.Name", descriptionKey:"NPCFORGE.Personality.Traits.Loyal.Description", weight:8, preferredTags:["military","support"] },
+      { id:"core.personality.trait.curious", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Curious.Name", descriptionKey:"NPCFORGE.Personality.Traits.Curious.Description", weight:8, preferredTags:["scholar","knowledge","arcane"] },
+      { id:"core.personality.trait.patient", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Patient.Name", descriptionKey:"NPCFORGE.Personality.Traits.Patient.Description", weight:7, preferredTags:["artisan","medical","scholar"] },
+      { id:"core.personality.trait.ambitious", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Ambitious.Name", descriptionKey:"NPCFORGE.Personality.Traits.Ambitious.Description", weight:6, preferredTags:["leader","social","criminal"] },
+      { id:"core.personality.trait.generous", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Generous.Name", descriptionKey:"NPCFORGE.Personality.Traits.Generous.Description", weight:6, preferredTags:["support","religious","social"] },
+      { id:"core.personality.trait.suspicious", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Suspicious.Name", descriptionKey:"NPCFORGE.Personality.Traits.Suspicious.Description", weight:6, preferredTags:["criminal","military","wilderness"] },
+      { id:"core.personality.trait.disciplined", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Disciplined.Name", descriptionKey:"NPCFORGE.Personality.Traits.Disciplined.Description", weight:7, preferredTags:["military","martial","monk"] },
+      { id:"core.personality.trait.witty", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Witty.Name", descriptionKey:"NPCFORGE.Personality.Traits.Witty.Description", weight:5, preferredTags:["entertainment","social","finesse"] },
+      { id:"core.personality.trait.compassionate", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Compassionate.Name", descriptionKey:"NPCFORGE.Personality.Traits.Compassionate.Description", weight:7, preferredTags:["medical","support","divine"] },
+      { id:"core.personality.trait.stubborn", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Stubborn.Name", descriptionKey:"NPCFORGE.Personality.Traits.Stubborn.Description", weight:6, preferredTags:["labor","martial"] },
+      { id:"core.personality.trait.meticulous", category:"trait", labelKey:"NPCFORGE.Personality.Traits.Meticulous.Name", descriptionKey:"NPCFORGE.Personality.Traits.Meticulous.Description", weight:6, preferredTags:["craft","scholar","investigator"] },
+
+      { id:"core.personality.motivation.family", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Family.Name", descriptionKey:"NPCFORGE.Personality.Traits.Family.Description", weight:10 },
+      { id:"core.personality.motivation.duty", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Duty.Name", descriptionKey:"NPCFORGE.Personality.Traits.Duty.Description", weight:8, preferredTags:["military","religious","leader"] },
+      { id:"core.personality.motivation.wealth", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Wealth.Name", descriptionKey:"NPCFORGE.Personality.Traits.Wealth.Description", weight:7, preferredTags:["trade","criminal"] },
+      { id:"core.personality.motivation.knowledge", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Knowledge.Name", descriptionKey:"NPCFORGE.Personality.Traits.Knowledge.Description", weight:7, preferredTags:["scholar","knowledge","arcane"] },
+      { id:"core.personality.motivation.recognition", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Recognition.Name", descriptionKey:"NPCFORGE.Personality.Traits.Recognition.Description", weight:5, preferredTags:["entertainment","leader","social"] },
+      { id:"core.personality.motivation.faith", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Faith.Name", descriptionKey:"NPCFORGE.Personality.Traits.Faith.Description", weight:6, preferredTags:["divine","religious"] },
+      { id:"core.personality.motivation.freedom", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Freedom.Name", descriptionKey:"NPCFORGE.Personality.Traits.Freedom.Description", weight:5, preferredTags:["criminal","maritime","wilderness"] },
+      { id:"core.personality.motivation.redemption", category:"motivation", labelKey:"NPCFORGE.Personality.Traits.Redemption.Name", descriptionKey:"NPCFORGE.Personality.Traits.Redemption.Description", weight:3, preferredTags:["criminal","veteran"] },
+
+      { id:"core.personality.flaw.pride", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Pride.Name", descriptionKey:"NPCFORGE.Personality.Traits.Pride.Description", weight:7, preferredTags:["leader","martial","artisan"] },
+      { id:"core.personality.flaw.impatient", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Impatient.Name", descriptionKey:"NPCFORGE.Personality.Traits.Impatient.Description", weight:7, preferredTags:["mobile","rage"] },
+      { id:"core.personality.flaw.greedy", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Greedy.Name", descriptionKey:"NPCFORGE.Personality.Traits.Greedy.Description", weight:5, preferredTags:["trade","criminal"] },
+      { id:"core.personality.flaw.gullible", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Gullible.Name", descriptionKey:"NPCFORGE.Personality.Traits.Gullible.Description", weight:4, avoidsTags:["criminal","investigator"] },
+      { id:"core.personality.flaw.cowardly", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Cowardly.Name", descriptionKey:"NPCFORGE.Personality.Traits.Cowardly.Description", weight:3, avoidsTags:["martial","military"] },
+      { id:"core.personality.flaw.vindictive", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Vindictive.Name", descriptionKey:"NPCFORGE.Personality.Traits.Vindictive.Description", weight:4, preferredTags:["criminal","martial"] },
+      { id:"core.personality.flaw.rigid", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Rigid.Name", descriptionKey:"NPCFORGE.Personality.Traits.Rigid.Description", weight:6, preferredTags:["military","religious","scholar"] },
+      { id:"core.personality.flaw.reckless", category:"flaw", labelKey:"NPCFORGE.Personality.Traits.Reckless.Name", descriptionKey:"NPCFORGE.Personality.Traits.Reckless.Description", weight:5, preferredTags:["rage","maritime","criminal"] },
+
+      { id:"core.personality.quirk.proverbs", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.Proverbs.Name", descriptionKey:"NPCFORGE.Personality.Traits.Proverbs.Description", weight:6 },
+      { id:"core.personality.quirk.coin", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.Coin.Name", descriptionKey:"NPCFORGE.Personality.Traits.Coin.Description", weight:4, preferredTags:["trade","criminal"] },
+      { id:"core.personality.quirk.hands", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.BusyHands.Name", descriptionKey:"NPCFORGE.Personality.Traits.BusyHands.Description", weight:6, preferredTags:["artisan","craft"] },
+      { id:"core.personality.quirk.notes", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.Notes.Name", descriptionKey:"NPCFORGE.Personality.Traits.Notes.Description", weight:5, preferredTags:["scholar","investigator"] },
+      { id:"core.personality.quirk.eyecontact", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.EyeContact.Name", descriptionKey:"NPCFORGE.Personality.Traits.EyeContact.Description", weight:5, preferredTags:["criminal","reserved"] },
+      { id:"core.personality.quirk.animals", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.Animals.Name", descriptionKey:"NPCFORGE.Personality.Traits.Animals.Description", weight:5, preferredTags:["wilderness","rural"] },
+      { id:"core.personality.quirk.cleaning", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.Cleaning.Name", descriptionKey:"NPCFORGE.Personality.Traits.Cleaning.Description", weight:4, preferredTags:["medical","meticulous"] },
+      { id:"core.personality.quirk.humming", category:"quirk", labelKey:"NPCFORGE.Personality.Traits.Humming.Name", descriptionKey:"NPCFORGE.Personality.Traits.Humming.Description", weight:4, preferredTags:["entertainment"] },
+
+      { id:"core.personality.secret.debt", category:"secret", labelKey:"NPCFORGE.Personality.Traits.Debt.Name", descriptionKey:"NPCFORGE.Personality.Traits.Debt.Description", weight:8, preferredTags:["trade","criminal"] },
+      { id:"core.personality.secret.crime", category:"secret", labelKey:"NPCFORGE.Personality.Traits.HiddenCrime.Name", descriptionKey:"NPCFORGE.Personality.Traits.HiddenCrime.Description", weight:5, preferredTags:["criminal"] },
+      { id:"core.personality.secret.informant", category:"secret", labelKey:"NPCFORGE.Personality.Traits.Informant.Name", descriptionKey:"NPCFORGE.Personality.Traits.Informant.Description", weight:4, preferredTags:["criminal","military","social"] },
+      { id:"core.personality.secret.forbidden-love", category:"secret", labelKey:"NPCFORGE.Personality.Traits.ForbiddenLove.Name", descriptionKey:"NPCFORGE.Personality.Traits.ForbiddenLove.Description", weight:5 },
+      { id:"core.personality.secret.false-identity", category:"secret", labelKey:"NPCFORGE.Personality.Traits.FalseIdentity.Name", descriptionKey:"NPCFORGE.Personality.Traits.FalseIdentity.Description", weight:3, preferredTags:["criminal","social"] },
+      { id:"core.personality.secret.failure", category:"secret", labelKey:"NPCFORGE.Personality.Traits.HiddenFailure.Name", descriptionKey:"NPCFORGE.Personality.Traits.HiddenFailure.Description", weight:6, preferredTags:["veteran","leader","artisan"] },
+      { id:"core.personality.secret.heresy", category:"secret", labelKey:"NPCFORGE.Personality.Traits.Heresy.Name", descriptionKey:"NPCFORGE.Personality.Traits.Heresy.Description", weight:3, preferredTags:["religious","divine"] },
+      { id:"core.personality.secret.stolen-item", category:"secret", labelKey:"NPCFORGE.Personality.Traits.StolenItem.Name", descriptionKey:"NPCFORGE.Personality.Traits.StolenItem.Description", weight:4, preferredTags:["criminal","trade"] }
+    ]
+  });
+
   registry.register("appearancePacks", source, {
     id: "core.appearance.general",
     labelKey: "NPCFORGE.Appearance.Packs.General",

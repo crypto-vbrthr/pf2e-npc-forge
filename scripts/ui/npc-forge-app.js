@@ -32,7 +32,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     super(options);
     this.api = api;
     this.targetFolderId = targetFolderId;
-    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary", identity: { name: null, generateName: true, gender: "random", ageCategory: "random" }, appearance: { enabled: true, intensity: "medium", allowScars: true, allowAgeFeatures: true, allowBodyShape: true, allowPosture: true } };
+    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary", identity: { name: null, generateName: true, gender: "random", ageCategory: "random" }, appearance: { enabled: true, intensity: "medium", allowScars: true, allowAgeFeatures: true, allowBodyShape: true, allowPosture: true }, personality: { enabled: true, intensity: "medium", allowSecrets: true } };
     this.preview = null;
     this._pendingPreviewScrollTop = null;
   }
@@ -79,6 +79,13 @@ export class NpcForgeApp extends HandlebarsApplication {
         { value: "low", labelKey: "NPCFORGE.Appearance.IntensityLow", selected: (this.request.appearance?.intensity ?? "medium") === "low" },
         { value: "medium", labelKey: "NPCFORGE.Appearance.IntensityMedium", selected: (this.request.appearance?.intensity ?? "medium") === "medium" },
         { value: "high", labelKey: "NPCFORGE.Appearance.IntensityHigh", selected: (this.request.appearance?.intensity ?? "medium") === "high" }
+      ],
+      personalityEnabled: this.request.personality?.enabled !== false,
+      personalityAllowSecrets: this.request.personality?.allowSecrets !== false,
+      personalityIntensityOptions: [
+        { value: "low", labelKey: "NPCFORGE.Personality.IntensityLow", selected: (this.request.personality?.intensity ?? "medium") === "low" },
+        { value: "medium", labelKey: "NPCFORGE.Personality.IntensityMedium", selected: (this.request.personality?.intensity ?? "medium") === "medium" },
+        { value: "high", labelKey: "NPCFORGE.Personality.IntensityHigh", selected: (this.request.personality?.intensity ?? "medium") === "high" }
       ],
       ageOptions: [
         { value: "random", labelKey: "NPCFORGE.Fields.Automatic", selected: (this.request.identity?.ageCategory ?? "random") === "random" },
@@ -142,6 +149,12 @@ export class NpcForgeApp extends HandlebarsApplication {
           allowAgeFeatures: data.get("appearanceAllowAgeFeatures") === "on",
           allowBodyShape: data.get("appearanceAllowBodyShape") === "on",
           allowPosture: data.get("appearanceAllowPosture") === "on"
+        },
+        personality: {
+          ...(this.request.personality ?? {}),
+          enabled: data.get("personalityEnabled") === "on",
+          intensity: String(data.get("personalityIntensity") ?? "medium"),
+          allowSecrets: data.get("personalityAllowSecrets") === "on"
         }
       };
       if (classChanged || categoryChanged || professionChanged || ancestryChanged) {

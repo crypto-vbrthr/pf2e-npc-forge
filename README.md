@@ -1,8 +1,14 @@
 # PF2E NPC Forge
 
-**Version 0.5.2 – Names & Localization**
+**Version 0.6.0 – Personality & Roleplaying**
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
+
+## 0.6.0 Personality & Roleplaying
+
+NPCs can now receive a deterministic, structured personality consisting of demeanor, character traits, motivation, weakness, quirk, and an optional secret. A roleplaying kit derives immediate table-facing guidance for first impression, conversation, behavior under pressure, and driving goal. Profession, class, role, ancestry, and age tags can influence weighted personality selection.
+
+The neutral model stores semantic personality IDs and the PF2e adapter writes public roleplaying information to public notes while keeping generated secrets in private GM notes. External modules can extend the system through `api.content.registerPersonalityPack()`.
 
 
 ### 0.5.4 Appearance & Physical Traits

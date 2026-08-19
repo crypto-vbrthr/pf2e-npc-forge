@@ -163,3 +163,42 @@ const npc = api.engine.generate({
   }
 });
 ```
+
+
+## Personality packs (0.6.0)
+
+External modules can add personality material without depending on the standalone UI:
+
+```js
+api.content.registerPersonalityPack("my-module", {
+  id: "my-module.city-personalities",
+  weight: 10,
+  traits: [
+    {
+      id: "my-module.cautious",
+      category: "trait",
+      labelKey: "MYMODULE.Personality.Cautious.Name",
+      descriptionKey: "MYMODULE.Personality.Cautious.Description",
+      weight: 5,
+      preferredTags: ["urban"]
+    }
+  ]
+});
+```
+
+Supported categories are `demeanor`, `trait`, `motivation`, `flaw`, `quirk`, and `secret`. Definitions may use `ancestryIds`, `professionIds`, `classProfileIds`, `ageCategories`, `requiresTags`, `excludesTags`, `preferredTags`, and `avoidsTags`.
+
+Generation request:
+
+```js
+const npc = api.engine.generate({
+  seed: "dockmaster-01",
+  personality: {
+    enabled: true,
+    intensity: "medium",
+    allowSecrets: true
+  }
+});
+```
+
+The generated neutral model exposes `npc.personality` plus a structured `roleplaying` section. Secrets are intended as GM information; the PF2e adapter places them in private notes.
