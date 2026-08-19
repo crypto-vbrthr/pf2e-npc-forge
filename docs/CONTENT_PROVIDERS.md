@@ -26,3 +26,63 @@ Supported tiers are `low`, `average`, `high`, and `extreme`; perception and save
 ## Profession hints
 
 Professions may provide `attributeBias`, `skillBias`, and `lore`. Profession bias can strengthen a class-profile preference but does not reduce it.
+
+## Profession categories and specializations
+
+A profession can belong to a broad category:
+
+```js
+api.content.registerProfessionCategory("my-module", {
+  id: "my-module.profession-category.maritime",
+  labelKey: "MYMODULE.Category.Maritime",
+  weight: 5
+});
+
+api.content.registerProfession("my-module", {
+  id: "my-module.harbor-pilot",
+  parentId: "my-module.profession-category.maritime",
+  labelKey: "MYMODULE.Profession.HarborPilot",
+  skillBias: { survival: "high", society: "average" },
+  lore: [{ slug: "harbor-lore", labelKey: "MYMODULE.Lore.Harbor", tier: "high" }],
+  equipmentProfileIds: ["my-module.harbor-pilot-gear"],
+  weight: 5
+});
+```
+
+Callers can request a weighted concrete child by using category mode:
+
+```js
+api.engine.generate({
+  profession: {
+    mode: "category",
+    id: "my-module.profession-category.maritime"
+  }
+});
+```
+
+Optional profession specializations use the profession id as their `parentId`.
+
+## Equipment profiles
+
+Equipment profiles are reusable, data-driven packages:
+
+```js
+api.content.registerEquipmentProfile("my-module", {
+  id: "my-module.harbor-pilot-gear",
+  items: [
+    {
+      id: "rope",
+      labelKey: "MYMODULE.Equipment.Rope",
+      packId: "pf2e.equipment-srd",
+      slug: "rope",
+      itemType: "equipment",
+      type: "equipment",
+      purpose: "professional",
+      minLevel: 0,
+      maxLevel: 20
+    }
+  ]
+});
+```
+
+At generation time these remain semantic inventory entries. During actor creation, the PF2e document adapter resolves them against the regular PF2e compendium and clones the real item. If a compendium entry is unavailable, actor creation degrades to a generated fallback source rather than aborting the NPC.

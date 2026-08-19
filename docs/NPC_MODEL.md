@@ -34,3 +34,27 @@ Inventory entries can include a semantic compendium reference without becoming F
 ```
 
 The local damage/trait fields are deliberate fallbacks and allow deterministic previews and graceful operation when Foundry or a target compendium is unavailable.
+
+## 0.4.0 profession and inventory fields
+
+`build.professionCategory`, `build.profession`, and `build.professionSpecialization` preserve the resolved occupation hierarchy.
+
+Inventory entries may contain:
+
+```js
+{
+  id: "guard-shield",
+  type: "shield",
+  purpose: "shield",
+  origin: "profession",
+  quantity: 1,
+  equipped: true,
+  compendium: {
+    packId: "pf2e.equipment-srd",
+    slug: "steel-shield",
+    itemType: "shield"
+  }
+}
+```
+
+Weapons remain linked to generated NPC attacks through `attack.sourceWeaponId`.

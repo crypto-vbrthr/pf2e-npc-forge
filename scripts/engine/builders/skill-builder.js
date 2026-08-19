@@ -28,11 +28,12 @@ function addSkill(map, slug, tier, source, extra = {}) {
   }
 }
 
-export function buildSkills({ level, classProfile, profession, role }) {
+export function buildSkills({ level, classProfile, profession, professionSpecialization, role }) {
   const map = new Map();
   for (const skill of classProfile?.preferredSkills ?? []) addSkill(map, skill, "high", `class:${classProfile.id}`);
   for (const [skill, bias] of Object.entries(classProfile?.skillBias ?? {})) addSkill(map, skill, bias, `class:${classProfile.id}`);
   for (const [skill, bias] of Object.entries(profession?.skillBias ?? {})) addSkill(map, skill, bias, `profession:${profession.id}`);
+  for (const [skill, bias] of Object.entries(professionSpecialization?.skillBias ?? {})) addSkill(map, skill, bias, `profession-specialization:${professionSpecialization.id}`);
   for (const [skill, bias] of Object.entries(role?.skillBias ?? {})) addSkill(map, skill, bias, `role:${role.id}`);
 
   for (const lore of profession?.lore ?? []) {

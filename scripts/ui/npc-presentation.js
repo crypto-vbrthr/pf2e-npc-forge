@@ -18,7 +18,23 @@ const SKILL_KEYS = {
   "legal-lore": "NPCFORGE.Lore.Legal",
   "blacksmithing-lore": "NPCFORGE.Lore.Blacksmithing",
   "underworld-lore": "NPCFORGE.Lore.Underworld",
-  "roads-lore": "NPCFORGE.Lore.Roads"
+  "roads-lore": "NPCFORGE.Lore.Roads",
+  "bureaucracy-lore": "NPCFORGE.Lore.Bureaucracy",
+  "carpentry-lore": "NPCFORGE.Lore.Carpentry",
+  "jewelry-lore": "NPCFORGE.Lore.Jewelry",
+  "warfare-lore": "NPCFORGE.Lore.Warfare",
+  "temple-lore": "NPCFORGE.Lore.Temple",
+  "academia-lore": "NPCFORGE.Lore.Academia",
+  "library-lore": "NPCFORGE.Lore.Library",
+  "mercantile-lore": "NPCFORGE.Lore.Mercantile",
+  "hospitality-lore": "NPCFORGE.Lore.Hospitality",
+  "farming-lore": "NPCFORGE.Lore.Farming",
+  "hunting-lore": "NPCFORGE.Lore.Hunting",
+  "sailing-lore": "NPCFORGE.Lore.Sailing",
+  "medicine-lore": "NPCFORGE.Lore.Medicine",
+  "apothecary-lore": "NPCFORGE.Lore.Apothecary",
+  "music-lore": "NPCFORGE.Lore.Music",
+  "theater-lore": "NPCFORGE.Lore.Theater"
 };
 
 const DAMAGE_KEYS = {
@@ -66,6 +82,7 @@ export function presentNpc(npc, localize = (key) => key) {
   const ancestry = localizeDefinition(npc.identity?.ancestry, localize);
   const role = localizeDefinition(npc.build?.role, localize);
   const classSpecialization = localizeDefinition(npc.build?.classSpecialization, localize);
+  const professionSpecialization = localizeDefinition(npc.build?.professionSpecialization, localize);
 
   const skills = (npc.skills ?? []).map((skill) => ({
     ...skill,
@@ -89,7 +106,9 @@ export function presentNpc(npc, localize = (key) => key) {
 
   const inventory = (npc.inventory ?? []).map((item) => ({
     ...item,
-    displayName: item.type === "weapon" ? localizeWeapon(item, localize) : (item.labelKey ? localize(item.labelKey) : (item.name ?? item.id))
+    displayName: item.type === "weapon" ? localizeWeapon(item, localize) : (item.labelKey ? localize(item.labelKey) : (item.name ?? item.id)),
+    displayType: localize(`NPCFORGE.InventoryTypes.${item.type === "unarmed" ? "Unarmed" : item.type === "weapon" ? "Weapon" : item.type === "armor" ? "Armor" : item.type === "shield" ? "Shield" : item.type === "consumable" ? "Consumable" : "Equipment"}`),
+    quantity: Number(item.quantity ?? 1)
   }));
 
   const abilities = (npc.abilities ?? []).map((ability) => ({
@@ -113,9 +132,10 @@ export function presentNpc(npc, localize = (key) => key) {
     profession,
     classProfile,
     classSpecialization,
+    professionSpecialization,
     role,
     level: npc.build?.level ?? 0,
-    identityLine: [ancestry, profession, classProfile, classSpecialization].filter(Boolean).join(" · "),
+    identityLine: [ancestry, profession, professionSpecialization, classProfile, classSpecialization].filter(Boolean).join(" · "),
     statistics: {
       ac: npc.statistics?.ac,
       hp: npc.statistics?.hp,

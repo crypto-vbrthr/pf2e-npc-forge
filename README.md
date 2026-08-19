@@ -1,19 +1,35 @@
 # PF2E NPC Forge
 
-**Version 0.3.5 – Preview Scroll Preservation Fix**
+**Version 0.4.0 – Profession System & Inventory**
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
 
-## 0.3.5 focus
+## 0.4.0 focus
 
-This maintenance release preserves the preview scroll position across class-driven rerenders and full preview regeneration. The fix is centralized in the standalone editor application so future UI refresh paths can reuse the same behavior instead of adding one-off patches.
+This release expands NPC Forge from class-driven combat profiles into broader world-facing NPC generation. Professions are now organized into categories, can expose optional specializations, and contribute skills, Lore, attributes, and equipment profiles.
 
-All class profiles, abilities, compendium-backed equipment, public API contracts, and embedded-editor behavior from 0.3.4 remain unchanged.
+Built-in categories now cover civic, artisan, criminal, military, religious, scholarly, mercantile, rural, maritime, medical, and entertainment professions. A request can target a concrete profession or ask the engine to select a weighted profession from a category.
 
-### Compendium-backed equipment
+### Profession equipment
 
-Generated weapon choices are semantic references until Foundry document creation. The PF2e document adapter resolves them against the regular `pf2e.equipment-srd` pack and clones the real PF2e weapon into the NPC actor. This preserves the weapon's normal PF2e data, including its price/value, traits, group, base item, and description. NPC strikes use the resolved weapon for identity and weapon traits, but NPC-level attack and damage scaling remains controlled by the NPC Engine. If the compendium cannot be resolved, actor creation falls back to the generated weapon source rather than failing.
+Professions can reference reusable equipment profiles. Equipment entries are semantic references to the regular PF2e equipment compendium and are resolved by the PF2e document adapter during actor creation. This allows generated NPCs to receive real armor, shields, tools, and adventuring gear with the normal PF2e item data and value.
 
+The engine keeps weapons and their NPC strikes linked through `sourceWeaponId`. NPC attack/damage scaling remains engine-owned while item identity and item metadata come from the PF2e compendium.
+
+Equipment profiles support `minLevel` and `maxLevel` gates and can be registered by external modules.
+
+### External content
+
+Add-ons can extend the system with:
+
+- profession categories
+- professions
+- profession specializations
+- equipment profiles
+- class profiles and class specializations
+- abilities and other registered NPC Forge content
+
+See `docs/CONTENT_PROVIDERS.md` and `docs/API.md`.
 
 ## Testing
 

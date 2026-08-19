@@ -7,7 +7,7 @@ import { deepClone } from "./utils.js";
 import { buildStatistics } from "./builders/statistics-builder.js";
 import { buildSkills } from "./builders/skill-builder.js";
 import { buildAbilities } from "./builders/ability-builder.js";
-import { ruleValue, ATTACK_BONUS } from "./rules/gm-core-tables.js";
+import { buildInventory } from "./builders/inventory-builder.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -33,41 +33,6 @@ function generateName(registry, resolver, ancestry, random) {
   return family ? `${given} ${family}` : given;
 }
 
-function generateBaselineLoadout(level, profession, classProfile) {
-  const isGuard = profession?.id === "core.guard";
-  const classId = classProfile?.id;
-  const isDexterityFocused = classProfile?.attributeTiers?.dex === "high" || profession?.attributeBias?.dex === "high";
-  const semanticWeapon = classId === "core.monk"
-    ? { name: "Fist", labelKey: "NPCFORGE.Weapons.Fist", slug: null, damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: ["agile", "finesse", "unarmed"] }
-    : ["core.barbarian", "core.champion"].includes(classId)
-      ? { name: "Longsword", labelKey: "NPCFORGE.Weapons.Longsword", slug: "longsword", damage: { dice: 1, die: "d8", type: "slashing" }, traits: ["versatile-p"] }
-      : classId === "core.swashbuckler"
-        ? { name: "Rapier", labelKey: "NPCFORGE.Weapons.Rapier", slug: "rapier", damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["deadly-d8", "disarm", "finesse"] }
-        : classId === "core.alchemist"
-          ? { name: "Dagger", labelKey: "NPCFORGE.Weapons.Dagger", slug: "dagger", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
-          : isGuard
-            ? { name: "Spear", labelKey: "NPCFORGE.Weapons.Spear", slug: "spear", damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["thrown-20"] }
-            : isDexterityFocused
-              ? { name: "Dagger", labelKey: "NPCFORGE.Weapons.Dagger", slug: "dagger", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
-              : { name: "Club", labelKey: "NPCFORGE.Weapons.Club", slug: "club", damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: [] };
-  const weapon = {
-    id: "primary-weapon", name: semanticWeapon.name, labelKey: semanticWeapon.labelKey, type: classId === "core.monk" ? "unarmed" : "weapon",
-    source: semanticWeapon.slug ? "compendium" : "generated",
-    ...(semanticWeapon.slug ? { compendium: { packId: "pf2e.equipment-srd", slug: semanticWeapon.slug } } : {}),
-    damage: semanticWeapon.damage, traits: semanticWeapon.traits
-  };
-  const attack = {
-    id: "primary-attack",
-    sourceWeaponId: weapon.id,
-    label: weapon.name,
-    labelKey: weapon.labelKey,
-    modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
-    damage: { formula: `${weapon.damage.dice}${weapon.damage.die}+${Math.max(1, 2 + Math.floor(level / 3))}`, type: weapon.damage.type },
-    traits: [...weapon.traits]
-  };
-  return { inventory: [weapon], attacks: [attack] };
-}
-
 export class NpcEngine {
   constructor({ registry, randomFactory = (seed) => new SeededRandom(seed) } = {}) {
     this.registry = registry;
@@ -85,6 +50,13 @@ export class NpcEngine {
     const ancestry = resolveDefinition(this.registry, resolver, "ancestries", normalized.ancestry);
     const classProfile = resolveDefinition(this.registry, resolver, "classProfiles", normalized.classProfile);
     const profession = resolveDefinition(this.registry, resolver, "professions", normalized.profession);
+    let professionSpecialization = null;
+    if (normalized.professionSpecialization?.mode === "fixed" && normalized.professionSpecialization.id) {
+      professionSpecialization = this.registry.get("professionSpecializations", normalized.professionSpecialization.id);
+    } else {
+      const candidates = this.registry.children("professionSpecializations", profession?.id);
+      professionSpecialization = candidates.length ? resolver.resolve(candidates) : null;
+    }
     let classSpecialization = null;
     if (normalized.classSpecialization?.mode === "fixed" && normalized.classSpecialization.id) {
       classSpecialization = this.registry.get("classSpecializations", normalized.classSpecialization.id);
@@ -94,9 +66,9 @@ export class NpcEngine {
     }
     const role = resolveDefinition(this.registry, resolver, "roles", normalized.role);
     const name = normalized.identity.name || (normalized.identity.generateName ? generateName(this.registry, resolver, ancestry, random) : "Unnamed NPC");
-    const statistics = buildStatistics({ level, ancestry, classProfile, profession, role });
-    const skills = buildSkills({ level, classProfile, profession, role });
-    const loadout = normalized.inventory.enabled ? generateBaselineLoadout(level, profession, classProfile) : { inventory: [], attacks: [] };
+    const statistics = buildStatistics({ level, ancestry, classProfile, profession, professionSpecialization, role });
+    const skills = buildSkills({ level, classProfile, profession, professionSpecialization, role });
+    const loadout = buildInventory({ level, profession, specialization: professionSpecialization, classProfile, registry: this.registry, enabled: normalized.inventory.enabled });
     const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
 
     const npc = {
@@ -112,6 +84,7 @@ export class NpcEngine {
         classProfile,
         classSpecialization,
         profession,
+        professionSpecialization,
         professionCategory: profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null,
         role
       },

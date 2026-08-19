@@ -32,7 +32,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     super(options);
     this.api = api;
     this.targetFolderId = targetFolderId;
-    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, profession: "core.guard", role: "core.ordinary" };
+    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary" };
     this.preview = null;
     this._pendingPreviewScrollTop = null;
   }
@@ -41,6 +41,12 @@ export class NpcForgeApp extends HandlebarsApplication {
     const context = await super._prepareContext(options);
     const localize = (key) => game.i18n.localize(key);
     const classSpecializations = this.api.registry.children("classSpecializations", this.request.classProfile);
+    const professions = this.request.professionCategory
+      ? this.api.registry.children("professions", this.request.professionCategory)
+      : this.api.content.list("professions");
+    const professionSpecializations = this.request.profession
+      ? this.api.registry.children("professionSpecializations", this.request.profession)
+      : [];
     return {
       ...context,
       preview: this.preview,
@@ -52,7 +58,10 @@ export class NpcForgeApp extends HandlebarsApplication {
       classOptions: definitionOptions(this.api.content.list("classProfiles"), this.request.classProfile),
       specializationOptions: definitionOptions(classSpecializations, this.request.classSpecialization),
       hasSpecializations: classSpecializations.length > 0,
-      professionOptions: definitionOptions(this.api.content.list("professions"), this.request.profession)
+      professionCategoryOptions: definitionOptions(this.api.content.list("professionCategories"), this.request.professionCategory),
+      professionOptions: definitionOptions(professions, this.request.profession),
+      professionSpecializationOptions: definitionOptions(professionSpecializations, this.request.professionSpecialization),
+      hasProfessionSpecializations: professionSpecializations.length > 0
     };
   }
 
@@ -76,15 +85,21 @@ export class NpcForgeApp extends HandlebarsApplication {
       const data = new FormData(form);
       const nextClass = String(data.get("classProfile") ?? "core.fighter");
       const classChanged = nextClass !== this.request.classProfile;
+      const nextCategory = String(data.get("professionCategory") ?? "") || null;
+      const categoryChanged = nextCategory !== this.request.professionCategory;
+      const nextProfession = categoryChanged ? null : (String(data.get("profession") ?? "") || null);
+      const professionChanged = nextProfession !== this.request.profession;
       this.request = {
         ...this.request,
         level: Number(data.get("level") ?? 3),
         ancestry: String(data.get("ancestry") ?? "core.human"),
         classProfile: nextClass,
         classSpecialization: classChanged ? null : (String(data.get("classSpecialization") ?? "") || null),
-        profession: String(data.get("profession") ?? "core.guard")
+        professionCategory: nextCategory,
+        profession: nextProfession,
+        professionSpecialization: (categoryChanged || professionChanged) ? null : (String(data.get("professionSpecialization") ?? "") || null)
       };
-      if (classChanged) {
+      if (classChanged || categoryChanged || professionChanged) {
         this._capturePreviewScroll();
         this.render();
       }

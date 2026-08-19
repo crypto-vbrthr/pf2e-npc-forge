@@ -11,6 +11,11 @@ export function normalizeRequest(request = {}) {
     ? { mode: "fixed", value: clamp(Math.trunc(rawLevel), -1, 24) }
     : { mode: rawLevel?.mode ?? "fixed", value: clamp(Math.trunc(rawLevel?.value ?? 1), -1, 24), min: rawLevel?.min, max: rawLevel?.max };
 
+  const professionCategory = fixed(request.professionCategory, null);
+  let profession = fixed(request.profession, null);
+  if (profession.mode === "weighted" && professionCategory?.id) profession = { mode: "category", id: professionCategory.id };
+  if (!request.profession && !professionCategory?.id) profession = { mode: "fixed", id: "core.guard" };
+
   return {
     schemaVersion: 1,
     seed: request.seed ?? null,
@@ -18,7 +23,9 @@ export function normalizeRequest(request = {}) {
     ancestry: fixed(request.ancestry, "core.human"),
     classProfile: fixed(request.classProfile, "core.fighter"),
     classSpecialization: fixed(request.classSpecialization, null),
-    profession: fixed(request.profession, "core.guard"),
+    professionCategory,
+    profession,
+    professionSpecialization: fixed(request.professionSpecialization, null),
     role: fixed(request.role, "core.ordinary"),
     identity: {
       generateName: request.identity?.generateName !== false,

@@ -4,10 +4,11 @@ const TIERS = ["terrible", "low", "average", "high", "extreme"];
 const tierRank = (tier) => TIERS.indexOf(tier);
 const strongerTier = (a = "average", b = "average") => tierRank(a) >= tierRank(b) ? a : b;
 
-function mergeAttributeTiers(classProfile, profession) {
+function mergeAttributeTiers(classProfile, profession, professionSpecialization) {
   const base = { str: "average", dex: "average", con: "average", int: "average", wis: "average", cha: "average" };
   for (const [ability, tier] of Object.entries(classProfile?.attributeTiers ?? {})) base[ability] = tier;
   for (const [ability, tier] of Object.entries(profession?.attributeBias ?? {})) base[ability] = strongerTier(base[ability], tier);
+  for (const [ability, tier] of Object.entries(professionSpecialization?.attributeBias ?? {})) base[ability] = strongerTier(base[ability], tier);
   return base;
 }
 
@@ -19,8 +20,8 @@ function applyNumericAdjustment(value, adjustment = 0) {
   return Number(value) + (Number(adjustment) || 0);
 }
 
-export function buildStatistics({ level, ancestry, classProfile, profession, role }) {
-  const attributeTiers = mergeAttributeTiers(classProfile, profession);
+export function buildStatistics({ level, ancestry, classProfile, profession, professionSpecialization, role }) {
+  const attributeTiers = mergeAttributeTiers(classProfile, profession, professionSpecialization);
   const attributes = Object.fromEntries(Object.entries(attributeTiers).map(([ability, tier]) => [ability, ruleValue(ATTRIBUTE_MODIFIERS, level, tier)]));
 
   for (const [ability, adjustment] of Object.entries(ancestry?.attributeAdjustments ?? {})) {

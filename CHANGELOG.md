@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.0 - Profession System & Inventory
+
+- Expanded the built-in profession catalog to eleven broad categories and more than twenty concrete professions.
+- Added hierarchical category-based profession generation so callers can request a general criminal, artisan, soldier-type NPC, and similar broad concepts without choosing a specific profession.
+- Added profession specializations such as pickpocket, burglar, weaponsmith, armorsmith, infantry, and archer.
+- Profession specializations can contribute skill and attribute biases.
+- Added reusable `equipmentProfiles` and connected core professions to appropriate armor, shields, tools, and general gear.
+- Extended the PF2e document adapter to resolve non-weapon inventory entries against the regular `pf2e.equipment-srd` compendium while preserving normal PF2e item data and value.
+- Kept weapon-to-strike linkage and NPC-level combat scaling intact.
+- Added level gates (`minLevel` / `maxLevel`) to equipment profile entries for future scalable inventory packages.
+- Added profession category and profession specialization controls to the standalone editor.
+- Added an inventory section to the Creature Forge-aligned preview.
+- Added German and English localization for new profession categories, professions, specializations, Lore entries, and inventory labels.
+- Added capabilities `profession-specializations`, `hierarchical-professions`, `equipment-profile-generation`, and `profession-equipment`.
+- Advanced the neutral NPC schema to version 3 and the public API version to 0.4.0.
+- Expanded regression coverage for profession breadth, category resolution, specialization behavior, external equipment profiles, profession inventory, and non-weapon compendium cloning.
+
 ## 0.3.5 - Preview Scroll Preservation Fix
 
 - Preserved the NPC preview scroll position when changing the selected class profile.

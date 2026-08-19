@@ -223,15 +223,111 @@ export function registerCoreContent(registry) {
   ];
   for (const ability of abilities) registry.register("abilityDefinitions", source, ability);
 
-  registry.register("professionCategories", source, { id: "core.profession-category.civic", labelKey: "NPCFORGE.Content.Category.Civic", weight: 10 });
-  registry.register("professionCategories", source, { id: "core.profession-category.artisan", labelKey: "NPCFORGE.Content.Category.Artisan", weight: 10 });
-  registry.register("professionCategories", source, { id: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Category.Criminal", weight: 6 });
+  const equipmentProfiles = [
+    { id: "core.equipment.guard", items: [
+      { id: "guard-armor", labelKey: "NPCFORGE.Equipment.ChainShirt", slug: "chain-shirt", itemType: "armor", type: "armor", purpose: "armor", equipped: true, origin: "profession" },
+      { id: "guard-shield", labelKey: "NPCFORGE.Equipment.SteelShield", slug: "steel-shield", itemType: "shield", type: "shield", purpose: "shield", equipped: true, origin: "profession" },
+      { id: "guard-lantern", labelKey: "NPCFORGE.Equipment.HoodedLantern", slug: "hooded-lantern", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] },
+    { id: "core.equipment.blacksmith", items: [
+      { id: "blacksmith-tools", labelKey: "NPCFORGE.Equipment.ArtisansToolkit", slug: "artisans-toolkit", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" },
+    ] },
+    { id: "core.equipment.thief", items: [
+      { id: "thieves-tools", labelKey: "NPCFORGE.Equipment.ThievesToolkit", slug: "thieves-toolkit", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" },
+      { id: "thief-armor", labelKey: "NPCFORGE.Equipment.LeatherArmor", slug: "leather-armor", itemType: "armor", type: "armor", purpose: "armor", equipped: true, origin: "profession" }
+    ] },
+    { id: "core.equipment.scholar", items: [
+      { id: "writing-set", labelKey: "NPCFORGE.Equipment.WritingSet", slug: "writing-set", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" },
+      { id: "scholarly-journal", labelKey: "NPCFORGE.Equipment.ScholarlyJournal", slug: "scholarly-journal", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] },
+    { id: "core.equipment.merchant", items: [
+      { id: "merchant-scale", labelKey: "NPCFORGE.Equipment.MerchantsScale", slug: "merchants-scale", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" },
+      { id: "writing-set", labelKey: "NPCFORGE.Equipment.WritingSet", slug: "writing-set", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] },
+    { id: "core.equipment.healer", items: [
+      { id: "healers-tools", labelKey: "NPCFORGE.Equipment.HealersToolkit", slug: "healers-toolkit", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] },
+    { id: "core.equipment.priest", items: [
+      { id: "religious-symbol", labelKey: "NPCFORGE.Equipment.ReligiousSymbol", slug: "religious-symbol-wooden", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] },
+    { id: "core.equipment.rural", items: [
+      { id: "rope", labelKey: "NPCFORGE.Equipment.Rope", slug: "rope", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] },
+    { id: "core.equipment.sailor", items: [
+      { id: "rope", labelKey: "NPCFORGE.Equipment.Rope", slug: "rope", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" },
+      { id: "waterskin", labelKey: "NPCFORGE.Equipment.Waterskin", slug: "waterskin", itemType: "equipment", type: "equipment", purpose: "general", origin: "profession" }
+    ] },
+    { id: "core.equipment.entertainer", items: [
+      { id: "musical-instrument", labelKey: "NPCFORGE.Equipment.MusicalInstrument", slug: "musical-instrument-handheld", itemType: "equipment", type: "equipment", purpose: "professional", origin: "profession" }
+    ] }
+  ];
+  for (const profile of equipmentProfiles) registry.register("equipmentProfiles", source, profile);
 
-  registry.register("professions", source, { id: "core.guard", parentId: "core.profession-category.civic", labelKey: "NPCFORGE.Content.Profession.Guard", tags: ["civic", "martial", "security"], skillBias: { athletics: "high", society: "average", intimidation: "average" }, lore: [{ slug: "legal-lore", label: "Legal Lore", labelKey: "NPCFORGE.Lore.Legal", tier: "average" }], attributeBias: { str: "high" }, weight: 10 });
-  registry.register("professions", source, { id: "core.blacksmith", parentId: "core.profession-category.artisan", labelKey: "NPCFORGE.Content.Profession.Blacksmith", tags: ["artisan", "craft"], skillBias: { crafting: "high", athletics: "average" }, lore: [{ slug: "blacksmithing-lore", label: "Blacksmithing Lore", labelKey: "NPCFORGE.Lore.Blacksmithing", tier: "high" }], attributeBias: { str: "high", con: "high" }, weight: 10 });
-  registry.register("professions", source, { id: "core.thief", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Thief", tags: ["criminal", "stealth"], skillBias: { thievery: "high", stealth: "high", deception: "average" }, lore: [{ slug: "underworld-lore", label: "Underworld Lore", labelKey: "NPCFORGE.Lore.Underworld", tier: "average" }], attributeBias: { dex: "high" }, weight: 8 });
-  registry.register("professions", source, { id: "core.highwayman", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Highwayman", tags: ["criminal", "robber", "martial"], skillBias: { intimidation: "high", athletics: "average", survival: "average" }, lore: [{ slug: "roads-lore", label: "Roads Lore", labelKey: "NPCFORGE.Lore.Roads", tier: "average" }], attributeBias: { str: "high" }, weight: 4 });
-  registry.register("professions", source, { id: "core.assassin", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Assassin", tags: ["criminal", "assassin", "stealth"], skillBias: { stealth: "high", deception: "high", thievery: "average" }, lore: [{ slug: "underworld-lore", label: "Underworld Lore", labelKey: "NPCFORGE.Lore.Underworld", tier: "high" }], attributeBias: { dex: "high" }, weight: 1 });
+  const professionCategories = [
+    ["core.profession-category.civic", "NPCFORGE.Content.Category.Civic", 10],
+    ["core.profession-category.artisan", "NPCFORGE.Content.Category.Artisan", 10],
+    ["core.profession-category.criminal", "NPCFORGE.Content.Category.Criminal", 6],
+    ["core.profession-category.military", "NPCFORGE.Content.Category.Military", 8],
+    ["core.profession-category.religious", "NPCFORGE.Content.Category.Religious", 6],
+    ["core.profession-category.scholarly", "NPCFORGE.Content.Category.Scholarly", 6],
+    ["core.profession-category.mercantile", "NPCFORGE.Content.Category.Mercantile", 8],
+    ["core.profession-category.rural", "NPCFORGE.Content.Category.Rural", 10],
+    ["core.profession-category.maritime", "NPCFORGE.Content.Category.Maritime", 5],
+    ["core.profession-category.medical", "NPCFORGE.Content.Category.Medical", 5],
+    ["core.profession-category.entertainment", "NPCFORGE.Content.Category.Entertainment", 5]
+  ];
+  for (const [id, labelKey, weight] of professionCategories) registry.register("professionCategories", source, { id, labelKey, weight });
+
+  const professions = [
+    { id: "core.guard", parentId: "core.profession-category.civic", labelKey: "NPCFORGE.Content.Profession.Guard", tags: ["civic", "martial", "security"], skillBias: { athletics: "high", society: "average", intimidation: "average" }, lore: [{ slug: "legal-lore", labelKey: "NPCFORGE.Lore.Legal", tier: "average" }], attributeBias: { str: "high" }, equipmentProfileIds: ["core.equipment.guard"], weight: 10 },
+    { id: "core.bailiff", parentId: "core.profession-category.civic", labelKey: "NPCFORGE.Content.Profession.Bailiff", tags: ["civic", "legal"], skillBias: { society: "high", intimidation: "average", diplomacy: "average" }, lore: [{ slug: "legal-lore", labelKey: "NPCFORGE.Lore.Legal", tier: "high" }], weight: 4 },
+    { id: "core.scribe", parentId: "core.profession-category.civic", labelKey: "NPCFORGE.Content.Profession.Scribe", tags: ["civic", "scholarly"], skillBias: { society: "high", crafting: "average" }, lore: [{ slug: "bureaucracy-lore", labelKey: "NPCFORGE.Lore.Bureaucracy", tier: "high" }], equipmentProfileIds: ["core.equipment.scholar"], weight: 6 },
+
+    { id: "core.blacksmith", parentId: "core.profession-category.artisan", labelKey: "NPCFORGE.Content.Profession.Blacksmith", tags: ["artisan", "craft"], skillBias: { crafting: "high", athletics: "average" }, lore: [{ slug: "blacksmithing-lore", labelKey: "NPCFORGE.Lore.Blacksmithing", tier: "high" }], attributeBias: { str: "high", con: "high" }, equipmentProfileIds: ["core.equipment.blacksmith"], weight: 10 },
+    { id: "core.carpenter", parentId: "core.profession-category.artisan", labelKey: "NPCFORGE.Content.Profession.Carpenter", tags: ["artisan", "craft"], skillBias: { crafting: "high", athletics: "average" }, lore: [{ slug: "carpentry-lore", labelKey: "NPCFORGE.Lore.Carpentry", tier: "high" }], equipmentProfileIds: ["core.equipment.blacksmith"], weight: 8 },
+    { id: "core.jeweler", parentId: "core.profession-category.artisan", labelKey: "NPCFORGE.Content.Profession.Jeweler", tags: ["artisan", "craft", "wealth"], skillBias: { crafting: "high", society: "average" }, lore: [{ slug: "jewelry-lore", labelKey: "NPCFORGE.Lore.Jewelry", tier: "high" }], equipmentProfileIds: ["core.equipment.blacksmith"], weight: 4 },
+
+    { id: "core.thief", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Thief", tags: ["criminal", "stealth"], skillBias: { thievery: "high", stealth: "high", deception: "average" }, lore: [{ slug: "underworld-lore", labelKey: "NPCFORGE.Lore.Underworld", tier: "average" }], attributeBias: { dex: "high" }, equipmentProfileIds: ["core.equipment.thief"], weight: 8 },
+    { id: "core.highwayman", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Highwayman", tags: ["criminal", "robber", "martial"], skillBias: { intimidation: "high", athletics: "average", survival: "average" }, lore: [{ slug: "roads-lore", labelKey: "NPCFORGE.Lore.Roads", tier: "average" }], attributeBias: { str: "high" }, weight: 4 },
+    { id: "core.assassin", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Assassin", tags: ["criminal", "assassin", "stealth"], skillBias: { stealth: "high", deception: "high", thievery: "average" }, lore: [{ slug: "underworld-lore", labelKey: "NPCFORGE.Lore.Underworld", tier: "high" }], attributeBias: { dex: "high" }, equipmentProfileIds: ["core.equipment.thief"], weight: 1 },
+    { id: "core.smuggler", parentId: "core.profession-category.criminal", labelKey: "NPCFORGE.Content.Profession.Smuggler", tags: ["criminal", "social", "maritime"], skillBias: { deception: "high", society: "average", stealth: "average" }, lore: [{ slug: "underworld-lore", labelKey: "NPCFORGE.Lore.Underworld", tier: "average" }], weight: 4 },
+
+    { id: "core.soldier", parentId: "core.profession-category.military", labelKey: "NPCFORGE.Content.Profession.Soldier", tags: ["military", "martial"], skillBias: { athletics: "high", intimidation: "average" }, lore: [{ slug: "warfare-lore", labelKey: "NPCFORGE.Lore.Warfare", tier: "average" }], attributeBias: { str: "high", con: "high" }, equipmentProfileIds: ["core.equipment.guard"], weight: 10 },
+    { id: "core.officer", parentId: "core.profession-category.military", labelKey: "NPCFORGE.Content.Profession.Officer", tags: ["military", "leader", "social"], skillBias: { diplomacy: "high", intimidation: "high", society: "average" }, lore: [{ slug: "warfare-lore", labelKey: "NPCFORGE.Lore.Warfare", tier: "high" }], equipmentProfileIds: ["core.equipment.guard"], weight: 4 },
+    { id: "core.mercenary", parentId: "core.profession-category.military", labelKey: "NPCFORGE.Content.Profession.Mercenary", tags: ["military", "martial", "travel"], skillBias: { athletics: "high", survival: "average", intimidation: "average" }, lore: [{ slug: "warfare-lore", labelKey: "NPCFORGE.Lore.Warfare", tier: "average" }], equipmentProfileIds: ["core.equipment.guard"], weight: 6 },
+
+    { id: "core.priest", parentId: "core.profession-category.religious", labelKey: "NPCFORGE.Content.Profession.Priest", tags: ["religious", "social"], skillBias: { religion: "high", diplomacy: "average" }, lore: [{ slug: "temple-lore", labelKey: "NPCFORGE.Lore.Temple", tier: "average" }], equipmentProfileIds: ["core.equipment.priest"], weight: 8 },
+    { id: "core.acolyte", parentId: "core.profession-category.religious", labelKey: "NPCFORGE.Content.Profession.Acolyte", tags: ["religious"], skillBias: { religion: "high", medicine: "average" }, lore: [{ slug: "temple-lore", labelKey: "NPCFORGE.Lore.Temple", tier: "average" }], equipmentProfileIds: ["core.equipment.priest"], weight: 8 },
+
+    { id: "core.scholar", parentId: "core.profession-category.scholarly", labelKey: "NPCFORGE.Content.Profession.Scholar", tags: ["scholarly", "knowledge"], skillBias: { society: "high", arcana: "average", occultism: "average" }, lore: [{ slug: "academia-lore", labelKey: "NPCFORGE.Lore.Academia", tier: "high" }], attributeBias: { int: "high" }, equipmentProfileIds: ["core.equipment.scholar"], weight: 8 },
+    { id: "core.librarian", parentId: "core.profession-category.scholarly", labelKey: "NPCFORGE.Content.Profession.Librarian", tags: ["scholarly", "knowledge"], skillBias: { society: "high", occultism: "average" }, lore: [{ slug: "library-lore", labelKey: "NPCFORGE.Lore.Library", tier: "high" }], attributeBias: { int: "high" }, equipmentProfileIds: ["core.equipment.scholar"], weight: 6 },
+
+    { id: "core.merchant", parentId: "core.profession-category.mercantile", labelKey: "NPCFORGE.Content.Profession.Merchant", tags: ["mercantile", "social"], skillBias: { diplomacy: "high", society: "high", deception: "average" }, lore: [{ slug: "mercantile-lore", labelKey: "NPCFORGE.Lore.Mercantile", tier: "high" }], attributeBias: { cha: "high" }, equipmentProfileIds: ["core.equipment.merchant"], weight: 10 },
+    { id: "core.innkeeper", parentId: "core.profession-category.mercantile", labelKey: "NPCFORGE.Content.Profession.Innkeeper", tags: ["mercantile", "social"], skillBias: { diplomacy: "high", society: "average" }, lore: [{ slug: "hospitality-lore", labelKey: "NPCFORGE.Lore.Hospitality", tier: "high" }], equipmentProfileIds: ["core.equipment.merchant"], weight: 8 },
+
+    { id: "core.farmer", parentId: "core.profession-category.rural", labelKey: "NPCFORGE.Content.Profession.Farmer", tags: ["rural", "labor"], skillBias: { nature: "high", athletics: "average", survival: "average" }, lore: [{ slug: "farming-lore", labelKey: "NPCFORGE.Lore.Farming", tier: "high" }], attributeBias: { con: "high" }, equipmentProfileIds: ["core.equipment.rural"], weight: 12 },
+    { id: "core.hunter", parentId: "core.profession-category.rural", labelKey: "NPCFORGE.Content.Profession.Hunter", tags: ["rural", "wilderness", "martial"], skillBias: { survival: "high", nature: "average", stealth: "average" }, lore: [{ slug: "hunting-lore", labelKey: "NPCFORGE.Lore.Hunting", tier: "high" }], attributeBias: { dex: "high", wis: "high" }, equipmentProfileIds: ["core.equipment.rural"], weight: 7 },
+
+    { id: "core.sailor", parentId: "core.profession-category.maritime", labelKey: "NPCFORGE.Content.Profession.Sailor", tags: ["maritime", "travel"], skillBias: { athletics: "high", survival: "average" }, lore: [{ slug: "sailing-lore", labelKey: "NPCFORGE.Lore.Sailing", tier: "high" }], equipmentProfileIds: ["core.equipment.sailor"], weight: 10 },
+    { id: "core.captain", parentId: "core.profession-category.maritime", labelKey: "NPCFORGE.Content.Profession.Captain", tags: ["maritime", "leader", "social"], skillBias: { diplomacy: "high", intimidation: "average", survival: "average" }, lore: [{ slug: "sailing-lore", labelKey: "NPCFORGE.Lore.Sailing", tier: "high" }], equipmentProfileIds: ["core.equipment.sailor"], weight: 3 },
+
+    { id: "core.healer", parentId: "core.profession-category.medical", labelKey: "NPCFORGE.Content.Profession.Healer", tags: ["medical", "support"], skillBias: { medicine: "high", nature: "average" }, lore: [{ slug: "medicine-lore", labelKey: "NPCFORGE.Lore.Medicine", tier: "high" }], attributeBias: { wis: "high" }, equipmentProfileIds: ["core.equipment.healer"], weight: 10 },
+    { id: "core.apothecary", parentId: "core.profession-category.medical", labelKey: "NPCFORGE.Content.Profession.Apothecary", tags: ["medical", "craft"], skillBias: { crafting: "high", medicine: "high", nature: "average" }, lore: [{ slug: "apothecary-lore", labelKey: "NPCFORGE.Lore.Apothecary", tier: "high" }], attributeBias: { int: "high" }, equipmentProfileIds: ["core.equipment.healer"], weight: 6 },
+
+    { id: "core.musician", parentId: "core.profession-category.entertainment", labelKey: "NPCFORGE.Content.Profession.Musician", tags: ["entertainment", "social"], skillBias: { performance: "high", diplomacy: "average" }, lore: [{ slug: "music-lore", labelKey: "NPCFORGE.Lore.Music", tier: "high" }], attributeBias: { cha: "high" }, equipmentProfileIds: ["core.equipment.entertainer"], weight: 10 },
+    { id: "core.actor", parentId: "core.profession-category.entertainment", labelKey: "NPCFORGE.Content.Profession.Actor", tags: ["entertainment", "social"], skillBias: { performance: "high", deception: "average", diplomacy: "average" }, lore: [{ slug: "theater-lore", labelKey: "NPCFORGE.Lore.Theater", tier: "high" }], attributeBias: { cha: "high" }, weight: 7 }
+  ];
+  for (const profession of professions) registry.register("professions", source, profession);
+
+  const professionSpecializations = [
+    { id: "core.thief.pickpocket", parentId: "core.thief", labelKey: "NPCFORGE.Content.ProfessionSpecialization.Pickpocket", skillBias: { thievery: "high", stealth: "average" }, weight: 6 },
+    { id: "core.thief.burglar", parentId: "core.thief", labelKey: "NPCFORGE.Content.ProfessionSpecialization.Burglar", skillBias: { thievery: "high", athletics: "average" }, weight: 5 },
+    { id: "core.blacksmith.weaponsmith", parentId: "core.blacksmith", labelKey: "NPCFORGE.Content.ProfessionSpecialization.Weaponsmith", weight: 5 },
+    { id: "core.blacksmith.armorsmith", parentId: "core.blacksmith", labelKey: "NPCFORGE.Content.ProfessionSpecialization.Armorsmith", weight: 5 },
+    { id: "core.soldier.infantry", parentId: "core.soldier", labelKey: "NPCFORGE.Content.ProfessionSpecialization.Infantry", weight: 7 },
+    { id: "core.soldier.archer", parentId: "core.soldier", labelKey: "NPCFORGE.Content.ProfessionSpecialization.Archer", attributeBias: { dex: "high" }, weight: 4 }
+  ];
+  for (const specialization of professionSpecializations) registry.register("professionSpecializations", source, specialization);
 
   registry.register("roles", source, { id: "core.veteran", labelKey: "NPCFORGE.Content.Role.Veteran", statAdjustments: { perception: 1, fortitude: 1 }, skillModifierAdjustment: 1, weight: 5 });
   registry.register("roles", source, { id: "core.ordinary", labelKey: "NPCFORGE.Content.Role.Ordinary", weight: 10 });

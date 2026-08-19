@@ -17,5 +17,5 @@ test("profession category resolves to a concrete child", () => {
   registerCoreContent(registry);
   const engine = new NpcEngine({ registry });
   const npc = engine.generate({ seed: "criminal-01", profession: { mode: "category", id: "core.profession-category.criminal" } });
-  assert.ok(["core.thief", "core.highwayman", "core.assassin"].includes(npc.build.profession.id));
+  assert.ok(["core.thief", "core.highwayman", "core.assassin", "core.smuggler"].includes(npc.build.profession.id));
 });

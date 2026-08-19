@@ -109,3 +109,26 @@ test("async adapter gracefully falls back when the PF2e equipment compendium is 
     globalThis.game = previousGame;
   }
 });
+
+test("async adapter clones profession equipment from the regular PF2e compendium", async () => {
+  const previousGame = globalThis.game;
+  const docs = {
+    spear: { uuid: "Compendium.pf2e.equipment-srd.Item.spear", toObject: () => ({ _id: "spear", name: "Spear", type: "weapon", system: { slug: "spear", damage: { dice: 1, die: "d6", damageType: "piercing" }, traits: { value: ["thrown-20"], rarity: "common" }, quantity: 1 } }) },
+    "chain-shirt": { uuid: "Compendium.pf2e.equipment-srd.Item.chain", toObject: () => ({ _id: "chain", name: "Chain Shirt", type: "armor", system: { slug: "chain-shirt", price: { value: { gp: 5 } }, quantity: 1, traits: { value: [], rarity: "common" } } }) },
+    "steel-shield": { uuid: "Compendium.pf2e.equipment-srd.Item.shield", toObject: () => ({ _id: "shield", name: "Steel Shield", type: "shield", system: { slug: "steel-shield", price: { value: { gp: 2 } }, quantity: 1, traits: { value: [], rarity: "common" } } }) },
+    "hooded-lantern": { uuid: "Compendium.pf2e.equipment-srd.Item.lantern", toObject: () => ({ _id: "lantern", name: "Hooded Lantern", type: "equipment", system: { slug: "hooded-lantern", price: { value: { sp: 7 } }, quantity: 1, traits: { value: [], rarity: "common" } } }) }
+  };
+  const index = Object.entries(docs).map(([slug, doc]) => ({ _id: slug, name: slug, type: doc.toObject().type, system: { slug } }));
+  const pack = { getIndex: async () => index, getDocument: async (id) => docs[id] ?? null };
+  globalThis.game = { packs: new Map([["pf2e.equipment-srd", pack]]), i18n: { localize: (key) => key } };
+  try {
+    const registry = new ContentRegistry(); registerCoreContent(registry);
+    const npc = new NpcEngine({ registry }).generate({ seed: "guard-full-kit", level: 3, profession: "core.guard", classProfile: "core.fighter" });
+    const source = await new Pf2eDocumentAdapter().toActorSourceAsync(npc);
+    assert.ok(source.items.some((item) => item.type === "armor" && item.name === "Chain Shirt"));
+    assert.ok(source.items.some((item) => item.type === "shield" && item.name === "Steel Shield"));
+    assert.ok(source.items.some((item) => item.type === "equipment" && item.name === "Hooded Lantern"));
+  } finally {
+    globalThis.game = previousGame;
+  }
+});

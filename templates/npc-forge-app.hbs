@@ -23,9 +23,25 @@
           </select>
         </label>
         {{/if}}
-        <label>{{localize "NPCFORGE.Fields.Profession"}}
-          <select name="profession">{{#each professionOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
+        <label>{{localize "NPCFORGE.Fields.ProfessionCategory"}}
+          <select name="professionCategory">
+            {{#each professionCategoryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select>
         </label>
+        <label>{{localize "NPCFORGE.Fields.Profession"}}
+          <select name="profession">
+            <option value="">{{localize "NPCFORGE.Fields.AutomaticWithinCategory"}}</option>
+            {{#each professionOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select>
+        </label>
+        {{#if hasProfessionSpecializations}}
+        <label>{{localize "NPCFORGE.Fields.ProfessionSpecialization"}}
+          <select name="professionSpecialization">
+            <option value="">{{localize "NPCFORGE.Fields.Automatic"}}</option>
+            {{#each professionSpecializationOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select>
+        </label>
+        {{/if}}
       </div>
     </details>
 
@@ -35,7 +51,7 @@
     </details>
     <details class="npc-forge-section">
       <summary>{{localize "NPCFORGE.Sections.Equipment"}}</summary>
-      <div class="npc-forge-section-body npc-forge-coming-soon">{{localize "NPCFORGE.App.EquipmentComingSoon"}}</div>
+      <div class="npc-forge-section-body"><p class="npc-forge-muted">{{localize "NPCFORGE.App.EquipmentGeneratedText"}}</p></div>
     </details>
 
     <div class="npc-forge-actions"><button type="button" data-action="generate"><i class="fa-solid fa-dice"></i> {{localize "NPCFORGE.Controls.Generate"}}</button></div>
@@ -95,6 +111,16 @@
             </article>
           {{/each}}
           {{#unless view.abilities.length}}<div class="npc-forge-muted">{{localize "NPCFORGE.App.NoAbilities"}}</div>{{/unless}}
+        </div>
+      </section>
+
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Equipment"}}</h2>
+        <div class="npc-forge-sheet-list npc-forge-inventory-list">
+          {{#each view.inventory}}
+            <div class="npc-forge-sheet-list-row"><span>{{displayName}}</span><span class="npc-forge-muted">{{displayType}}{{#if quantity}} · ×{{quantity}}{{/if}}</span></div>
+          {{/each}}
+          {{#unless view.inventory.length}}<div class="npc-forge-muted">{{localize "NPCFORGE.App.NoEquipment"}}</div>{{/unless}}
         </div>
       </section>
 

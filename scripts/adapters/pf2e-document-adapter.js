@@ -15,7 +15,7 @@ async function findCompendiumDocument(reference) {
   const pack = getPack(reference.packId);
   if (!pack) return null;
   const index = await pack.getIndex({ fields: ["system.slug", "type"] });
-  const entry = Array.from(index ?? []).find((candidate) => candidate.type === "weapon" && candidate.system?.slug === reference.slug);
+  const entry = Array.from(index ?? []).find((candidate) => (!reference.itemType || candidate.type === reference.itemType) && candidate.system?.slug === reference.slug);
   if (!entry) return null;
   return pack.getDocument(entry._id);
 }
@@ -58,7 +58,13 @@ function meleeItemFromAttack(attack, weaponFacts = null) {
 
 
 function localized(key, fallback = "") {
-  return key && globalThis.game?.i18n?.localize ? globalThis.game.i18n.localize(key) : fallback;
+  if (!key || !globalThis.game?.i18n?.localize) return fallback;
+  const value = globalThis.game.i18n.localize(key);
+  return value && value !== key ? value : fallback;
+}
+
+function humanizeSlug(value = "") {
+  return String(value).replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function actionItemFromAbility(ability) {
@@ -79,42 +85,58 @@ function actionItemFromAbility(ability) {
 }
 
 function physicalItemFromInventory(item) {
-  if (item.type !== "weapon") return null;
-  return {
+  if (item.type === "unarmed") return null;
+  const base = {
     name: item.labelKey ? localized(item.labelKey, item.name) : item.name,
-    type: "weapon",
+    type: item.type === "equipment" ? "equipment" : item.type,
     system: {
+      quantity: item.quantity ?? 1,
+      traits: { value: [...(item.traits ?? [])], rarity: "common" }
+    },
+    flags: { [MODULE_ID]: { generated: true, inventoryId: item.id, purpose: item.purpose ?? null, origin: item.origin ?? null } }
+  };
+  if (item.type === "weapon") {
+    base.system = {
       category: "simple",
       group: null,
       baseItem: null,
       damage: { dice: item.damage?.dice ?? 1, die: item.damage?.die ?? "d4", damageType: item.damage?.type ?? "bludgeoning" },
       traits: { value: [...(item.traits ?? [])], rarity: "common" },
-      quantity: 1,
-      equipped: { carryType: "held", handsHeld: 1 }
-    },
-    flags: { [MODULE_ID]: { generated: true, inventoryId: item.id } }
-  };
+      quantity: item.quantity ?? 1,
+      equipped: { carryType: item.equipped ? "held" : "worn", handsHeld: item.handsHeld ?? (item.equipped ? 1 : 0) }
+    };
+  }
+  return base;
 }
 
 async function physicalItemFromInventoryAsync(item) {
-  if (item.type !== "weapon") return { source: null, facts: null, compendiumBacked: false };
+  if (item.type === "unarmed") return { source: null, facts: null, compendiumBacked: false };
   const document = await findCompendiumDocument(item.compendium);
   if (!document) {
     const source = physicalItemFromInventory(item);
-    return { source, facts: weaponFactsFromSource(source), compendiumBacked: false };
+    return { source, facts: item.type === "weapon" ? weaponFactsFromSource(source) : null, compendiumBacked: false };
   }
   const source = cleanEmbeddedItemSource(document.toObject());
+  source.system ??= {};
+  if ("quantity" in source.system) source.system.quantity = item.quantity ?? source.system.quantity ?? 1;
+  if (item.equipped && source.type === "weapon") {
+    source.system.equipped ??= {};
+    source.system.equipped.carryType = "held";
+    source.system.equipped.handsHeld = item.handsHeld ?? 1;
+  }
   source.flags ??= {};
   source.flags[MODULE_ID] = {
     ...(source.flags[MODULE_ID] ?? {}),
     generated: true,
     inventoryId: item.id,
+    purpose: item.purpose ?? null,
+    origin: item.origin ?? null,
     compendiumBacked: true,
     sourcePack: item.compendium.packId,
     sourceSlug: item.compendium.slug,
     sourceUuid: document.uuid ?? null
   };
-  return { source, facts: weaponFactsFromSource(source), compendiumBacked: true };
+  return { source, facts: source.type === "weapon" ? weaponFactsFromSource(source) : null, compendiumBacked: true };
 }
 
 function skillSource(skills = []) {
@@ -129,7 +151,7 @@ function skillSource(skills = []) {
 function loreNotes(skills = []) {
   return skills
     .filter((skill) => skill.type === "lore")
-    .map((skill) => `${skill.labelKey ? localized(skill.labelKey, skill.label ?? skill.slug) : (skill.label ?? skill.slug)} +${skill.modifier}`);
+    .map((skill) => `${skill.labelKey ? localized(skill.labelKey, (skill.label && skill.label !== skill.slug ? skill.label : humanizeSlug(skill.slug))) : ((skill.label && skill.label !== skill.slug ? skill.label : humanizeSlug(skill.slug)))} +${skill.modifier}`);
 }
 
 function attributeSource(attributes = {}) {
@@ -187,6 +209,7 @@ export class Pf2eDocumentAdapter {
           classProfileId: npc.build.classProfile?.id ?? null,
           classSpecializationId: npc.build.classSpecialization?.id ?? null,
           professionId: npc.build.profession?.id ?? null,
+          professionSpecializationId: npc.build.professionSpecialization?.id ?? null,
           roleId: npc.build.role?.id ?? null,
           sourceSlug: slugify(npc.identity.name),
           benchmark: npc.generation.benchmark ?? null
@@ -197,21 +220,20 @@ export class Pf2eDocumentAdapter {
 
   async toActorSourceAsync(npc, { folder = null } = {}) {
     const source = this.toActorSource(npc, { folder });
-    const generatedNonWeaponItems = source.items.filter((item) => item.type !== "weapon" && item.type !== "melee");
-    const weaponItems = [];
+    const abilityItems = source.items.filter((item) => item.type === "action");
+    const inventoryItems = [];
     const weaponFactsById = new Map();
 
     for (const inventoryItem of npc.inventory ?? []) {
-      if (inventoryItem.type !== "weapon") continue;
       const resolved = await physicalItemFromInventoryAsync(inventoryItem);
       if (!resolved.source) continue;
-      weaponItems.push(resolved.source);
-      weaponFactsById.set(inventoryItem.id, resolved.facts);
+      inventoryItems.push(resolved.source);
+      if (resolved.facts) weaponFactsById.set(inventoryItem.id, resolved.facts);
       if (resolved.compendiumBacked) source.flags[MODULE_ID].compendiumEquipment = true;
     }
 
     const meleeItems = (npc.attacks ?? []).map((attack) => meleeItemFromAttack(attack, weaponFactsById.get(attack.sourceWeaponId) ?? null));
-    source.items = [...weaponItems, ...meleeItems, ...generatedNonWeaponItems];
+    source.items = [...inventoryItems, ...meleeItems, ...abilityItems];
     return source;
   }
 
