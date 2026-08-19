@@ -31,7 +31,7 @@ function installDirectoryButton(app, html) {
 }
 
 Hooks.once("init", () => {
-  console.log("PF2E NPC Forge | Initializing 0.3.3 Compendium-backed Equipment & Strikes");
+  console.log("PF2E NPC Forge | Initializing 0.5.0 Ancestries & Identity");
   const registry = new ContentRegistry();
   registerCoreContent(registry);
   const integrations = createExternalIntegrations();

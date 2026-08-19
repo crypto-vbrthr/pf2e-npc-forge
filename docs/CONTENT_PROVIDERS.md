@@ -86,3 +86,9 @@ api.content.registerEquipmentProfile("my-module", {
 ```
 
 At generation time these remain semantic inventory entries. During actor creation, the PF2e document adapter resolves them against the regular PF2e compendium and clones the real item. If a compendium entry is unavailable, actor creation degrades to a generated fallback source rather than aborting the NPC.
+
+## Ancestry providers
+
+An ancestry provider may contribute size, Speed, creature traits, base languages, senses, age ranges, modest attribute adjustments, and intrinsic natural attacks. Provider IDs must be namespaced. Core and third-party ancestry content use the same registry and generation path.
+
+Natural attacks are neutral NPC attack definitions and are materialized by the PF2e adapter as NPC melee entries. Do not add fake physical weapon items for intrinsic claws, bites, beaks, or similar attacks.

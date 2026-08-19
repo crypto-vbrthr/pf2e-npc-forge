@@ -98,3 +98,20 @@ export function buildInventory({ level, profession, specialization, classProfile
 
   return { inventory, attacks: [attack] };
 }
+
+
+export function buildAncestryAttacks({ level, ancestry, classProfile } = {}) {
+  return (ancestry?.naturalAttacks ?? []).map((definition, index) => ({
+    id: `ancestry-attack-${definition.id ?? index}`,
+    sourceWeaponId: null,
+    sourceType: "ancestry",
+    label: definition.id ?? "Natural Attack",
+    labelKey: definition.labelKey ?? null,
+    modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
+    damage: {
+      formula: `${definition.damage?.dice ?? 1}${definition.damage?.die ?? "d4"}+${Math.max(1, 2 + Math.floor(level / 3))}`,
+      type: definition.damage?.type ?? "bludgeoning"
+    },
+    traits: [...(definition.traits ?? ["unarmed"])]
+  }));
+}

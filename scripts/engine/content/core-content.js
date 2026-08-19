@@ -1,12 +1,28 @@
 export function registerCoreContent(registry) {
   const source = "pf2e-npc-forge";
-  registry.register("ancestries", source, {
-    id: "core.human", labelKey: "NPCFORGE.Content.Ancestry.Human", weight: 10, speed: 25
-  });
-  registry.register("ancestries", source, {
-    id: "core.dwarf", labelKey: "NPCFORGE.Content.Ancestry.Dwarf", weight: 5, speed: 20,
-    attributeAdjustments: { con: 1 }
-  });
+  // Player Core and Player Core 2 ancestry profiles. These are NPC-facing identity profiles,
+  // not full PC ancestry progression. They preserve size, Speed, common senses/languages,
+  // broad physical identity, and a few signature natural attacks where those are intrinsic.
+  const ancestries = [
+    { id: "core.elf", labelKey: "NPCFORGE.Content.Ancestry.Elf", weight: 7, baseHp: 6, size: "med", speed: 30, traits: ["elf", "humanoid"], languages: ["common", "elven"], senses: ["low-light-vision"], attributeAdjustments: { dex: 1, int: 1, con: -1 }, ageRanges: { youngAdult:{min:20,max:40}, adult:{min:41,max:150}, middleAged:{min:151,max:350}, elder:{min:351,max:700} } },
+    { id: "core.gnome", labelKey: "NPCFORGE.Content.Ancestry.Gnome", weight: 5, baseHp: 8, size: "sm", speed: 25, traits: ["gnome", "humanoid"], languages: ["common", "gnomish", "fey"], senses: ["low-light-vision"], attributeAdjustments: { con: 1, cha: 1, str: -1 }, ageRanges: { youngAdult:{min:18,max:30}, adult:{min:31,max:120}, middleAged:{min:121,max:250}, elder:{min:251,max:400} } },
+    { id: "core.goblin", labelKey: "NPCFORGE.Content.Ancestry.Goblin", weight: 7, baseHp: 6, size: "sm", speed: 25, traits: ["goblin", "humanoid"], languages: ["common", "goblin"], senses: ["darkvision"], attributeAdjustments: { dex: 1, cha: 1, wis: -1 }, ageRanges: { youngAdult:{min:12,max:18}, adult:{min:19,max:35}, middleAged:{min:36,max:50}, elder:{min:51,max:70} } },
+    { id: "core.halfling", labelKey: "NPCFORGE.Content.Ancestry.Halfling", weight: 7, baseHp: 6, size: "sm", speed: 25, traits: ["halfling", "humanoid"], languages: ["common", "halfling"], senses: [], attributeAdjustments: { dex: 1, wis: 1, str: -1 }, ageRanges: { youngAdult:{min:18,max:30}, adult:{min:31,max:70}, middleAged:{min:71,max:110}, elder:{min:111,max:150} } },
+    { id: "core.leshy", labelKey: "NPCFORGE.Content.Ancestry.Leshy", weight: 4, baseHp: 8, size: "sm", speed: 25, traits: ["leshy", "plant"], languages: ["common", "fey"], senses: ["low-light-vision"], attributeAdjustments: { con: 1, wis: 1, int: -1 }, ageRanges: { youngAdult:{min:1,max:5}, adult:{min:6,max:40}, middleAged:{min:41,max:100}, elder:{min:101,max:300} } },
+    { id: "core.human", labelKey: "NPCFORGE.Content.Ancestry.Human", weight: 14, baseHp: 8, size: "med", speed: 25, traits: ["human", "humanoid"], languages: ["common"], senses: [], ageRanges: { youngAdult:{min:16,max:24}, adult:{min:25,max:44}, middleAged:{min:45,max:64}, elder:{min:65,max:95} } },
+    { id: "core.orc", labelKey: "NPCFORGE.Content.Ancestry.Orc", weight: 6, baseHp: 10, size: "med", speed: 25, traits: ["orc", "humanoid"], languages: ["common", "orcish"], senses: ["darkvision"], attributeAdjustments: { str: 1, con: 1 }, ageRanges: { youngAdult:{min:14,max:20}, adult:{min:21,max:40}, middleAged:{min:41,max:60}, elder:{min:61,max:85} } },
+    { id: "core.dwarf", labelKey: "NPCFORGE.Content.Ancestry.Dwarf", weight: 7, baseHp: 10, size: "med", speed: 20, traits: ["dwarf", "humanoid"], languages: ["common", "dwarven"], senses: ["darkvision"], attributeAdjustments: { con: 1, wis: 1, cha: -1 }, ageRanges: { youngAdult:{min:20,max:40}, adult:{min:41,max:120}, middleAged:{min:121,max:250}, elder:{min:251,max:400} } },
+
+    { id: "core.catfolk", labelKey: "NPCFORGE.Content.Ancestry.Catfolk", weight: 5, baseHp: 8, size: "med", speed: 25, traits: ["catfolk", "humanoid"], languages: ["common", "amurrun"], senses: ["low-light-vision"], attributeAdjustments: { dex: 1, cha: 1, wis: -1 }, ageRanges: { youngAdult:{min:14,max:20}, adult:{min:21,max:45}, middleAged:{min:46,max:65}, elder:{min:66,max:90} } },
+    { id: "core.hobgoblin", labelKey: "NPCFORGE.Content.Ancestry.Hobgoblin", weight: 4, baseHp: 8, size: "med", speed: 25, traits: ["hobgoblin", "humanoid"], languages: ["common", "goblin"], senses: ["darkvision"], attributeAdjustments: { con: 1, int: 1, wis: -1 }, ageRanges: { youngAdult:{min:14,max:20}, adult:{min:21,max:45}, middleAged:{min:46,max:65}, elder:{min:66,max:90} } },
+    { id: "core.lizardfolk", labelKey: "NPCFORGE.Content.Ancestry.Lizardfolk", weight: 4, baseHp: 8, size: "med", speed: 25, traits: ["humanoid", "lizardfolk"], languages: ["common", "iruxi"], senses: [], attributeAdjustments: { str: 1, wis: 1, int: -1 }, naturalAttacks: [{ id:"claws", labelKey:"NPCFORGE.AncestryAttacks.Claws", damage:{dice:1,die:"d4",type:"slashing"}, traits:["agile","finesse","unarmed"] }], ageRanges: { youngAdult:{min:14,max:22}, adult:{min:23,max:60}, middleAged:{min:61,max:100}, elder:{min:101,max:150} } },
+    { id: "core.kholo", labelKey: "NPCFORGE.Content.Ancestry.Kholo", weight: 4, baseHp: 8, size: "med", speed: 25, traits: ["humanoid", "kholo"], languages: ["common", "kholo"], senses: ["darkvision"], attributeAdjustments: { str: 1, int: 1, wis: -1 }, ageRanges: { youngAdult:{min:12,max:18}, adult:{min:19,max:40}, middleAged:{min:41,max:60}, elder:{min:61,max:80} } },
+    { id: "core.kobold", labelKey: "NPCFORGE.Content.Ancestry.Kobold", weight: 5, baseHp: 6, size: "sm", speed: 25, traits: ["humanoid", "kobold"], languages: ["common", "sakvroth"], senses: ["darkvision"], attributeAdjustments: { dex: 1, cha: 1, con: -1 }, ageRanges: { youngAdult:{min:6,max:12}, adult:{min:13,max:35}, middleAged:{min:36,max:70}, elder:{min:71,max:120} } },
+    { id: "core.tengu", labelKey: "NPCFORGE.Content.Ancestry.Tengu", weight: 4, baseHp: 6, size: "med", speed: 25, traits: ["humanoid", "tengu"], languages: ["common", "tengu"], senses: ["low-light-vision"], attributeAdjustments: { dex: 1 }, naturalAttacks: [{ id:"beak", labelKey:"NPCFORGE.AncestryAttacks.Beak", damage:{dice:1,die:"d6",type:"piercing"}, traits:["finesse","unarmed"] }], ageRanges: { youngAdult:{min:14,max:22}, adult:{min:23,max:55}, middleAged:{min:56,max:85}, elder:{min:86,max:120} } },
+    { id: "core.tripkee", labelKey: "NPCFORGE.Content.Ancestry.Tripkee", weight: 3, baseHp: 6, size: "sm", speed: 25, traits: ["humanoid", "tripkee"], languages: ["common", "tripkee"], senses: ["low-light-vision"], attributeAdjustments: { dex: 1, wis: 1, str: -1 }, ageRanges: { youngAdult:{min:10,max:16}, adult:{min:17,max:40}, middleAged:{min:41,max:65}, elder:{min:66,max:90} } },
+    { id: "core.ratfolk", labelKey: "NPCFORGE.Content.Ancestry.Ratfolk", weight: 4, baseHp: 6, size: "sm", speed: 25, traits: ["humanoid", "ratfolk"], languages: ["common", "ysoki"], senses: ["low-light-vision"], attributeAdjustments: { dex: 1, int: 1, str: -1 }, naturalAttacks: [{ id:"bite", labelKey:"NPCFORGE.AncestryAttacks.Bite", damage:{dice:1,die:"d4",type:"piercing"}, traits:["agile","finesse","unarmed"] }], ageRanges: { youngAdult:{min:8,max:14}, adult:{min:15,max:35}, middleAged:{min:36,max:50}, elder:{min:51,max:70} } }
+  ];
+  for (const ancestry of ancestries) registry.register("ancestries", source, ancestry);
 
   // Class profiles are NPC-facing analogues of the Player Core / Player Core 2 class identities.
   // They intentionally describe benchmark preferences and signature concepts rather than PC progression.
@@ -332,6 +348,23 @@ export function registerCoreContent(registry) {
   registry.register("roles", source, { id: "core.veteran", labelKey: "NPCFORGE.Content.Role.Veteran", statAdjustments: { perception: 1, fortitude: 1 }, skillModifierAdjustment: 1, weight: 5 });
   registry.register("roles", source, { id: "core.ordinary", labelKey: "NPCFORGE.Content.Role.Ordinary", weight: 10 });
 
-  registry.register("namePacks", source, { id: "core.generic-human", ancestryIds: ["core.human"], given: ["Alden", "Mira", "Tarin", "Lysa", "Bren"], family: ["Miller", "Warden", "Stone", "Reed", "Vale"], weight: 10 });
-  registry.register("namePacks", source, { id: "core.generic-dwarf", ancestryIds: ["core.dwarf"], given: ["Hargun", "Dagna", "Borin", "Runa", "Keld"], family: ["Ironhand", "Stonehelm", "Deepdelver", "Forgeheart"], weight: 10 });
+  const namePacks = [
+    { id:"core.generic-human", ancestryIds:["core.human"], given:["Alden","Mira","Tarin","Lysa","Bren"], family:["Vale","Reed","Maren","Toren"] },
+    { id:"core.generic-elf", ancestryIds:["core.elf"], given:["Aelar","Lethira","Thalan","Syla","Vaelis"], family:["Aelion","Caladrel","Ilyren"] },
+    { id:"core.generic-gnome", ancestryIds:["core.gnome"], given:["Pim","Nissa","Tivvi","Orlo","Zanna"], family:["Bimpel","Nackle","Tilli"] },
+    { id:"core.generic-goblin", ancestryIds:["core.goblin"], given:["Rikka","Zib","Mog","Ketta","Brix"], family:[] },
+    { id:"core.generic-halfling", ancestryIds:["core.halfling"], given:["Milo","Tessa","Perrin","Lina","Corin"], family:["Tallow","Bramble","Fen"] },
+    { id:"core.generic-leshy", ancestryIds:["core.leshy"], given:["Briar","Moss","Pip","Reed","Thistle"], family:[] },
+    { id:"core.generic-orc", ancestryIds:["core.orc"], given:["Ghar","Morga","Rask","Vesha","Drok"], family:[] },
+    { id:"core.generic-dwarf", ancestryIds:["core.dwarf"], given:["Hargun","Dagna","Borin","Runa","Keld"], family:["Dorin","Khazad","Morgran"] },
+    { id:"core.generic-catfolk", ancestryIds:["core.catfolk"], given:["Sahri","Meris","Tavi","Rasha","Nim"], family:["Kesh","Miraal","Sahm"] },
+    { id:"core.generic-hobgoblin", ancestryIds:["core.hobgoblin"], given:["Varka","Dren","Kassa","Mek","Torga"], family:[] },
+    { id:"core.generic-lizardfolk", ancestryIds:["core.lizardfolk"], given:["Sseska","Irrek","Tassk","Vess","Korr"], family:[] },
+    { id:"core.generic-kholo", ancestryIds:["core.kholo"], given:["Aru","Kesh","Mava","Rokha","Zuri"], family:[] },
+    { id:"core.generic-kobold", ancestryIds:["core.kobold"], given:["Krix","Tikka","Vek","Suri","Zik"], family:[] },
+    { id:"core.generic-tengu", ancestryIds:["core.tengu"], given:["Kuro","Miya","Raku","Sora","Teki"], family:["Aki","Haru","Yori"] },
+    { id:"core.generic-tripkee", ancestryIds:["core.tripkee"], given:["Plo","Kiri","Tup","Rilli","Bok"], family:[] },
+    { id:"core.generic-ratfolk", ancestryIds:["core.ratfolk"], given:["Nikka","Rizz","Tavi","Skit","Vessa"], family:["Nim","Rik","Tekk"] }
+  ];
+  for (const pack of namePacks) registry.register("namePacks", source, { ...pack, weight: 10 });
 }

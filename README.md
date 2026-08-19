@@ -1,10 +1,10 @@
 # PF2E NPC Forge
 
-**Version 0.4.0 – Profession System & Inventory**
+**Version 0.5.0 – Profession System & Inventory**
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
 
-## 0.4.0 focus
+## 0.5.0 focus
 
 This release expands NPC Forge from class-driven combat profiles into broader world-facing NPC generation. Professions are now organized into categories, can expose optional specializations, and contribute skills, Lore, attributes, and equipment profiles.
 
@@ -40,3 +40,8 @@ npm test
 ```
 
 See `docs/TESTING.md`, `docs/API.md`, and `docs/ARCHITECTURE.md`.
+
+
+## 0.5.0 Ancestries & Identity
+
+Adds the 16 Player Core / Player Core 2 ancestry profiles, ancestry-driven size, Speed, languages, senses and signature natural attacks, plus generated gender and ancestry-aware age data. Ancestries remain public Content Registry entries and can be extended by add-on modules through `api.content.registerAncestry()`.

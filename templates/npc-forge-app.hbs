@@ -45,9 +45,17 @@
       </div>
     </details>
 
-    <details class="npc-forge-section">
+    <details class="npc-forge-section" open>
       <summary>{{localize "NPCFORGE.Sections.Identity"}}</summary>
-      <div class="npc-forge-section-body npc-forge-coming-soon">{{localize "NPCFORGE.App.IdentityComingSoon"}}</div>
+      <div class="npc-forge-section-body npc-forge-form-grid">
+        <label>{{localize "NPCFORGE.Fields.Name"}}<input type="text" name="identityName" value="{{request.identity.name}}" placeholder="{{localize "NPCFORGE.Fields.Automatic"}}"></label>
+        <label>{{localize "NPCFORGE.Fields.Gender"}}
+          <select name="identityGender">{{#each genderOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+        </label>
+        <label>{{localize "NPCFORGE.Fields.Age"}}
+          <select name="identityAgeCategory">{{#each ageOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+        </label>
+      </div>
     </details>
     <details class="npc-forge-section">
       <summary>{{localize "NPCFORGE.Sections.Equipment"}}</summary>
@@ -66,6 +74,18 @@
         </div>
         <div class="npc-forge-sheet-level">{{localize "NPCFORGE.Fields.Level"}} {{view.level}}</div>
       </article>
+
+
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Identity"}}</h2>
+        <div class="npc-forge-stat-grid npc-forge-stat-grid-defense">
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.Gender"}}</span><strong>{{view.identity.gender}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.Age"}}</span><strong>{{view.identity.ageYears}} · {{view.identity.ageCategory}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.Size"}}</span><strong>{{view.identity.size}}</strong></div>
+          <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Fields.Languages"}}</span><strong>{{#each view.identity.languages}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong></div>
+          {{#if view.identity.senses.length}}<div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Fields.Senses"}}</span><strong>{{#each view.identity.senses}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong></div>{{/if}}
+        </div>
+      </section>
 
       <section class="npc-forge-sheet-section">
         <h2>{{localize "NPCFORGE.Sections.Attributes"}}</h2>

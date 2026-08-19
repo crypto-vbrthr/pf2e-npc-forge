@@ -29,7 +29,10 @@ export function normalizeRequest(request = {}) {
     role: fixed(request.role, "core.ordinary"),
     identity: {
       generateName: request.identity?.generateName !== false,
-      name: request.identity?.name ?? null
+      name: request.identity?.name ?? null,
+      gender: request.identity?.gender ?? "random",
+      ageCategory: request.identity?.ageCategory ?? "random",
+      ageYears: Number.isFinite(request.identity?.ageYears) ? Math.max(0, Math.trunc(request.identity.ageYears)) : null
     },
     appearance: { enabled: request.appearance?.enabled !== false },
     personality: { enabled: request.personality?.enabled !== false },

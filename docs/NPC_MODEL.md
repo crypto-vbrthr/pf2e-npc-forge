@@ -58,3 +58,23 @@ Inventory entries may contain:
 ```
 
 Weapons remain linked to generated NPC attacks through `attack.sourceWeaponId`.
+
+## Identity model (schema v4)
+
+`identity` now contains structured ancestry-facing information:
+
+```js
+{
+  name,
+  ancestry,
+  gender,
+  age: { category, years },
+  size,
+  traits: [],
+  languages: [],
+  senses: [],
+  appearance
+}
+```
+
+Gender and age are identity data, not PF2e combat statistics. Age ranges are ancestry-aware generation ranges intended for plausible NPC presentation rather than PC aging rules.

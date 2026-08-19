@@ -7,7 +7,8 @@ import { deepClone } from "./utils.js";
 import { buildStatistics } from "./builders/statistics-builder.js";
 import { buildSkills } from "./builders/skill-builder.js";
 import { buildAbilities } from "./builders/ability-builder.js";
-import { buildInventory } from "./builders/inventory-builder.js";
+import { buildInventory, buildAncestryAttacks } from "./builders/inventory-builder.js";
+import { buildIdentity } from "./builders/identity-builder.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -70,6 +71,9 @@ export class NpcEngine {
     const skills = buildSkills({ level, classProfile, profession, professionSpecialization, role });
     const loadout = buildInventory({ level, profession, specialization: professionSpecialization, classProfile, registry: this.registry, enabled: normalized.inventory.enabled });
     const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
+    const ancestryAttacks = buildAncestryAttacks({ level, ancestry, classProfile });
+    const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name });
+    identity.appearance = normalized.appearance.enabled ? { generated: false, traits: [] } : null;
 
     const npc = {
       schemaVersion: SCHEMA_VERSION,
@@ -78,7 +82,7 @@ export class NpcEngine {
         sources: [ancestry?.sourceModule, classProfile?.sourceModule, profession?.sourceModule, role?.sourceModule].filter(Boolean),
         benchmark: "PF2e GM Core creature-building guidance"
       },
-      identity: { name, ancestry, appearance: normalized.appearance.enabled ? { generated: false, traits: [] } : null },
+      identity,
       build: {
         level,
         classProfile,
@@ -94,7 +98,7 @@ export class NpcEngine {
       abilities,
       spellcasting: [],
       inventory: loadout.inventory,
-      attacks: loadout.attacks,
+      attacks: [...loadout.attacks, ...ancestryAttacks],
       relationships: [],
       biography: {},
       diagnostics: { warnings: [], fallbacks: [] }

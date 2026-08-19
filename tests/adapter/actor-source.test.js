@@ -132,3 +132,17 @@ test("async adapter clones profession equipment from the regular PF2e compendium
     globalThis.game = previousGame;
   }
 });
+
+
+test("adapter materializes ancestry size, traits, languages, senses and identity flags", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const engine = new NpcEngine({ registry });
+  const npc = engine.generate({ seed: "ancestry-adapter", ancestry: "core.goblin", identity: { gender: "male", ageCategory: "adult" } });
+  const source = new Pf2eDocumentAdapter().toActorSource(npc);
+  assert.equal(source.system.traits.size.value, "sm");
+  assert.ok(source.system.traits.value.includes("goblin"));
+  assert.ok(source.system.traits.languages.value.includes("goblin"));
+  assert.ok(source.system.perception.senses.some((sense) => sense.type === "darkvision"));
+  assert.equal(source.flags["pf2e-npc-forge"].gender, "male");
+  assert.equal(source.flags["pf2e-npc-forge"].ageCategory, "adult");
+});

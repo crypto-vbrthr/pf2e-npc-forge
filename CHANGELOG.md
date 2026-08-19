@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.1 - Localization Namespace Hotfix
+
+- Fixed a localization namespace collision introduced in 0.5.0 by mixing flat dotted keys with a nested `NPCFORGE` object in the same language file.
+- Normalized both English and German localization catalogs to one flat dotted-key format.
+- Restored localization for the application title, form labels, statistics, skills, abilities, equipment, ancestry identity fields, senses, languages, and controls.
+- Added regression coverage that rejects nested localization objects and verifies representative DE/EN keys.
+
+# 0.5.0 – Ancestries & Identity
+
+- Expanded core ancestry content to the 16 ancestries from Player Core and Player Core 2.
+- Added ancestry size, Speed, traits, languages, senses, age ranges, and selected intrinsic natural attacks.
+- Added generated gender and ancestry-aware age identity data.
+- Added Identity controls and preview presentation.
+- Added public `registerAncestry()` API and ancestry-related capabilities.
+- Materializes ancestry traits, size, languages, and senses on generated PF2e NPC actor sources.
+- Bumped neutral NPC schema to v4.
+
+# Changelog
+
 ## 0.4.0 - Profession System & Inventory
 
 - Expanded the built-in profession catalog to eleven broad categories and more than twenty concrete professions.

@@ -173,8 +173,11 @@ export class Pf2eDocumentAdapter {
     const profession = npc.build.profession?.labelKey ? localized(npc.build.profession.labelKey, npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC") : (npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC");
     const classProfile = npc.build.classProfile?.labelKey ? localized(npc.build.classProfile.labelKey, npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "") : (npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "");
     const lore = loreNotes(npc.skills);
+    const ancestryName = npc.identity.ancestry?.labelKey ? localized(npc.identity.ancestry.labelKey, npc.identity.ancestry?.id ?? "") : (npc.identity.ancestry?.label ?? npc.identity.ancestry?.id ?? "");
+    const identityBits = [ancestryName, profession, classProfile].filter(Boolean).join(" · ");
     const publicNotes = [
-      `<p><strong>${profession}</strong>${classProfile ? ` · ${classProfile}` : ""}</p>`,
+      `<p><strong>${identityBits}</strong></p>`,
+      `<p>${localized("NPCFORGE.Fields.Age", "Age")}: ${npc.identity.age?.years ?? "–"} · ${localized("NPCFORGE.Fields.Gender", "Gender")}: ${localized(`NPCFORGE.Identity.Gender${String(npc.identity.gender ?? "").replace(/^./, c => c.toUpperCase())}`, npc.identity.gender ?? "–")}</p>`,
       lore.length ? `<p><strong>${localized("NPCFORGE.Fields.Lore", "Lore")}:</strong> ${lore.join(", ")}</p>` : ""
     ].filter(Boolean).join("");
 
@@ -185,13 +188,13 @@ export class Pf2eDocumentAdapter {
       system: {
         abilities: attributeSource(npc.statistics.attributes),
         details: { level: { value: npc.build.level }, publicNotes, privateNotes: "" },
-        traits: { value: [], rarity: "common", size: { value: "med" }, languages: { value: [] } },
+        traits: { value: [...(npc.identity.traits ?? [])], rarity: npc.identity.ancestry?.rarity ?? "common", size: { value: npc.identity.size ?? "med" }, languages: { value: [...(npc.identity.languages ?? [])] } },
         attributes: {
           ac: { value: npc.statistics.ac },
           hp: { value: npc.statistics.hp, max: npc.statistics.hp },
           speed: { value: npc.statistics.speed }
         },
-        perception: { mod: npc.statistics.perception },
+        perception: { mod: npc.statistics.perception, senses: (npc.identity.senses ?? []).map((sense) => ({ type: sense === "low-light-vision" ? "lowLightVision" : sense, acuity: "precise", range: null, source: npc.identity.ancestry?.id ?? null })) },
         saves: {
           fortitude: { value: npc.statistics.saves.fortitude },
           reflex: { value: npc.statistics.saves.reflex },
@@ -206,6 +209,9 @@ export class Pf2eDocumentAdapter {
           generated: true,
           seed: npc.generation.seed,
           ancestryId: npc.identity.ancestry?.id ?? null,
+          gender: npc.identity.gender ?? null,
+          ageCategory: npc.identity.age?.category ?? null,
+          ageYears: npc.identity.age?.years ?? null,
           classProfileId: npc.build.classProfile?.id ?? null,
           classSpecializationId: npc.build.classSpecialization?.id ?? null,
           professionId: npc.build.profession?.id ?? null,

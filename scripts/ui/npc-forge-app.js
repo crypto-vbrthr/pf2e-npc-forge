@@ -32,7 +32,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     super(options);
     this.api = api;
     this.targetFolderId = targetFolderId;
-    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary" };
+    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary", identity: { name: null, generateName: true, gender: "random", ageCategory: "random" } };
     this.preview = null;
     this._pendingPreviewScrollTop = null;
   }
@@ -61,7 +61,20 @@ export class NpcForgeApp extends HandlebarsApplication {
       professionCategoryOptions: definitionOptions(this.api.content.list("professionCategories"), this.request.professionCategory),
       professionOptions: definitionOptions(professions, this.request.profession),
       professionSpecializationOptions: definitionOptions(professionSpecializations, this.request.professionSpecialization),
-      hasProfessionSpecializations: professionSpecializations.length > 0
+      hasProfessionSpecializations: professionSpecializations.length > 0,
+      genderOptions: [
+        { value: "random", labelKey: "NPCFORGE.Fields.Automatic", selected: (this.request.identity?.gender ?? "random") === "random" },
+        { value: "female", labelKey: "NPCFORGE.Identity.GenderFemale", selected: this.request.identity?.gender === "female" },
+        { value: "male", labelKey: "NPCFORGE.Identity.GenderMale", selected: this.request.identity?.gender === "male" },
+        { value: "nonbinary", labelKey: "NPCFORGE.Identity.GenderNonbinary", selected: this.request.identity?.gender === "nonbinary" }
+      ],
+      ageOptions: [
+        { value: "random", labelKey: "NPCFORGE.Fields.Automatic", selected: (this.request.identity?.ageCategory ?? "random") === "random" },
+        { value: "youngAdult", labelKey: "NPCFORGE.Identity.AgeYoungAdult", selected: this.request.identity?.ageCategory === "youngAdult" },
+        { value: "adult", labelKey: "NPCFORGE.Identity.AgeAdult", selected: this.request.identity?.ageCategory === "adult" },
+        { value: "middleAged", labelKey: "NPCFORGE.Identity.AgeMiddleAged", selected: this.request.identity?.ageCategory === "middleAged" },
+        { value: "elder", labelKey: "NPCFORGE.Identity.AgeElder", selected: this.request.identity?.ageCategory === "elder" }
+      ]
     };
   }
 
@@ -97,7 +110,14 @@ export class NpcForgeApp extends HandlebarsApplication {
         classSpecialization: classChanged ? null : (String(data.get("classSpecialization") ?? "") || null),
         professionCategory: nextCategory,
         profession: nextProfession,
-        professionSpecialization: (categoryChanged || professionChanged) ? null : (String(data.get("professionSpecialization") ?? "") || null)
+        professionSpecialization: (categoryChanged || professionChanged) ? null : (String(data.get("professionSpecialization") ?? "") || null),
+        identity: {
+          ...(this.request.identity ?? {}),
+          name: String(data.get("identityName") ?? "").trim() || null,
+          generateName: !String(data.get("identityName") ?? "").trim(),
+          gender: String(data.get("identityGender") ?? "random"),
+          ageCategory: String(data.get("identityAgeCategory") ?? "random")
+        }
       };
       if (classChanged || categoryChanged || professionChanged) {
         this._capturePreviewScroll();

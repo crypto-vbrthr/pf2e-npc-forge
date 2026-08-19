@@ -68,3 +68,28 @@ Weapon references currently use the PF2e equipment pack and a stable item slug, 
 ```
 
 If the pack or item is unavailable, the adapter falls back to the neutral model's weapon data and reports no hard failure. The generated NPC strike keeps engine-owned NPC attack/damage scaling while inheriting weapon identity, traits, and damage type from the resolved PF2e item.
+
+## Ancestry content (0.5.0)
+
+Add-on modules can register ancestry profiles through the stable public registry surface:
+
+```js
+api.content.registerAncestry("my-module", {
+  id: "my-module.ancestry.example",
+  labelKey: "MYMODULE.Ancestry.Example",
+  size: "med",
+  speed: 25,
+  traits: ["humanoid"],
+  languages: ["common"],
+  senses: ["low-light-vision"],
+  ageRanges: {
+    youngAdult: { min: 16, max: 24 },
+    adult: { min: 25, max: 50 },
+    middleAged: { min: 51, max: 70 },
+    elder: { min: 71, max: 100 }
+  },
+  naturalAttacks: []
+});
+```
+
+The engine treats these as NPC-facing ancestry identity profiles. They are not complete PC ancestry progression objects and should not encode ancestry-feat advancement.
