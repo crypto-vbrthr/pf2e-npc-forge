@@ -25,3 +25,71 @@ export function ruleValue(ruleTable, level, tier, { lowPick = "high", fallbackTi
  if(Array.isArray(value)) return lowPick==="low"?value[1]:value[0]; return value;
 }
 export const midpoint=(range)=>Array.isArray(range)?Math.round((Number(range[0])+Number(range[1]))/2):(Number(range)||0);
+
+// GM Core: Creature Building, Strike Damage (levels -1 through 24).
+// `formula` is the printed benchmark expression. `average` is the listed expected damage.
+const damageRow = (extreme, high, average, low) => ({ extreme, high, average, low });
+const damageEntry = (formula, average) => Object.freeze({ formula, average });
+export const STRIKE_DAMAGE = table([
+  damageRow(damageEntry("1d6+1",4), damageEntry("1d4+1",3), damageEntry("1d4",3), damageEntry("1d4",2)),
+  damageRow(damageEntry("1d6+3",6), damageEntry("1d6+2",5), damageEntry("1d4+2",4), damageEntry("1d4+1",3)),
+  damageRow(damageEntry("1d8+4",8), damageEntry("1d6+3",6), damageEntry("1d6+2",5), damageEntry("1d4+2",4)),
+  damageRow(damageEntry("1d12+4",11), damageEntry("1d10+4",9), damageEntry("1d8+4",8), damageEntry("1d6+3",6)),
+  damageRow(damageEntry("1d12+8",15), damageEntry("1d10+6",12), damageEntry("1d8+6",10), damageEntry("1d6+5",8)),
+  damageRow(damageEntry("2d10+7",18), damageEntry("2d8+5",14), damageEntry("2d6+5",12), damageEntry("2d4+4",9)),
+  damageRow(damageEntry("2d12+7",20), damageEntry("2d8+7",16), damageEntry("2d6+6",13), damageEntry("2d4+6",11)),
+  damageRow(damageEntry("2d12+10",23), damageEntry("2d8+9",18), damageEntry("2d6+8",15), damageEntry("2d4+7",12)),
+  damageRow(damageEntry("2d12+12",25), damageEntry("2d10+9",20), damageEntry("2d8+8",17), damageEntry("2d6+6",13)),
+  damageRow(damageEntry("2d12+15",28), damageEntry("2d10+11",22), damageEntry("2d8+9",18), damageEntry("2d6+8",15)),
+  damageRow(damageEntry("2d12+17",30), damageEntry("2d10+13",24), damageEntry("2d8+11",20), damageEntry("2d6+9",16)),
+  damageRow(damageEntry("2d12+20",33), damageEntry("2d12+13",26), damageEntry("2d10+11",22), damageEntry("2d6+10",17)),
+  damageRow(damageEntry("2d12+22",35), damageEntry("2d12+15",28), damageEntry("2d10+12",23), damageEntry("2d8+10",19)),
+  damageRow(damageEntry("3d12+19",38), damageEntry("3d10+14",30), damageEntry("3d8+12",25), damageEntry("3d6+10",20)),
+  damageRow(damageEntry("3d12+21",40), damageEntry("3d10+16",32), damageEntry("3d8+14",27), damageEntry("3d6+11",21)),
+  damageRow(damageEntry("3d12+24",43), damageEntry("3d10+18",34), damageEntry("3d8+15",28), damageEntry("3d6+13",23)),
+  damageRow(damageEntry("3d12+26",45), damageEntry("3d12+17",36), damageEntry("3d10+14",30), damageEntry("3d6+14",24)),
+  damageRow(damageEntry("3d12+29",48), damageEntry("3d12+18",37), damageEntry("3d10+15",31), damageEntry("3d6+15",25)),
+  damageRow(damageEntry("3d12+31",50), damageEntry("3d12+19",38), damageEntry("3d10+16",32), damageEntry("3d6+16",26)),
+  damageRow(damageEntry("3d12+34",53), damageEntry("3d12+20",40), damageEntry("3d10+17",33), damageEntry("3d6+17",27)),
+  damageRow(damageEntry("4d12+29",55), damageEntry("4d10+20",42), damageEntry("4d8+17",35), damageEntry("4d6+14",28)),
+  damageRow(damageEntry("4d12+32",58), damageEntry("4d10+22",44), damageEntry("4d8+19",37), damageEntry("4d6+15",29)),
+  damageRow(damageEntry("4d12+34",60), damageEntry("4d10+24",46), damageEntry("4d8+20",38), damageEntry("4d6+17",31)),
+  damageRow(damageEntry("4d12+37",63), damageEntry("4d10+26",48), damageEntry("4d8+22",40), damageEntry("4d6+18",32)),
+  damageRow(damageEntry("4d12+39",65), damageEntry("4d12+24",50), damageEntry("4d10+20",42), damageEntry("4d6+20",34)),
+  damageRow(damageEntry("4d12+42",68), damageEntry("4d12+26",52), damageEntry("4d10+22",44), damageEntry("4d6+21",35))
+]);
+
+const DIE_AVERAGES = Object.freeze({ d4: 2.5, d6: 3.5, d8: 4.5, d10: 5.5, d12: 6.5 });
+const DAMAGE_TIERS = Object.freeze(["low", "average", "high", "extreme"]);
+export function weakerDamageTier(tier = "average", steps = 1) {
+  const index = Math.max(0, DAMAGE_TIERS.indexOf(tier));
+  return DAMAGE_TIERS[Math.max(0, index - Math.max(0, Number(steps) || 0))];
+}
+export function strikeDamageBenchmark(level, tier = "average") {
+  const row = STRIKE_DAMAGE[level];
+  if (!row) throw new RangeError(`No GM Core strike damage row for level ${level}`);
+  return row[tier] ?? row.average;
+}
+export function formulaAverage(formula = "") {
+  const match = String(formula).trim().match(/^(\d+)d(4|6|8|10|12)(?:\+(-?\d+))?$/i);
+  if (!match) return null;
+  return Number(match[1]) * DIE_AVERAGES[`d${match[2]}`] + Number(match[3] ?? 0);
+}
+export function weaponScaledDamageFormula({ level, tier = "average", die = "d6" } = {}) {
+  const benchmark = strikeDamageBenchmark(level, tier);
+  const dieAverage = DIE_AVERAGES[die] ?? DIE_AVERAGES.d6;
+  // GM Core recommends roughly half the strike damage from dice and half from the flat modifier.
+  // Preserve the actual weapon die while aiming at the benchmark's listed average damage.
+  const dice = Math.max(1, Math.round((benchmark.average / 2) / dieAverage));
+  const modifier = Math.max(0, Math.round(benchmark.average - (dice * dieAverage)));
+  return {
+    formula: `${dice}${die}${modifier ? `+${modifier}` : ""}`,
+    dice,
+    die,
+    modifier,
+    tier,
+    expectedAverage: benchmark.average,
+    actualAverage: dice * dieAverage + modifier,
+    benchmarkFormula: benchmark.formula
+  };
+}

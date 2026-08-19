@@ -202,3 +202,22 @@ const npc = api.engine.generate({
 ```
 
 The generated neutral model exposes `npc.personality` plus a structured `roleplaying` section. Secrets are intended as GM information; the PF2e adapter places them in private notes.
+
+## Combat benchmark metadata (0.6.1)
+
+Generated attacks expose stable benchmark metadata for consumers such as Encounter Forge or diagnostics tools:
+
+```js
+const npc = api.engine.generate({ level: 12, classProfile: "core.fighter" });
+const strike = npc.attacks[0];
+
+strike.modifier;                 // 26
+strike.attackTier;               // "high"
+strike.damage.formula;           // weapon-die-preserving formula, e.g. "4d6+16"
+strike.damage.benchmarkTier;     // "high"
+strike.damage.expectedAverage;   // 30
+strike.damage.actualAverage;     // 30
+strike.damage.benchmarkFormula;  // printed GM Core benchmark, "3d10+14"
+```
+
+External class profiles can set `statistics.damage` to `low`, `average`, `high`, or `extreme`. If omitted, NPC Forge derives a conservative default from the class profile and its tags.

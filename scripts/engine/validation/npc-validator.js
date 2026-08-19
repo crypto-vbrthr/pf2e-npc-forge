@@ -21,6 +21,12 @@ export function validateNpcModel(npc) {
   }
   if (!Array.isArray(npc?.skills)) errors.push("NPC skills must be an array");
   if (!Array.isArray(npc?.abilities)) errors.push("NPC abilities must be an array");
+  if (!Array.isArray(npc?.attacks)) errors.push("NPC attacks must be an array");
+  for (const attack of npc?.attacks ?? []) {
+    if (!attack.id || !Number.isFinite(attack.modifier)) errors.push("Each NPC attack requires id and numeric modifier");
+    if (!attack.damage?.formula || !attack.damage?.type) errors.push(`NPC attack ${attack.id ?? "unknown"} requires damage formula and type`);
+    if (attack.damage?.expectedAverage != null && !Number.isFinite(attack.damage.expectedAverage)) errors.push(`NPC attack ${attack.id ?? "unknown"} has invalid expectedAverage`);
+  }
   for (const skill of npc?.skills ?? []) {
     if (!skill.slug || !Number.isFinite(skill.modifier)) errors.push("Each NPC skill requires slug and numeric modifier");
   }

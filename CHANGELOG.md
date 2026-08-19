@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.1 – Level-scaled Strike Damage & Combat Benchmarks
+
+- Added the GM Core Strike Damage benchmark table for levels -1 through 24.
+- Replaced the old `1dx + small level bonus` Strike scaling with level-appropriate benchmark damage.
+- Preserves the source weapon damage die while targeting the benchmark average damage recommended by GM Core.
+- Added explicit combat metadata to generated attacks: attack tier, damage tier, expected average, actual average, and printed benchmark formula.
+- Agile Strikes automatically step down one damage category, matching GM Core guidance.
+- Updated the Barbarian core profile to the GM Core-style tradeoff of average attack accuracy and extreme damage.
+- Kept compendium weapon item data untouched; NPC Strike damage remains engine-owned so runes and item values are not double-counted.
+- Added validation and regression tests for level 12 fighter damage, barbarian accuracy/damage tradeoffs, agile attacks, and full benchmark coverage.
+- Advanced the public API to 0.6.1 and neutral NPC schema to version 8.
+
 ## 0.6.0 – Personality & Roleplaying
 
 - Added structured, deterministic personality generation.

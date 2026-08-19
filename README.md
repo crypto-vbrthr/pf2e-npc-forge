@@ -1,8 +1,16 @@
 # PF2E NPC Forge
 
-**Version 0.6.0 – Personality & Roleplaying**
+**Version 0.6.1 – Level-scaled Strike Damage & Combat Benchmarks**
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
+
+## 0.6.1 Level-scaled Strike Damage & Combat Benchmarks
+
+Weapon and natural-attack damage now follows the PF2e GM Core creature-building Strike Damage benchmarks instead of retaining a single base weapon die with a small level bonus. The engine preserves the weapon's actual damage die while targeting the benchmark average for the NPC's level and combat profile.
+
+Core martial identities now differentiate damage as well as accuracy. Fighters, rangers, champions, rogues, and monks use appropriate direct-combat damage profiles; agile attacks step down one damage category; barbarians use the GM Core tradeoff of average accuracy with extreme damage. Spellcaster weapon Strikes remain deliberately weak.
+
+Each generated attack records `attackTier`, `damage.benchmarkTier`, `damage.expectedAverage`, `damage.actualAverage`, and the printed GM Core benchmark formula. Compendium weapons remain real PF2e items and are not rewritten to fake the NPC damage. The separate NPC Strike carries the creature-building damage, preventing rune or item data from being double-counted.
 
 ## 0.6.0 Personality & Roleplaying
 

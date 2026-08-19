@@ -1,4 +1,4 @@
-import { ruleValue, ATTACK_BONUS } from "../rules/gm-core-tables.js";
+import { ruleValue, ATTACK_BONUS, weaponScaledDamageFormula, weakerDamageTier } from "../rules/gm-core-tables.js";
 
 const PACK = "pf2e.equipment-srd";
 
@@ -40,6 +40,29 @@ function baselineWeaponKey(profession, classProfile) {
   return "club";
 }
 
+function defaultDamageTier(classProfile) {
+  if (classProfile?.statistics?.damage) return classProfile.statistics.damage;
+  const id = classProfile?.id;
+  if (id === "core.barbarian") return "extreme";
+  if (["core.fighter", "core.ranger", "core.champion", "core.rogue", "core.monk"].includes(id)) return "high";
+  if (["core.swashbuckler", "core.investigator"].includes(id)) return "average";
+  if (classProfile?.tags?.includes("spellcaster")) return "low";
+  return classProfile?.statistics?.attack === "high" ? "high" : "average";
+}
+
+function strikeDamageTier({ classProfile, traits = [], ranged = false } = {}) {
+  let tier = defaultDamageTier(classProfile);
+  // GM Core recommends one category lower for agile melee Strikes and generally average/low for ranged Strikes.
+  if (traits.includes("agile")) tier = weakerDamageTier(tier, 1);
+  if (ranged) tier = weakerDamageTier(tier, 1);
+  return tier;
+}
+
+function buildAttackDamage({ level, classProfile, weaponDamage, traits = [], ranged = false } = {}) {
+  const tier = strikeDamageTier({ classProfile, traits, ranged });
+  return weaponScaledDamageFormula({ level, tier, die: weaponDamage?.die ?? "d6" });
+}
+
 function buildBaselineWeapon(level, profession, classProfile) {
   const key = baselineWeaponKey(profession, classProfile);
   const definition = FALLBACK_WEAPONS[key];
@@ -58,18 +81,26 @@ function buildBaselineWeapon(level, profession, classProfile) {
     damage: definition.damage,
     traits: [...definition.traits]
   };
+  const scaledDamage = buildAttackDamage({ level, classProfile, weaponDamage: weapon.damage, traits: weapon.traits });
   const attack = {
     id: "primary-attack",
     sourceWeaponId: weapon.id,
     label: weapon.name,
     labelKey: weapon.labelKey,
     modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
-    damage: { formula: `${weapon.damage.dice}${weapon.damage.die}+${Math.max(1, 2 + Math.floor(level / 3))}`, type: weapon.damage.type },
+    attackTier: classProfile?.statistics?.attack ?? "average",
+    damage: {
+      formula: scaledDamage.formula,
+      type: weapon.damage.type,
+      benchmarkTier: scaledDamage.tier,
+      expectedAverage: scaledDamage.expectedAverage,
+      actualAverage: scaledDamage.actualAverage,
+      benchmarkFormula: scaledDamage.benchmarkFormula
+    },
     traits: [...weapon.traits]
   };
   return { weapon, attack };
 }
-
 function profileEntries(registry, ids = []) {
   return ids.flatMap((id) => registry.get("equipmentProfiles", id)?.items ?? []);
 }
@@ -101,17 +132,26 @@ export function buildInventory({ level, profession, specialization, classProfile
 
 
 export function buildAncestryAttacks({ level, ancestry, classProfile } = {}) {
-  return (ancestry?.naturalAttacks ?? []).map((definition, index) => ({
-    id: `ancestry-attack-${definition.id ?? index}`,
-    sourceWeaponId: null,
-    sourceType: "ancestry",
-    label: definition.id ?? "Natural Attack",
-    labelKey: definition.labelKey ?? null,
-    modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
-    damage: {
-      formula: `${definition.damage?.dice ?? 1}${definition.damage?.die ?? "d4"}+${Math.max(1, 2 + Math.floor(level / 3))}`,
-      type: definition.damage?.type ?? "bludgeoning"
-    },
-    traits: [...(definition.traits ?? ["unarmed"])]
-  }));
+  return (ancestry?.naturalAttacks ?? []).map((definition, index) => {
+    const traits = [...(definition.traits ?? ["unarmed"])];
+    const scaledDamage = buildAttackDamage({ level, classProfile, weaponDamage: definition.damage, traits });
+    return {
+      id: `ancestry-attack-${definition.id ?? index}`,
+      sourceWeaponId: null,
+      sourceType: "ancestry",
+      label: definition.id ?? "Natural Attack",
+      labelKey: definition.labelKey ?? null,
+      modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
+      attackTier: classProfile?.statistics?.attack ?? "average",
+      damage: {
+        formula: scaledDamage.formula,
+        type: definition.damage?.type ?? "bludgeoning",
+        benchmarkTier: scaledDamage.tier,
+        expectedAverage: scaledDamage.expectedAverage,
+        actualAverage: scaledDamage.actualAverage,
+        benchmarkFormula: scaledDamage.benchmarkFormula
+      },
+      traits
+    };
+  });
 }

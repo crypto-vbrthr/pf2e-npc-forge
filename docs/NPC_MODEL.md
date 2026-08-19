@@ -107,3 +107,24 @@ Consumers should use `id`/`category` for logic and render `labelKey` through the
 `npc.personality` is either `null` or a structured generated personality object. It contains semantic entries for `demeanor`, `traits`, `motivation`, `flaw`, `quirk`, and optional `secret`, plus a derived `roleplaying` object. Visible strings remain localization-layer concerns; engine data stores stable IDs and localization keys.
 
 The roleplaying object provides immediate table-facing guidance for first impression, normal conversation, behavior under pressure, and driving goal. Consumers should treat `secret` as GM-private information unless the user explicitly chooses otherwise.
+
+## Attack benchmark fields (schema 8)
+
+Each attack can include benchmark provenance in addition to its executable modifier and damage formula:
+
+```js
+{
+  modifier: 26,
+  attackTier: "high",
+  damage: {
+    formula: "4d6+16",
+    type: "piercing",
+    benchmarkTier: "high",
+    expectedAverage: 30,
+    actualAverage: 30,
+    benchmarkFormula: "3d10+14"
+  }
+}
+```
+
+The item and the NPC Strike intentionally remain distinct. A compendium weapon preserves its authentic PF2e item data and value; the Strike uses creature-building damage appropriate to the NPC level.

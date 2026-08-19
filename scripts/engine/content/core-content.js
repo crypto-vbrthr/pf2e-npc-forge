@@ -93,7 +93,7 @@ export function registerCoreContent(registry) {
     {
       id: "core.barbarian", labelKey: "NPCFORGE.Content.ClassProfile.Barbarian", tags: ["martial", "striker"],
       attributeTiers: { str: "high", dex: "average", con: "high", int: "low", wis: "average", cha: "low" },
-      statistics: { perception: "average", ac: "average", hp: "high", attack: "high", saves: { fortitude: "high", reflex: "average", will: "average" } },
+      statistics: { perception: "average", ac: "average", hp: "high", attack: "average", damage: "extreme", saves: { fortitude: "high", reflex: "average", will: "average" } },
       preferredSkills: ["athletics"], skillBias: { intimidation: "high", survival: "average" },
       abilityIds: ["core.ability.rage"], weight: 7
     },
