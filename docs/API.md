@@ -124,3 +124,42 @@ const npc = api.engine.generate({
 ```
 
 Generated identities expose `identity.nameParts` as the stable semantic representation. `identity.name` remains a fallback rendering for API compatibility; UI presentation and PF2e actor creation re-render semantic parts through the active localization catalog. Manual names are represented as `{ manual: "..." }` and are never translated.
+
+
+## Appearance packs (0.5.4)
+
+External modules can contribute physical appearance content without depending on the NPC Forge UI:
+
+```js
+api.content.registerAppearancePack("my-module", {
+  id: "my-module.street-faces",
+  ancestryIds: ["core.human"], // optional
+  traits: [
+    {
+      id: "my-module.crooked-smile",
+      category: "facial",
+      labelKey: "MYMODULE.Appearance.CrookedSmile",
+      weight: 5,
+      preferredTags: ["criminal"]
+    }
+  ]
+});
+```
+
+Supported core categories are `build`, `facial`, `complexion`, `age`, `scar`, `hands`, and `posture`. Trait definitions may use `ancestryIds`, `excludeAncestryIds`, `ageCategories`, `requiresTags`, `excludesTags`, and `preferredTags`. The engine stores semantic trait IDs in `identity.appearance`; localization is presentation-only.
+
+Generation request example:
+
+```js
+const npc = api.engine.generate({
+  seed: "dock-veteran-01",
+  appearance: {
+    enabled: true,
+    intensity: "medium",
+    allowBodyShape: true,
+    allowScars: true,
+    allowAgeFeatures: true,
+    allowPosture: true
+  }
+});
+```

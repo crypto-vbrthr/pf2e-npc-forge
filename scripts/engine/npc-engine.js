@@ -10,6 +10,7 @@ import { buildAbilities } from "./builders/ability-builder.js";
 import { buildInventory, buildAncestryAttacks } from "./builders/inventory-builder.js";
 import { buildIdentity, resolveGender } from "./builders/identity-builder.js";
 import { generateNameData } from "./names/name-generator.js";
+import { buildAppearance } from "./builders/appearance-builder.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -69,7 +70,17 @@ export class NpcEngine {
     const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
     const ancestryAttacks = buildAncestryAttacks({ level, ancestry, classProfile });
     const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name: nameData.name, nameParts: nameData.nameParts, resolvedGender });
-    identity.appearance = normalized.appearance.enabled ? { generated: false, traits: [] } : null;
+    identity.appearance = buildAppearance({
+      request: normalized.appearance,
+      ancestry,
+      profession,
+      professionSpecialization,
+      classProfile,
+      age: identity.age,
+      random,
+      resolver,
+      registry: this.registry
+    });
 
     const npc = {
       schemaVersion: SCHEMA_VERSION,

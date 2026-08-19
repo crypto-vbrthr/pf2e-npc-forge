@@ -86,3 +86,9 @@
   .npc-forge-sheet-header { padding-right: 0.85rem; }
   .npc-forge-sheet-level { position: static; margin-top: 0.45rem; }
 }
+
+/* 0.5.4 appearance controls */
+.npc-forge-checkbox-row { display:flex !important; align-items:center; justify-content:space-between; gap:0.75rem; }
+.npc-forge-checkbox-row input[type="checkbox"] { width:auto; flex:0 0 auto; margin:0; }
+.npc-forge-appearance-row > span { opacity:0.72; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; }
+.npc-forge-appearance-row > strong { text-align:right; }

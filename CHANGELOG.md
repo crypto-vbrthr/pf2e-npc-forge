@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.4 - Appearance & Physical Traits
+
+- Added deterministic, optional physical appearance generation to the neutral NPC Engine.
+- Added low/medium/high trait intensity and independent switches for body shape, scars, age features, and posture/movement.
+- Added weighted core physical traits including build, facial features, complexion, aging signs, scars, hands, and posture.
+- Appearance weighting can react to ancestry, age, profession/class tags, and content-pack requirements.
+- Added an Appearance section to the standalone/embedded-ready preview and localized DE/EN physical-trait labels.
+- Generated appearance is persisted as structured semantic trait IDs and written to PF2e Actor notes/flags by the Document Adapter.
+- External modules can register appearance packs through `api.content.registerAppearancePack()`.
+- Added appearance capabilities and regression coverage for determinism, opt-out/category switches, external packs, localization, and preview markup.
+
 ## 0.5.3 – Persistent Action Bars Layout Fix
 
 - Moved **Generate** into a dedicated non-scrolling action bar beneath the controls pane so it remains visible while form sections scroll.

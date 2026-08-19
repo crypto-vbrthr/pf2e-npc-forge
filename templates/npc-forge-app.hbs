@@ -64,6 +64,20 @@
         </label>
       </div>
     </details>
+
+    <details class="npc-forge-section">
+      <summary>{{localize "NPCFORGE.Sections.Appearance"}}</summary>
+      <div class="npc-forge-section-body npc-forge-form-grid">
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.Generate"}}</span><input type="checkbox" name="appearanceEnabled" {{#if appearanceEnabled}}checked{{/if}}></label>
+        <label>{{localize "NPCFORGE.Appearance.Intensity"}}
+          <select name="appearanceIntensity">{{#each appearanceIntensityOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+        </label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.AllowBodyShape"}}</span><input type="checkbox" name="appearanceAllowBodyShape" {{#if appearanceAllowBodyShape}}checked{{/if}}></label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.AllowScars"}}</span><input type="checkbox" name="appearanceAllowScars" {{#if appearanceAllowScars}}checked{{/if}}></label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.AllowAgeFeatures"}}</span><input type="checkbox" name="appearanceAllowAgeFeatures" {{#if appearanceAllowAgeFeatures}}checked{{/if}}></label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.AllowPosture"}}</span><input type="checkbox" name="appearanceAllowPosture" {{#if appearanceAllowPosture}}checked{{/if}}></label>
+      </div>
+    </details>
     <details class="npc-forge-section">
       <summary>{{localize "NPCFORGE.Sections.Equipment"}}</summary>
       <div class="npc-forge-section-body"><p class="npc-forge-muted">{{localize "NPCFORGE.App.EquipmentGeneratedText"}}</p></div>
@@ -95,6 +109,17 @@
           {{#if view.identity.senses.length}}<div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Fields.Senses"}}</span><strong>{{#each view.identity.senses}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong></div>{{/if}}
         </div>
       </section>
+
+      {{#if view.identity.appearance}}
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Appearance"}}</h2>
+        <div class="npc-forge-sheet-list npc-forge-appearance-list">
+          {{#each view.identity.appearance.traits}}
+            <div class="npc-forge-sheet-list-row npc-forge-appearance-row"><span>{{displayCategory}}</span><strong>{{displayName}}</strong></div>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
 
       <section class="npc-forge-sheet-section">
         <h2>{{localize "NPCFORGE.Sections.Attributes"}}</h2>

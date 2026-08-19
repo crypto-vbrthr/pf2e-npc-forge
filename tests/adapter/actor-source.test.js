@@ -146,3 +146,12 @@ test("adapter materializes ancestry size, traits, languages, senses and identity
   assert.equal(source.flags["pf2e-npc-forge"].gender, "male");
   assert.equal(source.flags["pf2e-npc-forge"].ageCategory, "adult");
 });
+
+
+test("adapter preserves semantic appearance provenance in actor flags", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const npc = new NpcEngine({ registry }).generate({ seed: "appearance-adapter", appearance: { enabled: true, intensity: "medium" } });
+  const source = new Pf2eDocumentAdapter().toActorSource(npc);
+  assert.deepEqual(source.flags["pf2e-npc-forge"].appearanceTraitIds, npc.identity.appearance.traits.map((trait) => trait.id));
+  assert.match(source.system.details.publicNotes, /Appearance|Erscheinung/);
+});

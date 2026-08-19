@@ -18,3 +18,8 @@ Core statistics are generated from dedicated GM Core benchmark tables for levels
 The NPC Engine never reads Foundry compendia. It emits semantic equipment references such as a PF2e pack id plus item slug. Compendium I/O belongs exclusively to the PF2e Document Adapter. This keeps generation deterministic and UI/Foundry independent while allowing created actors to contain authentic PF2e equipment documents.
 
 The adapter uses the resolved weapon as the source of item identity, economic value, weapon group/base item, traits, and descriptive system data. NPC strike modifiers and scaled damage remain part of the neutral NPC model so PC equipment math cannot accidentally replace GM Core NPC benchmarks.
+
+
+## Appearance generation
+
+`appearance-builder.js` is an Engine-only content consumer. It reads registered appearance packs, filters traits against generation context, applies weighted preferences, and writes semantic appearance data into the neutral model. The Foundry UI and PF2e adapter only present/materialize that result; neither owns appearance-selection rules.

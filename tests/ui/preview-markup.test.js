@@ -13,3 +13,11 @@ test("preview uses Creature Forge aligned sheet sections and stat tiles", () => 
   assert.match(css, /npc-forge-sheet-section > h2/);
   assert.match(css, /npc-forge-stat-tile/);
 });
+
+
+test("preview and controls expose appearance traits without overloading identity tiles", () => {
+  assert.match(template, /NPCFORGE\.Sections\.Appearance/);
+  assert.match(template, /appearanceIntensity/);
+  assert.match(template, /appearanceAllowScars/);
+  assert.match(template, /npc-forge-appearance-list/);
+});

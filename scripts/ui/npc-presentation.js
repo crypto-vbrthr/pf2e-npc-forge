@@ -81,6 +81,21 @@ function localizeDamageFormula(formula, localize) {
   return text.replace(/(\d+)d(\d+)/gi, `$1${dieLetter}$2`);
 }
 
+
+function presentAppearance(appearance, localize) {
+  if (!appearance?.generated) return null;
+  return {
+    summary: appearance.summaryKey ? localize(appearance.summaryKey) : (appearance.summary ?? ""),
+    traits: (appearance.traits ?? []).map((trait) => ({
+      id: trait.id,
+      category: trait.category,
+      displayCategory: trait.categoryKey ? localize(trait.categoryKey) : trait.category,
+      displayName: trait.labelKey ? localize(trait.labelKey) : (trait.label ?? trait.id),
+      source: trait.source ?? null
+    }))
+  };
+}
+
 export function presentNpc(npc, localize = (key) => key) {
   if (!npc) return null;
   const profession = localizeDefinition(npc.build?.profession, localize);
@@ -150,7 +165,8 @@ export function presentNpc(npc, localize = (key) => key) {
       ageYears: npc.identity?.age?.years ?? null,
       size: localize(npc.identity?.size === "sm" ? "NPCFORGE.Sizes.Small" : "NPCFORGE.Sizes.Medium"),
       languages: (npc.identity?.languages ?? []).map((language) => LANGUAGE_KEYS[language] ? localize(LANGUAGE_KEYS[language]) : language),
-      senses: (npc.identity?.senses ?? []).map((sense) => SENSE_KEYS[sense] ? localize(SENSE_KEYS[sense]) : sense)
+      senses: (npc.identity?.senses ?? []).map((sense) => SENSE_KEYS[sense] ? localize(SENSE_KEYS[sense]) : sense),
+      appearance: presentAppearance(npc.identity?.appearance, localize)
     },
     statistics: {
       ac: npc.statistics?.ac,

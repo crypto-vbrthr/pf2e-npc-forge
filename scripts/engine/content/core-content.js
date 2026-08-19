@@ -391,4 +391,53 @@ export function registerCoreContent(registry) {
     { id:"core.generic-ratfolk", labelKey:"NPCFORGE.NamePacks.Ratfolk", ancestryIds:["core.ratfolk"], supportedLocales:["en","de"], given:{ female:["Nikka","Vessa","Rizzi"], male:["Rizz","Skit","Tekk"], neutral:["Tavi"] }, family:["Nim","Rik","Tekk"] }
   ];
   for (const pack of namePacks) registry.register("namePacks", source, { ...pack, weight: 10 });
+
+  registry.register("appearancePacks", source, {
+    id: "core.appearance.general",
+    labelKey: "NPCFORGE.Appearance.Packs.General",
+    weight: 10,
+    traits: [
+      { id:"core.appearance.build.slight", category:"build", labelKey:"NPCFORGE.Appearance.Traits.Slight", weight:7, preferredTags:["finesse","agile","spellcaster"] },
+      { id:"core.appearance.build.lean", category:"build", labelKey:"NPCFORGE.Appearance.Traits.Lean", weight:9, preferredTags:["wilderness","maritime","mobile"] },
+      { id:"core.appearance.build.average", category:"build", labelKey:"NPCFORGE.Appearance.Traits.AverageBuild", weight:14 },
+      { id:"core.appearance.build.sturdy", category:"build", labelKey:"NPCFORGE.Appearance.Traits.Sturdy", weight:9, preferredTags:["labor","artisan","martial"] },
+      { id:"core.appearance.build.muscular", category:"build", labelKey:"NPCFORGE.Appearance.Traits.Muscular", weight:5, preferredTags:["martial","labor","rage"] },
+      { id:"core.appearance.build.heavyset", category:"build", labelKey:"NPCFORGE.Appearance.Traits.Heavyset", weight:5, excludesTags:["mobile"] },
+      { id:"core.appearance.build.gaunt", category:"build", labelKey:"NPCFORGE.Appearance.Traits.Gaunt", weight:4, preferredTags:["scholar","occult"] },
+
+      { id:"core.appearance.face.bushy-brows", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.BushyBrows", weight:7 },
+      { id:"core.appearance.face.deep-set-eyes", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.DeepSetEyes", weight:7 },
+      { id:"core.appearance.face.drooping-mouth", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.DroopingMouth", weight:5 },
+      { id:"core.appearance.face.high-cheekbones", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.HighCheekbones", weight:6 },
+      { id:"core.appearance.face.broken-nose", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.BrokenNose", weight:3, preferredTags:["martial","criminal"] },
+      { id:"core.appearance.face.missing-tooth", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.MissingTooth", weight:3, preferredTags:["criminal","maritime","martial"] },
+      { id:"core.appearance.face.warm-eyes", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.WarmEyes", weight:7, preferredTags:["support","medical","social"] },
+      { id:"core.appearance.face.stern-gaze", category:"facial", labelKey:"NPCFORGE.Appearance.Traits.SternGaze", weight:7, preferredTags:["military","martial","leader"] },
+
+      { id:"core.appearance.complexion.freckled", category:"complexion", labelKey:"NPCFORGE.Appearance.Traits.Freckled", weight:6, excludeAncestryIds:["core.leshy"] },
+      { id:"core.appearance.complexion.weathered", category:"complexion", labelKey:"NPCFORGE.Appearance.Traits.Weathered", weight:7, preferredTags:["rural","wilderness","maritime"] },
+      { id:"core.appearance.complexion.pale", category:"complexion", labelKey:"NPCFORGE.Appearance.Traits.Pale", weight:5, excludeAncestryIds:["core.leshy"] },
+      { id:"core.appearance.complexion.ruddy", category:"complexion", labelKey:"NPCFORGE.Appearance.Traits.Ruddy", weight:5, preferredTags:["labor","maritime"], excludeAncestryIds:["core.leshy"] },
+
+      { id:"core.appearance.age.forehead-lines", category:"age", labelKey:"NPCFORGE.Appearance.Traits.ForeheadLines", weight:9, ageCategories:["middleAged","elder"] },
+      { id:"core.appearance.age.laugh-lines", category:"age", labelKey:"NPCFORGE.Appearance.Traits.LaughLines", weight:8, ageCategories:["adult","middleAged","elder"] },
+      { id:"core.appearance.age.greying-hair", category:"age", labelKey:"NPCFORGE.Appearance.Traits.GreyingHair", weight:8, ageCategories:["middleAged","elder"], excludeAncestryIds:["core.leshy"] },
+      { id:"core.appearance.age.tired-eyes", category:"age", labelKey:"NPCFORGE.Appearance.Traits.TiredEyes", weight:7, ageCategories:["adult","middleAged","elder"] },
+
+      { id:"core.appearance.scar.brow", category:"scar", labelKey:"NPCFORGE.Appearance.Traits.ScarBrow", weight:4, preferredTags:["martial","criminal","military"] },
+      { id:"core.appearance.scar.cheek", category:"scar", labelKey:"NPCFORGE.Appearance.Traits.ScarCheek", weight:4, preferredTags:["martial","criminal","maritime"] },
+      { id:"core.appearance.scar.burn-hand", category:"scar", labelKey:"NPCFORGE.Appearance.Traits.BurnScarHand", weight:2, preferredTags:["artisan","craft","alchemical"] },
+
+      { id:"core.appearance.hands.calloused", category:"hands", labelKey:"NPCFORGE.Appearance.Traits.CallousedHands", weight:7, preferredTags:["labor","artisan","rural","maritime"] },
+      { id:"core.appearance.hands.soot-stained", category:"hands", labelKey:"NPCFORGE.Appearance.Traits.SootStainedHands", weight:2, requiresTags:["artisan"] },
+      { id:"core.appearance.hands.ink-stained", category:"hands", labelKey:"NPCFORGE.Appearance.Traits.InkStainedFingers", weight:3, preferredTags:["scholar","knowledge"] },
+      { id:"core.appearance.hands.well-kept", category:"hands", labelKey:"NPCFORGE.Appearance.Traits.WellKeptHands", weight:5, preferredTags:["social","leader","entertainment"] },
+
+      { id:"core.appearance.posture.upright", category:"posture", labelKey:"NPCFORGE.Appearance.Traits.UprightPosture", weight:7, preferredTags:["military","leader","martial"] },
+      { id:"core.appearance.posture.stooped", category:"posture", labelKey:"NPCFORGE.Appearance.Traits.StoopedPosture", weight:4, ageCategories:["middleAged","elder"] },
+      { id:"core.appearance.posture.measured", category:"posture", labelKey:"NPCFORGE.Appearance.Traits.MeasuredMovements", weight:7, preferredTags:["scholar","medical","leader"] },
+      { id:"core.appearance.posture.restless", category:"posture", labelKey:"NPCFORGE.Appearance.Traits.RestlessGestures", weight:5, preferredTags:["criminal","entertainment"] },
+      { id:"core.appearance.posture.slight-limp", category:"posture", labelKey:"NPCFORGE.Appearance.Traits.SlightLimp", weight:2, preferredTags:["veteran","martial"] }
+    ]
+  });
 }

@@ -78,3 +78,26 @@ Weapons remain linked to generated NPC attacks through `attack.sourceWeaponId`.
 ```
 
 Gender and age are identity data, not PF2e combat statistics. Age ranges are ancestry-aware generation ranges intended for plausible NPC presentation rather than PC aging rules.
+
+
+## `identity.appearance`
+
+When enabled, 0.5.4 adds a structured appearance record:
+
+```js
+{
+  generated: true,
+  intensity: "medium",
+  traits: [
+    {
+      id: "core.appearance.build.sturdy",
+      category: "build",
+      categoryKey: "NPCFORGE.Appearance.Category.Build",
+      labelKey: "NPCFORGE.Appearance.Traits.Sturdy",
+      source: { moduleId: "pf2e-npc-forge", packId: "core.appearance.general" }
+    }
+  ]
+}
+```
+
+Consumers should use `id`/`category` for logic and render `labelKey` through the active locale.

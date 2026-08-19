@@ -17,6 +17,8 @@ for (const locale of ["de", "en"]) {
     assert.equal(typeof catalog["NPCFORGE.Abilities.ReactiveStrike.Name"], "string");
     assert.equal(typeof catalog["NPCFORGE.Content.Ancestry.Catfolk"], "string");
     assert.equal(typeof catalog["NPCFORGE.Languages.Common"], "string");
+    assert.equal(typeof catalog["NPCFORGE.Sections.Appearance"], "string");
+    assert.equal(typeof catalog["NPCFORGE.Appearance.Traits.ScarBrow"], "string");
   });
 }
 

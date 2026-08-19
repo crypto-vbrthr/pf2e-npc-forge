@@ -4,6 +4,11 @@
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
 
+
+### 0.5.4 Appearance & Physical Traits
+
+NPC identity can now include optional, structured physical features. The generator supports configurable intensity plus separate controls for body shape, scars/old injuries, age features, and posture. Traits are deterministic for a seed, localized in English/German, and can be supplied by external appearance packs.
+
 ## 0.5.2 focus
 
 Name generation is now ancestry-aware, gender-aware, seed-stable, and localization-ready. The engine stores semantic generated-name parts instead of baking translated speaking surnames into the neutral NPC model. Presentation and PF2e document creation render those parts in the active locale.

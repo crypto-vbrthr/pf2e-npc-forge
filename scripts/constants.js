@@ -1,6 +1,6 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "0.5.2";
-export const SCHEMA_VERSION = 5;
+export const API_VERSION = "0.5.4";
+export const SCHEMA_VERSION = 6;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",
   "actor-source-generation",
@@ -31,5 +31,8 @@ export const CAPABILITIES = Object.freeze([
   "ancestry-natural-attacks",
   "name-pack-registration",
   "localized-name-generation",
-  "semantic-name-parts"
+  "semantic-name-parts",
+  "appearance-pack-registration",
+  "appearance-generation",
+  "physical-traits"
 ]);

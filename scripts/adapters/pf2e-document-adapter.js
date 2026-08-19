@@ -176,9 +176,13 @@ export class Pf2eDocumentAdapter {
     const lore = loreNotes(npc.skills);
     const ancestryName = npc.identity.ancestry?.labelKey ? localized(npc.identity.ancestry.labelKey, npc.identity.ancestry?.id ?? "") : (npc.identity.ancestry?.label ?? npc.identity.ancestry?.id ?? "");
     const identityBits = [ancestryName, profession, classProfile].filter(Boolean).join(" · ");
+    const appearance = npc.identity.appearance?.generated
+      ? (npc.identity.appearance.traits ?? []).map((trait) => trait.labelKey ? localized(trait.labelKey, trait.label ?? trait.id) : (trait.label ?? trait.id)).join(", ")
+      : "";
     const publicNotes = [
       `<p><strong>${identityBits}</strong></p>`,
       `<p>${localized("NPCFORGE.Fields.Age", "Age")}: ${npc.identity.age?.years ?? "–"} · ${localized("NPCFORGE.Fields.Gender", "Gender")}: ${localized(`NPCFORGE.Identity.Gender${String(npc.identity.gender ?? "").replace(/^./, c => c.toUpperCase())}`, npc.identity.gender ?? "–")}</p>`,
+      appearance ? `<p><strong>${localized("NPCFORGE.Fields.Appearance", "Appearance")}:</strong> ${appearance}</p>` : "",
       lore.length ? `<p><strong>${localized("NPCFORGE.Fields.Lore", "Lore")}:</strong> ${lore.join(", ")}</p>` : ""
     ].filter(Boolean).join("");
 
@@ -213,6 +217,7 @@ export class Pf2eDocumentAdapter {
           gender: npc.identity.gender ?? null,
           ageCategory: npc.identity.age?.category ?? null,
           ageYears: npc.identity.age?.years ?? null,
+          appearanceTraitIds: (npc.identity.appearance?.traits ?? []).map((trait) => trait.id),
           classProfileId: npc.build.classProfile?.id ?? null,
           classSpecializationId: npc.build.classSpecialization?.id ?? null,
           professionId: npc.build.profession?.id ?? null,

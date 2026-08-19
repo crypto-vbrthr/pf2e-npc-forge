@@ -37,7 +37,15 @@ export function normalizeRequest(request = {}) {
       namePack: fixed(request.identity?.namePack, null),
       allowUntranslatedNamePacks: request.identity?.allowUntranslatedNamePacks === true
     },
-    appearance: { enabled: request.appearance?.enabled !== false },
+    appearance: {
+      enabled: request.appearance?.enabled !== false,
+      intensity: ["low", "medium", "high"].includes(request.appearance?.intensity) ? request.appearance.intensity : "medium",
+      allowScars: request.appearance?.allowScars !== false,
+      allowAgeFeatures: request.appearance?.allowAgeFeatures !== false,
+      allowBodyShape: request.appearance?.allowBodyShape !== false,
+      allowPosture: request.appearance?.allowPosture !== false,
+      maxTraits: Number.isInteger(request.appearance?.maxTraits) ? Math.max(1, Math.min(6, request.appearance.maxTraits)) : null
+    },
     personality: { enabled: request.personality?.enabled !== false },
     inventory: {
       enabled: request.inventory?.enabled !== false,

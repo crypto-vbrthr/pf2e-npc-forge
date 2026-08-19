@@ -34,3 +34,13 @@ test("public API exposes localized name pack registration and discovery", () => 
   assert.ok(api.capabilities.has("name-pack-registration"));
   assert.ok(api.capabilities.has("localized-name-generation"));
 });
+
+
+test("public API exposes appearance pack registration", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  api.content.registerAppearancePack("appearance-addon", { id: "appearance-addon.faces", traits: [{ id: "appearance-addon.face", category: "facial", label: "Distinctive face" }] });
+  assert.equal(api.content.get("appearancePacks", "appearance-addon.faces").sourceModule, "appearance-addon");
+  assert.ok(api.capabilities.has("appearance-pack-registration"));
+  assert.ok(api.capabilities.has("appearance-generation"));
+});

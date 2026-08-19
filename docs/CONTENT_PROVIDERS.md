@@ -135,3 +135,10 @@ const packs = api.content.listNamePacks({
 ```
 
 Automatic generation ignores packs that do not support the requested locale unless `allowUntranslatedNamePacks` is explicitly enabled in the generation request. A specifically requested fixed pack is still honored.
+
+
+## Appearance providers
+
+Appearance is content-driven. Register one or more `appearancePacks`; each pack owns a list of semantic physical traits. Keep IDs namespaced to your module and provide localization keys rather than localized strings when possible. Traits should describe observable appearance, not hidden personality or mechanical penalties.
+
+The engine treats these traits as descriptive by default. A scar, heavy build, limp, wrinkles, or other feature does not change combat statistics unless another explicit content provider does so.
