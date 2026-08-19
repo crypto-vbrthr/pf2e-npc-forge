@@ -10,7 +10,16 @@ export class NpcForgeApi {
     this.capabilities = new Set(CAPABILITIES);
     this.engine = engine;
     this.documents = documents;
-    this.integrations = integrations;
+    this.integrations = Object.freeze({
+      afflictions: integrations?.afflictions,
+      items: integrations?.items,
+      loot: integrations?.loot,
+      status: () => ({
+        afflictionForge: integrations?.afflictions?.status?.() ?? { available: false, ready: false },
+        itemForge: integrations?.items?.status?.() ?? { available: false, ready: false },
+        lootForge: integrations?.loot?.status?.() ?? { available: false, ready: false }
+      })
+    });
     this.openApplication = openApplication;
     this.registry = registry;
 

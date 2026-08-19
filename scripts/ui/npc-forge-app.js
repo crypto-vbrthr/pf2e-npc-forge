@@ -32,9 +32,9 @@ export class NpcForgeApp extends HandlebarsApplication {
     super(options);
     this.api = api;
     this.targetFolderId = targetFolderId;
-    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary", identity: { name: null, generateName: true, gender: "random", ageCategory: "random" }, appearance: { enabled: true, intensity: "medium", allowScars: true, allowAgeFeatures: true, allowBodyShape: true, allowPosture: true }, personality: { enabled: true, intensity: "medium", allowSecrets: true } };
+    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary", identity: { name: null, generateName: true, gender: "random", ageCategory: "random" }, appearance: { enabled: true, intensity: "medium", allowScars: true, allowAgeFeatures: true, allowBodyShape: true, allowPosture: true }, personality: { enabled: true, intensity: "medium", allowSecrets: true }, inventory: { enabled: true, personalItems: false, allowPoisonedWeapons: false, poisonPolicy: "automatic" } };
     this.preview = null;
-    this._pendingPreviewScrollTop = null;
+    this._pendingUiState = null;
   }
 
   async _prepareContext(options) {
@@ -82,6 +82,11 @@ export class NpcForgeApp extends HandlebarsApplication {
       ],
       personalityEnabled: this.request.personality?.enabled !== false,
       personalityAllowSecrets: this.request.personality?.allowSecrets !== false,
+      inventoryEnabled: this.request.inventory?.enabled !== false,
+      personalItemsEnabled: this.request.inventory?.personalItems === true,
+      poisonedWeaponsEnabled: this.request.inventory?.allowPoisonedWeapons === true,
+      afflictionForgeReady: this.api.integrations?.afflictions?.ready === true,
+      itemForgeReady: this.api.integrations?.items?.ready === true,
       personalityIntensityOptions: [
         { value: "low", labelKey: "NPCFORGE.Personality.IntensityLow", selected: (this.request.personality?.intensity ?? "medium") === "low" },
         { value: "medium", labelKey: "NPCFORGE.Personality.IntensityMedium", selected: (this.request.personality?.intensity ?? "medium") === "medium" },
@@ -97,21 +102,55 @@ export class NpcForgeApp extends HandlebarsApplication {
     };
   }
 
-  _capturePreviewScroll() {
+  _captureUiState() {
+    const controls = this.element?.querySelector?.(".npc-forge-controls-scroll");
     const preview = this.element?.querySelector?.(".npc-forge-preview-scroll");
-    this._pendingPreviewScrollTop = preview?.scrollTop ?? 0;
+    const sections = {};
+    for (const section of this.element?.querySelectorAll?.("details[data-section-id]") ?? []) {
+      sections[section.dataset.sectionId] = section.open;
+    }
+    this._pendingUiState = {
+      controlsScrollTop: controls?.scrollTop ?? 0,
+      previewScrollTop: preview?.scrollTop ?? 0,
+      sections
+    };
   }
 
-  _restorePreviewScroll() {
-    if (this._pendingPreviewScrollTop == null) return;
-    const preview = this.element?.querySelector?.(".npc-forge-preview-scroll");
-    if (preview) preview.scrollTop = this._pendingPreviewScrollTop;
-    this._pendingPreviewScrollTop = null;
+  _restoreUiState() {
+    if (!this._pendingUiState) return;
+    const state = this._pendingUiState;
+    this._pendingUiState = null;
+
+    // Restore disclosure state first. Opening/closing <details> changes the controls
+    // pane geometry, so applying scrollTop before this point lets the browser's
+    // scroll anchoring move the viewport after generation.
+    for (const section of this.element?.querySelectorAll?.("details[data-section-id]") ?? []) {
+      if (Object.hasOwn(state.sections, section.dataset.sectionId)) {
+        section.open = state.sections[section.dataset.sectionId];
+      }
+    }
+
+    const restoreScroll = () => {
+      const controls = this.element?.querySelector?.(".npc-forge-controls-scroll");
+      const preview = this.element?.querySelector?.(".npc-forge-preview-scroll");
+      if (controls) controls.scrollTop = state.controlsScrollTop;
+      if (preview) preview.scrollTop = state.previewScrollTop;
+    };
+
+    // Foundry/ApplicationV2 and the browser can both perform focus/layout work
+    // immediately after _onRender. Restore after two animation frames so our
+    // saved editor position wins over scroll anchoring/focus scrolling.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(restoreScroll);
+    });
   }
+
+  _capturePreviewScroll() { this._captureUiState(); }
+  _restorePreviewScroll() { this._restoreUiState(); }
 
   async _onRender(context, options) {
     await super._onRender(context, options);
-    this._restorePreviewScroll();
+    this._restoreUiState();
     const form = this.element.querySelector("form[data-npc-forge-request]");
     form?.addEventListener("input", (event) => {
       const data = new FormData(form);
@@ -155,10 +194,17 @@ export class NpcForgeApp extends HandlebarsApplication {
           enabled: data.get("personalityEnabled") === "on",
           intensity: String(data.get("personalityIntensity") ?? "medium"),
           allowSecrets: data.get("personalityAllowSecrets") === "on"
+        },
+        inventory: {
+          ...(this.request.inventory ?? {}),
+          enabled: data.get("inventoryEnabled") === "on",
+          personalItems: data.get("personalItems") === "on",
+          allowPoisonedWeapons: data.get("allowPoisonedWeapons") === "on",
+          poisonPolicy: "automatic"
         }
       };
       if (classChanged || categoryChanged || professionChanged || ancestryChanged) {
-        this._capturePreviewScroll();
+        this._captureUiState();
         this.render();
       }
     });
@@ -170,7 +216,7 @@ export class NpcForgeApp extends HandlebarsApplication {
       this.preview = await this.api.engine.generate(this.request);
       // Keep the resolved specialization visible after an automatic selection.
       this.request.classSpecialization = this.preview.build?.classSpecialization?.id ?? null;
-      this._capturePreviewScroll();
+      this._captureUiState();
       await this.render();
     } catch (error) {
       console.error("PF2E NPC Forge | Generation failed", error);

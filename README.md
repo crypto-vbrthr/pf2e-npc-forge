@@ -47,3 +47,18 @@ See `docs/TESTING.md`, `docs/API.md`, and `docs/ARCHITECTURE.md`.
 ## Spellcasting (0.7.0)
 
 Spellcaster class profiles now generate compact NPC-ready spell lists using GM Core spell DC/attack benchmarks. Spells are resolved from the PF2e spell compendium when Actors are materialized. Wizards also receive a spellbook that records their known spells separately from the spells prepared for the generated NPC.
+
+## 0.8.1 editor state preservation
+
+0.8.1 preserves editor scroll positions and collapsible section state across generation and dependency-driven rerenders.
+
+## 0.8.0 external Forge integrations
+
+NPC Forge can optionally delegate specialist content instead of reimplementing it:
+
+- **Affliction Forge**: when poisoned weapons are allowed, eligible slashing/piercing NPC Strikes may receive a level-appropriate injury-poison reference. The reference is created through Affliction Forge and attached to the generated melee source, including charge tracking.
+- **Item Forge**: when personal valuables are enabled, NPC Forge asks Item Forge to generate one personal treasure/art object appropriate to the NPC level and broad profession context. The returned creation-ready Item source is embedded in the generated Actor.
+- Both integrations are optional. Missing or incompatible modules are treated as graceful fallbacks and never prevent baseline NPC creation.
+- Integration state can be inspected through `api.integrations.status()`.
+
+The neutral NPC model records integration requests, while materialization happens in the asynchronous PF2e Document Adapter. This keeps the NPC Engine deterministic and UI-free.

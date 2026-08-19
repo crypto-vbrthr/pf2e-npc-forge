@@ -133,3 +133,27 @@ The item and the NPC Strike intentionally remain distinct. A compendium weapon p
 ## Spellcasting
 
 `spellcasting[]` contains neutral entries with tradition, prepared/spontaneous mode, ability, GM Core DC/attack benchmark, highest rank, focus points, prepared spells, and known spells. A wizard spellbook is represented as an inventory item carrying semantic known-spell metadata.
+
+
+## `integrations` (schema 10)
+
+The neutral model records requested optional integrations without containing external Foundry documents:
+
+```js
+{
+  integrations: {
+    afflictionForge: {
+      requested: true,
+      policy: "automatic",
+      charges: null
+    },
+    itemForge: {
+      requested: true,
+      category: null,
+      targetValue: null
+    }
+  }
+}
+```
+
+These are intents, not materialized results. The asynchronous document adapter performs the actual external API calls.

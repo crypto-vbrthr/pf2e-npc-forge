@@ -605,5 +605,13 @@
   "NPCFORGE.Spellcasting.Source.Mystery": "Mysterium",
   "NPCFORGE.Spellcasting.Source.Bloodline": "Blutlinie",
   "NPCFORGE.Items.Spellbook": "Zauberbuch",
-  "NPCFORGE.Items.SpellbookContents": "Bekannte Zauber"
+  "NPCFORGE.Items.SpellbookContents": "Bekannte Zauber",
+  "NPCFORGE.Integrations.GenerateEquipment": "Ausrüstung generieren",
+  "NPCFORGE.Integrations.PersonalItems": "Persönlichen Wert-/Kunstgegenstand generieren",
+  "NPCFORGE.Integrations.PoisonedWeapons": "Vergiftete Waffen zulassen",
+  "NPCFORGE.Integrations.ItemForgeReady": "Item Forge verfügbar: persönliche Gegenstände werden bei der Actor-Erstellung erzeugt.",
+  "NPCFORGE.Integrations.ItemForgeUnavailable": "Item Forge nicht verfügbar: persönliche Gegenstände werden übersprungen.",
+  "NPCFORGE.Integrations.AfflictionForgeReady": "Affliction Forge verfügbar: passende Verwundungsgifte können automatisch angebracht werden.",
+  "NPCFORGE.Integrations.AfflictionForgeUnavailable": "Affliction Forge nicht verfügbar: Giftintegration wird übersprungen.",
+  "NPCFORGE.Integrations.ItemForgeFailed": "Item-Forge-Generierung des persönlichen Gegenstands fehlgeschlagen"
 }

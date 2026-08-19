@@ -54,7 +54,11 @@ export function normalizeRequest(request = {}) {
     inventory: {
       enabled: request.inventory?.enabled !== false,
       personalItems: request.inventory?.personalItems === true,
-      allowPoisonedWeapons: request.inventory?.allowPoisonedWeapons === true
+      allowPoisonedWeapons: request.inventory?.allowPoisonedWeapons === true,
+      poisonPolicy: ["automatic", "always"].includes(request.inventory?.poisonPolicy) ? request.inventory.poisonPolicy : "automatic",
+      poisonCharges: Number.isInteger(request.inventory?.poisonCharges) ? Math.max(1, Math.min(20, request.inventory.poisonCharges)) : null,
+      personalItemCategory: typeof request.inventory?.personalItemCategory === "string" && request.inventory.personalItemCategory ? request.inventory.personalItemCategory : null,
+      personalItemTargetValue: Number.isFinite(request.inventory?.personalItemTargetValue) ? Math.max(0.1, Number(request.inventory.personalItemTargetValue)) : null
     }
   };
 }

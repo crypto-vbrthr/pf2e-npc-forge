@@ -6,7 +6,7 @@
       <p>{{localize "NPCFORGE.App.CreateText"}}</p>
     </header>
 
-    <details class="npc-forge-section" open>
+    <details class="npc-forge-section" data-section-id="basics" open>
       <summary>{{localize "NPCFORGE.Sections.Basics"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label>{{localize "NPCFORGE.Fields.Level"}}<input type="number" name="level" value="{{request.level}}" min="-1" max="24"></label>
@@ -46,7 +46,7 @@
       </div>
     </details>
 
-    <details class="npc-forge-section" open>
+    <details class="npc-forge-section" data-section-id="identity" open>
       <summary>{{localize "NPCFORGE.Sections.Identity"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label>{{localize "NPCFORGE.Fields.Name"}}<input type="text" name="identityName" value="{{request.identity.name}}" placeholder="{{localize "NPCFORGE.Fields.Automatic"}}"></label>
@@ -65,7 +65,7 @@
       </div>
     </details>
 
-    <details class="npc-forge-section">
+    <details class="npc-forge-section" data-section-id="personality">
       <summary>{{localize "NPCFORGE.Sections.Personality"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Personality.Generate"}}</span><input type="checkbox" name="personalityEnabled" {{#if personalityEnabled}}checked{{/if}}></label>
@@ -76,7 +76,7 @@
       </div>
     </details>
 
-    <details class="npc-forge-section">
+    <details class="npc-forge-section" data-section-id="appearance">
       <summary>{{localize "NPCFORGE.Sections.Appearance"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.Generate"}}</span><input type="checkbox" name="appearanceEnabled" {{#if appearanceEnabled}}checked{{/if}}></label>
@@ -89,9 +89,15 @@
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Appearance.AllowPosture"}}</span><input type="checkbox" name="appearanceAllowPosture" {{#if appearanceAllowPosture}}checked{{/if}}></label>
       </div>
     </details>
-    <details class="npc-forge-section">
+    <details class="npc-forge-section" data-section-id="equipment">
       <summary>{{localize "NPCFORGE.Sections.Equipment"}}</summary>
-      <div class="npc-forge-section-body"><p class="npc-forge-muted">{{localize "NPCFORGE.App.EquipmentGeneratedText"}}</p></div>
+      <div class="npc-forge-section-body npc-forge-form-grid">
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.GenerateEquipment"}}</span><input type="checkbox" name="inventoryEnabled" {{#if inventoryEnabled}}checked{{/if}}></label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.PersonalItems"}}</span><input type="checkbox" name="personalItems" {{#if personalItemsEnabled}}checked{{/if}}></label>
+        <p class="npc-forge-muted npc-forge-form-grid-wide">{{#if itemForgeReady}}{{localize "NPCFORGE.Integrations.ItemForgeReady"}}{{else}}{{localize "NPCFORGE.Integrations.ItemForgeUnavailable"}}{{/if}}</p>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.PoisonedWeapons"}}</span><input type="checkbox" name="allowPoisonedWeapons" {{#if poisonedWeaponsEnabled}}checked{{/if}}></label>
+        <p class="npc-forge-muted npc-forge-form-grid-wide">{{#if afflictionForgeReady}}{{localize "NPCFORGE.Integrations.AfflictionForgeReady"}}{{else}}{{localize "NPCFORGE.Integrations.AfflictionForgeUnavailable"}}{{/if}}</p>
+      </div>
     </details>
 
     </div>

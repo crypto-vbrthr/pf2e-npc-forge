@@ -123,6 +123,18 @@ export class NpcEngine {
       spellcasting: spellcastingResult.entries,
       inventory: loadout.inventory,
       attacks: [...loadout.attacks, ...ancestryAttacks],
+      integrations: {
+        afflictionForge: {
+          requested: normalized.inventory.allowPoisonedWeapons === true,
+          policy: normalized.inventory.poisonPolicy ?? "automatic",
+          charges: normalized.inventory.poisonCharges ?? null
+        },
+        itemForge: {
+          requested: normalized.inventory.personalItems === true,
+          category: normalized.inventory.personalItemCategory ?? null,
+          targetValue: normalized.inventory.personalItemTargetValue ?? null
+        }
+      },
       relationships: [],
       biography: {},
       diagnostics: { warnings: [], fallbacks: [] }

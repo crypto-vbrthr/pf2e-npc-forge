@@ -23,3 +23,23 @@ The adapter uses the resolved weapon as the source of item identity, economic va
 ## Appearance generation
 
 `appearance-builder.js` is an Engine-only content consumer. It reads registered appearance packs, filters traits against generation context, applies weighted preferences, and writes semantic appearance data into the neutral model. The Foundry UI and PF2e adapter only present/materialize that result; neither owns appearance-selection rules.
+
+
+## External integration boundary
+
+0.8.0 keeps optional specialist modules outside the neutral engine:
+
+```text
+Generation Request
+      ↓
+NPC Engine (deterministic integration intent only)
+      ↓
+Neutral NPC Model
+      ↓
+PF2e Document Adapter
+      ├─ Affliction Forge reference materialization
+      ├─ Item Forge personal-treasure materialization
+      └─ PF2e Actor source
+```
+
+The adapter accesses integrations through `IntegrationService` wrappers. Readiness is probed dynamically so load order and optional-module activation do not turn into hard dependencies.

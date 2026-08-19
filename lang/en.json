@@ -605,5 +605,13 @@
   "NPCFORGE.Spellcasting.Source.Mystery": "Mystery",
   "NPCFORGE.Spellcasting.Source.Bloodline": "Bloodline",
   "NPCFORGE.Items.Spellbook": "Spellbook",
-  "NPCFORGE.Items.SpellbookContents": "Known spells"
+  "NPCFORGE.Items.SpellbookContents": "Known spells",
+  "NPCFORGE.Integrations.GenerateEquipment": "Generate equipment",
+  "NPCFORGE.Integrations.PersonalItems": "Generate a personal valuable / art object",
+  "NPCFORGE.Integrations.PoisonedWeapons": "Allow poisoned weapons",
+  "NPCFORGE.Integrations.ItemForgeReady": "Item Forge available: personal items are materialized during Actor creation.",
+  "NPCFORGE.Integrations.ItemForgeUnavailable": "Item Forge unavailable: personal items will be skipped.",
+  "NPCFORGE.Integrations.AfflictionForgeReady": "Affliction Forge available: suitable injury poisons can be attached automatically.",
+  "NPCFORGE.Integrations.AfflictionForgeUnavailable": "Affliction Forge unavailable: poison integration will be skipped.",
+  "NPCFORGE.Integrations.ItemForgeFailed": "Item Forge personal item generation failed"
 }

@@ -1,6 +1,7 @@
 import { renderGeneratedName } from "../engine/names/name-renderer.js";
 import { MODULE_ID, SCHEMA_VERSION } from "../constants.js";
 import { deepClone, slugify } from "../engine/utils.js";
+import { applyAfflictionForgeIntegration, generateItemForgePersonalTreasure } from "../integrations/external-forge-orchestrator.js";
 
 const STANDARD_SKILLS = new Set([
   "acrobatics", "arcana", "athletics", "crafting", "deception", "diplomacy", "intimidation", "medicine", "nature", "occultism", "performance", "religion", "society", "stealth", "survival", "thievery"
@@ -378,6 +379,21 @@ export class Pf2eDocumentAdapter {
     }
 
     const meleeItems = (npc.attacks ?? []).map((attack) => meleeItemFromAttack(attack, weaponFactsById.get(attack.sourceWeaponId) ?? null));
+
+    const integrationDiagnostics = { warnings: [], fallbacks: [] };
+    const poisonIntegration = await applyAfflictionForgeIntegration({
+      npc,
+      meleeItems,
+      integrations: this.integrations,
+      diagnostics: integrationDiagnostics
+    });
+    const personalTreasureIntegration = await generateItemForgePersonalTreasure({
+      npc,
+      integrations: this.integrations,
+      diagnostics: integrationDiagnostics
+    });
+    if (personalTreasureIntegration.itemSource) inventoryItems.push(personalTreasureIntegration.itemSource);
+
     const spellcastingItems = [];
     for (const entry of npc.spellcasting ?? []) {
       const entryItem = spellcastingEntryItem(entry);
@@ -387,6 +403,11 @@ export class Pf2eDocumentAdapter {
     }
     source.items = [...inventoryItems, ...meleeItems, ...abilityItems, ...spellcastingItems];
     if ((npc.spellcasting ?? []).length) source.flags[MODULE_ID].spellcasting = true;
+    source.flags[MODULE_ID].integrations = {
+      afflictionForge: poisonIntegration,
+      itemForge: { ...personalTreasureIntegration, itemSource: undefined },
+      diagnostics: integrationDiagnostics
+    };
     return source;
   }
 

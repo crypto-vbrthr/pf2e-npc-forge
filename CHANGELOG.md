@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.8.2 – Stable Controls Scroll Restoration
+
+- Fixed the controls pane drifting to the middle of the editor after clicking Generate.
+- Restores collapsible section state before restoring scroll positions so browser scroll anchoring cannot offset the saved controls position.
+- Defers controls and preview scroll restoration until after Foundry/browser post-render layout and focus work using a double animation-frame restore.
+- Preserves the existing stable section-state and preview-scroll behavior.
+- Added regression coverage for post-layout scroll restoration ordering.
+
+## 0.8.1 – Editor UI State Preservation Fix
+
+- Fixed the controls pane jumping back to the top after generating or rerendering an NPC.
+- Preserved the scroll position of both the controls and preview panes across editor rerenders.
+- Preserved the open/closed state of all collapsible editor sections across rerenders.
+- Added stable `data-section-id` identifiers so section state survives future layout changes.
+- Applied state preservation centrally to generation and dependency-driven rerenders rather than patching individual controls.
+- Added regression coverage for controls scroll and section expansion-state preservation.
+
+## 0.8.0 – External Forge Integrations
+
+- Added dynamic, capability-aware integration services for Affliction Forge and Item Forge.
+- Added optional injury-poison generation for eligible slashing/piercing NPC attacks through the Affliction Forge public reference API.
+- Poison selection searches enabled Affliction libraries, validates injury-poison delivery, uses level-aware selection, and preserves Affliction Forge charge/runtime semantics.
+- Added optional personal valuables and art objects through Item Forge treasure generation.
+- Personal treasures are generated as creation-ready Item Forge sources and embedded as personal NPC inventory.
+- Added Equipment controls for personal valuables and poisoned weapons with live integration-availability hints.
+- Added graceful degradation when either Forge is missing, not ready, or has no matching content.
+- Added public `api.integrations.status()` reporting and new integration capabilities.
+- Neutral schema bumped to 10; integration intent remains engine-side while materialization stays in the async PF2e Document Adapter.
+- Added external integration regression tests.
+
 ## 0.7.1 – Spell List Materialization Fix
 
 - Fixed generated spells appearing in the preview but not in PF2e NPC spell lists.

@@ -226,3 +226,51 @@ External class profiles can set `statistics.damage` to `low`, `average`, `high`,
 ## Spellcasting content
 
 External modules can register spellcasting profiles and thematic spell pools with `api.content.registerSpellcastingProfile(moduleId, definition)` and `api.content.registerSpellTheme(moduleId, definition)`. Generated `npc.spellcasting` data is neutral and the Document Adapter materializes PF2e spellcasting entries and compendium-backed spell Items.
+
+
+## External Forge integrations (0.8.0)
+
+NPC Forge exposes optional integration services through the public API:
+
+```js
+const api = game.modules.get("pf2e-npc-forge")?.api;
+const status = api.integrations.status();
+
+status.afflictionForge.ready;
+status.itemForge.ready;
+```
+
+The raw service wrappers are also available as `api.integrations.afflictions`, `api.integrations.items`, and `api.integrations.loot`. Consumers should prefer `status()` for capability/reporting UI and should not depend on private integration implementation details.
+
+Generation requests may opt into specialist materialization:
+
+```js
+const npc = api.engine.generate({
+  level: 8,
+  classProfile: "core.rogue",
+  profession: "core.thief",
+  inventory: {
+    enabled: true,
+    personalItems: true,
+    allowPoisonedWeapons: true
+  }
+});
+
+const source = await api.documents.toActorSourceAsync(npc);
+```
+
+`engine.generate()` remains synchronous and deterministic. It records integration intent only. External APIs are invoked later by `documents.toActorSourceAsync()`, `createActor()`, or `createActors()`. This separation prevents optional Foundry modules from becoming hard dependencies of the neutral engine.
+
+### Affliction Forge
+
+When enabled, the adapter searches enabled Affliction Forge libraries for nearby-level poison templates and verifies `delivery.injuryPoison === true`. A selected poison is attached through Affliction Forge's public `references.createInjuryPoison()` and `references.addToSource()` contract. Only eligible piercing/slashing melee sources are considered. The automatic policy is weighted toward rogues, alchemists, and criminal professions.
+
+For deterministic integration tests or specialist callers, the normalized request also accepts `inventory.poisonPolicy: "always"` and an optional `inventory.poisonCharges`. The normal NPC Forge UI uses `automatic`.
+
+### Item Forge
+
+When personal items are enabled, the adapter calls Item Forge's public `generate()` API in `treasure` mode. The category is chosen from broad NPC context and the target value scales conservatively with NPC level. The returned `itemSource` is embedded unchanged except for removal of transient document IDs and addition of NPC Forge provenance flags.
+
+### Graceful degradation
+
+If an integration is missing, not ready, has no matching content, or generation fails, NPC creation continues. Integration diagnostics are recorded under `flags.pf2e-npc-forge.integrations` on the materialized Actor source.
