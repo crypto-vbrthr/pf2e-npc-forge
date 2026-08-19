@@ -47,6 +47,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     const professionSpecializations = this.request.profession
       ? this.api.registry.children("professionSpecializations", this.request.profession)
       : [];
+    const namePacks = this.api.content.listNamePacks({ ancestryId: this.request.ancestry, locale: game.i18n.lang ?? "en" });
     return {
       ...context,
       preview: this.preview,
@@ -62,6 +63,7 @@ export class NpcForgeApp extends HandlebarsApplication {
       professionOptions: definitionOptions(professions, this.request.profession),
       professionSpecializationOptions: definitionOptions(professionSpecializations, this.request.professionSpecialization),
       hasProfessionSpecializations: professionSpecializations.length > 0,
+      namePackOptions: definitionOptions(namePacks, this.request.identity?.namePack ?? null),
       genderOptions: [
         { value: "random", labelKey: "NPCFORGE.Fields.Automatic", selected: (this.request.identity?.gender ?? "random") === "random" },
         { value: "female", labelKey: "NPCFORGE.Identity.GenderFemale", selected: this.request.identity?.gender === "female" },
@@ -79,13 +81,13 @@ export class NpcForgeApp extends HandlebarsApplication {
   }
 
   _capturePreviewScroll() {
-    const preview = this.element?.querySelector?.(".npc-forge-preview");
+    const preview = this.element?.querySelector?.(".npc-forge-preview-scroll");
     this._pendingPreviewScrollTop = preview?.scrollTop ?? 0;
   }
 
   _restorePreviewScroll() {
     if (this._pendingPreviewScrollTop == null) return;
-    const preview = this.element?.querySelector?.(".npc-forge-preview");
+    const preview = this.element?.querySelector?.(".npc-forge-preview-scroll");
     if (preview) preview.scrollTop = this._pendingPreviewScrollTop;
     this._pendingPreviewScrollTop = null;
   }
@@ -98,6 +100,8 @@ export class NpcForgeApp extends HandlebarsApplication {
       const data = new FormData(form);
       const nextClass = String(data.get("classProfile") ?? "core.fighter");
       const classChanged = nextClass !== this.request.classProfile;
+      const nextAncestry = String(data.get("ancestry") ?? "core.human");
+      const ancestryChanged = nextAncestry !== this.request.ancestry;
       const nextCategory = String(data.get("professionCategory") ?? "") || null;
       const categoryChanged = nextCategory !== this.request.professionCategory;
       const nextProfession = categoryChanged ? null : (String(data.get("profession") ?? "") || null);
@@ -105,7 +109,7 @@ export class NpcForgeApp extends HandlebarsApplication {
       this.request = {
         ...this.request,
         level: Number(data.get("level") ?? 3),
-        ancestry: String(data.get("ancestry") ?? "core.human"),
+        ancestry: nextAncestry,
         classProfile: nextClass,
         classSpecialization: classChanged ? null : (String(data.get("classSpecialization") ?? "") || null),
         professionCategory: nextCategory,
@@ -116,10 +120,12 @@ export class NpcForgeApp extends HandlebarsApplication {
           name: String(data.get("identityName") ?? "").trim() || null,
           generateName: !String(data.get("identityName") ?? "").trim(),
           gender: String(data.get("identityGender") ?? "random"),
-          ageCategory: String(data.get("identityAgeCategory") ?? "random")
+          ageCategory: String(data.get("identityAgeCategory") ?? "random"),
+          namePack: ancestryChanged ? null : (String(data.get("identityNamePack") ?? "") || null),
+          nameLocale: game.i18n.lang ?? "en"
         }
       };
-      if (classChanged || categoryChanged || professionChanged) {
+      if (classChanged || categoryChanged || professionChanged || ancestryChanged) {
         this._capturePreviewScroll();
         this.render();
       }
@@ -128,6 +134,7 @@ export class NpcForgeApp extends HandlebarsApplication {
 
   static async #onGenerate() {
     try {
+      this.request.identity = { ...(this.request.identity ?? {}), nameLocale: game.i18n.lang ?? "en" };
       this.preview = await this.api.engine.generate(this.request);
       // Keep the resolved specialization visible after an automatic selection.
       this.request.classSpecialization = this.preview.build?.classSpecialization?.id ?? null;
@@ -141,6 +148,7 @@ export class NpcForgeApp extends HandlebarsApplication {
 
   static async #onCreateActor() {
     try {
+      this.request.identity = { ...(this.request.identity ?? {}), nameLocale: game.i18n.lang ?? "en" };
       if (!this.preview) this.preview = await this.api.engine.generate(this.request);
       const actor = await this.api.documents.createActor(this.preview, { folder: this.targetFolderId, renderSheet: true });
       ui.notifications.info(game.i18n.format("NPCFORGE.Notifications.ActorCreated", { name: actor.name }));

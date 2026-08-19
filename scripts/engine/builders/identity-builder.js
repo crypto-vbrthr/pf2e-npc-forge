@@ -1,4 +1,4 @@
-function resolveGender(identity, random) {
+export function resolveGender(identity, random) {
   const value = identity?.gender ?? "random";
   if (value && value !== "random") return value;
   return random.pick(["female", "male", "nonbinary"]);
@@ -22,11 +22,12 @@ function resolveAge(identity, ancestry, random) {
   return { category, years: random.int(Number(range.min ?? 18), Number(range.max ?? range.min ?? 60)) };
 }
 
-export function buildIdentity({ normalizedIdentity, ancestry, random, name }) {
+export function buildIdentity({ normalizedIdentity, ancestry, random, name, nameParts = null, resolvedGender = null }) {
   return {
     name,
+    nameParts,
     ancestry,
-    gender: resolveGender(normalizedIdentity, random),
+    gender: resolvedGender ?? resolveGender(normalizedIdentity, random),
     age: resolveAge(normalizedIdentity, ancestry, random),
     size: ancestry?.size ?? "med",
     traits: [...(ancestry?.traits ?? [])],

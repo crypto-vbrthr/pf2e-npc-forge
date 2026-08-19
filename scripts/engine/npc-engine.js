@@ -8,7 +8,8 @@ import { buildStatistics } from "./builders/statistics-builder.js";
 import { buildSkills } from "./builders/skill-builder.js";
 import { buildAbilities } from "./builders/ability-builder.js";
 import { buildInventory, buildAncestryAttacks } from "./builders/inventory-builder.js";
-import { buildIdentity } from "./builders/identity-builder.js";
+import { buildIdentity, resolveGender } from "./builders/identity-builder.js";
+import { generateNameData } from "./names/name-generator.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -23,15 +24,6 @@ function resolveDefinition(registry, resolver, type, requestPart) {
   if (requestPart?.mode === "fixed") return registry.get(type, requestPart.id);
   if (requestPart?.mode === "category" && type === "professions") return resolver.resolve(registry.children("professions", requestPart.id));
   return resolver.resolve(registry.list(type));
-}
-
-function generateName(registry, resolver, ancestry, random) {
-  const packs = registry.list("namePacks").filter((pack) => !pack.ancestryIds?.length || pack.ancestryIds.includes(ancestry?.id));
-  const pack = resolver.resolve(packs);
-  if (!pack) return "Unnamed NPC";
-  const given = random.pick(pack.given) ?? "Unnamed";
-  const family = random.pick(pack.family);
-  return family ? `${given} ${family}` : given;
 }
 
 export class NpcEngine {
@@ -66,13 +58,17 @@ export class NpcEngine {
       classSpecialization = candidates.length ? resolver.resolve(candidates) : null;
     }
     const role = resolveDefinition(this.registry, resolver, "roles", normalized.role);
-    const name = normalized.identity.name || (normalized.identity.generateName ? generateName(this.registry, resolver, ancestry, random) : "Unnamed NPC");
+    const resolvedGender = resolveGender(normalized.identity, random);
+    let nameData = { name: normalized.identity.name ?? "Unnamed NPC", nameParts: normalized.identity.name ? { manual: normalized.identity.name } : null, pack: null };
+    if (!normalized.identity.name && normalized.identity.generateName) {
+      nameData = generateNameData({ registry: this.registry, resolver, ancestry, random, gender: resolvedGender, request: normalized.identity });
+    }
     const statistics = buildStatistics({ level, ancestry, classProfile, profession, professionSpecialization, role });
     const skills = buildSkills({ level, classProfile, profession, professionSpecialization, role });
     const loadout = buildInventory({ level, profession, specialization: professionSpecialization, classProfile, registry: this.registry, enabled: normalized.inventory.enabled });
     const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
     const ancestryAttacks = buildAncestryAttacks({ level, ancestry, classProfile });
-    const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name });
+    const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name: nameData.name, nameParts: nameData.nameParts, resolvedGender });
     identity.appearance = normalized.appearance.enabled ? { generated: false, traits: [] } : null;
 
     const npc = {

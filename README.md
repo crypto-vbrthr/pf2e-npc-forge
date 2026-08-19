@@ -1,35 +1,26 @@
 # PF2E NPC Forge
 
-**Version 0.5.0 – Profession System & Inventory**
+**Version 0.5.2 – Names & Localization**
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
 
-## 0.5.0 focus
+## 0.5.2 focus
 
-This release expands NPC Forge from class-driven combat profiles into broader world-facing NPC generation. Professions are now organized into categories, can expose optional specializations, and contribute skills, Lore, attributes, and equipment profiles.
+Name generation is now ancestry-aware, gender-aware, seed-stable, and localization-ready. The engine stores semantic generated-name parts instead of baking translated speaking surnames into the neutral NPC model. Presentation and PF2e document creation render those parts in the active locale.
 
-Built-in categories now cover civic, artisan, criminal, military, religious, scholarly, mercantile, rural, maritime, medical, and entertainment professions. A request can target a concrete profession or ask the engine to select a weighted profession from a category.
+Core name packs cover all 16 currently bundled Player Core / Player Core 2 ancestry profiles. Proper given names remain stable, while speaking family names can localize naturally, for example `Ironhand` / `Eisenhand`.
 
-### Profession equipment
+The standalone editor exposes a Name Pack selector filtered to the current ancestry and active Foundry locale. Manually entered names are never translated or rewritten.
 
-Professions can reference reusable equipment profiles. Equipment entries are semantic references to the regular PF2e equipment compendium and are resolved by the PF2e document adapter during actor creation. This allows generated NPCs to receive real armor, shields, tools, and adventuring gear with the normal PF2e item data and value.
+### External name packs
 
-The engine keeps weapons and their NPC strikes linked through `sourceWeaponId`. NPC attack/damage scaling remains engine-owned while item identity and item metadata come from the PF2e compendium.
-
-Equipment profiles support `minLevel` and `maxLevel` gates and can be registered by external modules.
-
-### External content
-
-Add-ons can extend the system with:
-
-- profession categories
-- professions
-- profession specializations
-- equipment profiles
-- class profiles and class specializations
-- abilities and other registered NPC Forge content
+Add-ons can register name packs through `api.content.registerNamePack()` and discover compatible packs through `api.content.listNamePacks()`. Packs can declare `supportedLocales`, ancestry constraints, gender-specific given-name pools, semantic localized family names, and optional epithets.
 
 See `docs/CONTENT_PROVIDERS.md` and `docs/API.md`.
+
+## Existing foundations
+
+NPC Forge already includes the neutral NPC engine, public API, embedded editor contract, PF2e document adapter, GM Core statistic generation, core class profiles and abilities, hierarchical professions, compendium-backed equipment and strikes, and core ancestry/identity generation.
 
 ## Testing
 
@@ -40,8 +31,3 @@ npm test
 ```
 
 See `docs/TESTING.md`, `docs/API.md`, and `docs/ARCHITECTURE.md`.
-
-
-## 0.5.0 Ancestries & Identity
-
-Adds the 16 Player Core / Player Core 2 ancestry profiles, ancestry-driven size, Speed, languages, senses and signature natural attacks, plus generated gender and ancestry-aware age data. Ancestries remain public Content Registry entries and can be extended by add-on modules through `api.content.registerAncestry()`.

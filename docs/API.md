@@ -93,3 +93,34 @@ api.content.registerAncestry("my-module", {
 ```
 
 The engine treats these as NPC-facing ancestry identity profiles. They are not complete PC ancestry progression objects and should not encode ancestry-feat advancement.
+
+## Localized name generation (0.5.2)
+
+Register name packs with:
+
+```js
+api.content.registerNamePack(moduleId, definition);
+```
+
+Discover ancestry- and locale-compatible packs with:
+
+```js
+api.content.listNamePacks({ ancestryId, locale, allowUntranslated });
+```
+
+Generation requests may select a pack and locale explicitly:
+
+```js
+const npc = api.engine.generate({
+  seed: "example-dwarf",
+  ancestry: "core.dwarf",
+  identity: {
+    gender: "female",
+    nameLocale: "de",
+    namePack: "core.generic-dwarf",
+    allowUntranslatedNamePacks: false
+  }
+});
+```
+
+Generated identities expose `identity.nameParts` as the stable semantic representation. `identity.name` remains a fallback rendering for API compatibility; UI presentation and PF2e actor creation re-render semantic parts through the active localization catalog. Manual names are represented as `{ manual: "..." }` and are never translated.

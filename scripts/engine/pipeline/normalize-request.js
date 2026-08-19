@@ -32,7 +32,10 @@ export function normalizeRequest(request = {}) {
       name: request.identity?.name ?? null,
       gender: request.identity?.gender ?? "random",
       ageCategory: request.identity?.ageCategory ?? "random",
-      ageYears: Number.isFinite(request.identity?.ageYears) ? Math.max(0, Math.trunc(request.identity.ageYears)) : null
+      ageYears: Number.isFinite(request.identity?.ageYears) ? Math.max(0, Math.trunc(request.identity.ageYears)) : null,
+      nameLocale: request.identity?.nameLocale ?? "en",
+      namePack: fixed(request.identity?.namePack, null),
+      allowUntranslatedNamePacks: request.identity?.allowUntranslatedNamePacks === true
     },
     appearance: { enabled: request.appearance?.enabled !== false },
     personality: { enabled: request.personality?.enabled !== false },

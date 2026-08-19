@@ -92,3 +92,46 @@ At generation time these remain semantic inventory entries. During actor creatio
 An ancestry provider may contribute size, Speed, creature traits, base languages, senses, age ranges, modest attribute adjustments, and intrinsic natural attacks. Provider IDs must be namespaced. Core and third-party ancestry content use the same registry and generation path.
 
 Natural attacks are neutral NPC attack definitions and are materialized by the PF2e adapter as NPC melee entries. Do not add fake physical weapon items for intrinsic claws, bites, beaks, or similar attacks.
+
+## Name packs
+
+Name packs are data-driven and may be limited by ancestry and locale. A recommended localized provider looks like this:
+
+```js
+api.content.registerNamePack("my-module", {
+  id: "my-module.dwarf-names",
+  labelKey: "MYMODULE.NamePacks.Dwarf",
+  ancestryIds: ["core.dwarf"],
+  supportedLocales: ["en", "de"],
+  fallbackLocale: "en",
+  given: {
+    female: ["Dagna", "Runa"],
+    male: ["Hargun", "Borin"],
+    neutral: ["Dori"]
+  },
+  family: [
+    {
+      id: "ironhand",
+      labelKey: "MYMODULE.Names.Family.Ironhand",
+      fallback: "Ironhand"
+    }
+  ],
+  weight: 10
+});
+```
+
+Proper names can be plain strings. Speaking family names, titles, and epithets should use stable semantic IDs plus localization keys. This keeps seeded generation stable while allowing `Ironhand` in English and `Eisenhand` in German.
+
+Legacy providers using `given: ["Ada", "Borin"]` remain supported.
+
+Compatible packs can be discovered without knowing provider internals:
+
+```js
+const packs = api.content.listNamePacks({
+  ancestryId: "core.dwarf",
+  locale: "de",
+  allowUntranslated: false
+});
+```
+
+Automatic generation ignores packs that do not support the requested locale unless `allowUntranslatedNamePacks` is explicitly enabled in the generation request. A specifically requested fixed pack is still honored.

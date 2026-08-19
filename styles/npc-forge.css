@@ -1,6 +1,8 @@
 .pf2e-npc-forge-directory-button { width: 32px; flex: 0 0 32px; }
 .npc-forge-shell { display: grid; grid-template-columns: minmax(280px, 0.78fr) minmax(440px, 1.22fr); gap: 0.85rem; height: 100%; padding: 0.75rem; overflow: hidden; }
-.npc-forge-controls, .npc-forge-preview { min-width: 0; overflow: auto; padding-right: 0.2rem; }
+.npc-forge-controls, .npc-forge-preview { min-width: 0; min-height: 0; overflow: hidden; }
+.npc-forge-controls, .npc-forge-preview { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.npc-forge-controls-scroll, .npc-forge-preview-scroll { min-width: 0; min-height: 0; overflow: auto; padding-right: 0.2rem; scrollbar-gutter: stable; }
 .npc-forge-panel-header h2 { margin: 0 0 0.25rem; }
 .npc-forge-panel-header p { margin: 0; opacity: 0.78; }
 .npc-forge-panel-header { margin-bottom: 0.75rem; }
@@ -10,8 +12,9 @@
 .npc-forge-section-body { padding: 0.65rem 0.7rem; }
 .npc-forge-form-grid label { display: grid; grid-template-columns: 8.2rem minmax(0, 1fr); align-items: center; gap: 0.55rem; margin: 0.45rem 0; }
 .npc-forge-coming-soon { opacity: 0.7; font-size: 0.9em; }
-.npc-forge-actions, .npc-forge-preview-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
-.npc-forge-preview-actions { position: sticky; bottom: 0; padding: 0.6rem 0 0.2rem; background: linear-gradient(transparent, var(--color-bg, #0b0b12) 38%); justify-content: flex-end; z-index: 2; }
+.npc-forge-actions, .npc-forge-preview-actions { display: flex; gap: 0.5rem; }
+.npc-forge-action-bar { flex: 0 0 auto; margin-top: 0.45rem; padding: 0.55rem 0.2rem 0.1rem; border-top: 1px solid color-mix(in srgb, var(--color-border-light-primary) 38%, transparent); background: var(--color-bg, #0b0b12); }
+.npc-forge-preview-actions { justify-content: flex-end; }
 .npc-forge-empty, .npc-forge-embedded-placeholder { opacity: 0.8; padding: 1rem; border: 1px dashed var(--color-border-light-primary); border-radius: 6px; }
 .npc-forge-muted { opacity: 0.65; font-style: italic; }
 
@@ -71,8 +74,8 @@
 .npc-forge-attack p { font-size: 0.88rem; }
 
 @media (max-width: 850px) {
-  .npc-forge-shell { grid-template-columns: 1fr; overflow: auto; }
-  .npc-forge-controls, .npc-forge-preview { overflow: visible; }
+  .npc-forge-shell { grid-template-columns: 1fr; grid-template-rows: minmax(24rem, auto) minmax(24rem, auto); overflow: auto; }
+  .npc-forge-controls, .npc-forge-preview { min-height: 24rem; }
 }
 @media (max-width: 620px) {
   .npc-forge-stat-grid-attributes { grid-template-columns: repeat(2, minmax(0, 1fr)); }

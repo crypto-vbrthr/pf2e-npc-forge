@@ -31,7 +31,7 @@ function installDirectoryButton(app, html) {
 }
 
 Hooks.once("init", () => {
-  console.log("PF2E NPC Forge | Initializing 0.5.0 Ancestries & Identity");
+  console.log("PF2E NPC Forge | Initializing 0.5.2 Names & Localization");
   const registry = new ContentRegistry();
   registerCoreContent(registry);
   const integrations = createExternalIntegrations();

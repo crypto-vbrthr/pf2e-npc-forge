@@ -1,3 +1,4 @@
+import { renderGeneratedName } from "../engine/names/name-renderer.js";
 const SKILL_KEYS = {
   acrobatics: "NPCFORGE.Skills.Acrobatics",
   arcana: "NPCFORGE.Skills.Arcana",
@@ -131,8 +132,10 @@ export function presentNpc(npc, localize = (key) => key) {
   const attributes = npc.statistics?.attributes ?? {};
   const saves = npc.statistics?.saves ?? {};
 
+  const renderedName = npc.identity?.nameParts ? renderGeneratedName(npc.identity.nameParts, localize) : (npc.identity?.name ?? "");
+
   return {
-    name: npc.identity?.name ?? "",
+    name: renderedName,
     ancestry,
     profession,
     classProfile,

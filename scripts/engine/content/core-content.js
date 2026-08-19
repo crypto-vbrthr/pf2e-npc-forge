@@ -348,23 +348,47 @@ export function registerCoreContent(registry) {
   registry.register("roles", source, { id: "core.veteran", labelKey: "NPCFORGE.Content.Role.Veteran", statAdjustments: { perception: 1, fortitude: 1 }, skillModifierAdjustment: 1, weight: 5 });
   registry.register("roles", source, { id: "core.ordinary", labelKey: "NPCFORGE.Content.Role.Ordinary", weight: 10 });
 
+  const speakingFamilies = {
+    human: [
+      { id:"ashwood", labelKey:"NPCFORGE.Names.Family.Ashwood", fallback:"Ashwood" },
+      { id:"brightwater", labelKey:"NPCFORGE.Names.Family.Brightwater", fallback:"Brightwater" },
+      { id:"stonebridge", labelKey:"NPCFORGE.Names.Family.Stonebridge", fallback:"Stonebridge" },
+      { id:"reed", labelKey:"NPCFORGE.Names.Family.Reed", fallback:"Reed" }
+    ],
+    dwarf: [
+      { id:"ironhand", labelKey:"NPCFORGE.Names.Family.Ironhand", fallback:"Ironhand" },
+      { id:"stonehelm", labelKey:"NPCFORGE.Names.Family.Stonehelm", fallback:"Stonehelm" },
+      { id:"deepdelver", labelKey:"NPCFORGE.Names.Family.Deepdelver", fallback:"Deepdelver" },
+      { id:"forgeheart", labelKey:"NPCFORGE.Names.Family.Forgeheart", fallback:"Forgeheart" }
+    ],
+    halfling: [
+      { id:"bramblefoot", labelKey:"NPCFORGE.Names.Family.Bramblefoot", fallback:"Bramblefoot" },
+      { id:"greenbottle", labelKey:"NPCFORGE.Names.Family.Greenbottle", fallback:"Greenbottle" },
+      { id:"goodbarrel", labelKey:"NPCFORGE.Names.Family.Goodbarrel", fallback:"Goodbarrel" }
+    ],
+    gnome: [
+      { id:"copperbutton", labelKey:"NPCFORGE.Names.Family.Copperbutton", fallback:"Copperbutton" },
+      { id:"quickgear", labelKey:"NPCFORGE.Names.Family.Quickgear", fallback:"Quickgear" }
+    ]
+  };
+
   const namePacks = [
-    { id:"core.generic-human", ancestryIds:["core.human"], given:["Alden","Mira","Tarin","Lysa","Bren"], family:["Vale","Reed","Maren","Toren"] },
-    { id:"core.generic-elf", ancestryIds:["core.elf"], given:["Aelar","Lethira","Thalan","Syla","Vaelis"], family:["Aelion","Caladrel","Ilyren"] },
-    { id:"core.generic-gnome", ancestryIds:["core.gnome"], given:["Pim","Nissa","Tivvi","Orlo","Zanna"], family:["Bimpel","Nackle","Tilli"] },
-    { id:"core.generic-goblin", ancestryIds:["core.goblin"], given:["Rikka","Zib","Mog","Ketta","Brix"], family:[] },
-    { id:"core.generic-halfling", ancestryIds:["core.halfling"], given:["Milo","Tessa","Perrin","Lina","Corin"], family:["Tallow","Bramble","Fen"] },
-    { id:"core.generic-leshy", ancestryIds:["core.leshy"], given:["Briar","Moss","Pip","Reed","Thistle"], family:[] },
-    { id:"core.generic-orc", ancestryIds:["core.orc"], given:["Ghar","Morga","Rask","Vesha","Drok"], family:[] },
-    { id:"core.generic-dwarf", ancestryIds:["core.dwarf"], given:["Hargun","Dagna","Borin","Runa","Keld"], family:["Dorin","Khazad","Morgran"] },
-    { id:"core.generic-catfolk", ancestryIds:["core.catfolk"], given:["Sahri","Meris","Tavi","Rasha","Nim"], family:["Kesh","Miraal","Sahm"] },
-    { id:"core.generic-hobgoblin", ancestryIds:["core.hobgoblin"], given:["Varka","Dren","Kassa","Mek","Torga"], family:[] },
-    { id:"core.generic-lizardfolk", ancestryIds:["core.lizardfolk"], given:["Sseska","Irrek","Tassk","Vess","Korr"], family:[] },
-    { id:"core.generic-kholo", ancestryIds:["core.kholo"], given:["Aru","Kesh","Mava","Rokha","Zuri"], family:[] },
-    { id:"core.generic-kobold", ancestryIds:["core.kobold"], given:["Krix","Tikka","Vek","Suri","Zik"], family:[] },
-    { id:"core.generic-tengu", ancestryIds:["core.tengu"], given:["Kuro","Miya","Raku","Sora","Teki"], family:["Aki","Haru","Yori"] },
-    { id:"core.generic-tripkee", ancestryIds:["core.tripkee"], given:["Plo","Kiri","Tup","Rilli","Bok"], family:[] },
-    { id:"core.generic-ratfolk", ancestryIds:["core.ratfolk"], given:["Nikka","Rizz","Tavi","Skit","Vessa"], family:["Nim","Rik","Tekk"] }
+    { id:"core.generic-human", labelKey:"NPCFORGE.NamePacks.Human", ancestryIds:["core.human"], supportedLocales:["en","de"], given:{ female:["Mira","Lysa","Elena","Sera"], male:["Alden","Tarin","Bren","Daren"], neutral:["Ryn","Vale"] }, family:speakingFamilies.human },
+    { id:"core.generic-elf", labelKey:"NPCFORGE.NamePacks.Elf", ancestryIds:["core.elf"], supportedLocales:["en","de"], given:{ female:["Lethira","Syla","Nimriel"], male:["Aelar","Thalan","Vaelis"], neutral:["Ilyra"] }, family:["Aelion","Caladrel","Ilyren"] },
+    { id:"core.generic-gnome", labelKey:"NPCFORGE.NamePacks.Gnome", ancestryIds:["core.gnome"], supportedLocales:["en","de"], given:{ female:["Nissa","Tivvi","Zanna"], male:["Pim","Orlo","Nib"], neutral:["Tilli"] }, family:speakingFamilies.gnome },
+    { id:"core.generic-goblin", labelKey:"NPCFORGE.NamePacks.Goblin", ancestryIds:["core.goblin"], supportedLocales:["en","de"], given:{ female:["Rikka","Ketta","Zibbi"], male:["Mog","Brix","Zik"], neutral:["Nib","Scrap"] }, family:[] },
+    { id:"core.generic-halfling", labelKey:"NPCFORGE.NamePacks.Halfling", ancestryIds:["core.halfling"], supportedLocales:["en","de"], given:{ female:["Tessa","Lina","Miri"], male:["Milo","Perrin","Corin"], neutral:["Pip"] }, family:speakingFamilies.halfling },
+    { id:"core.generic-leshy", labelKey:"NPCFORGE.NamePacks.Leshy", ancestryIds:["core.leshy"], supportedLocales:["en","de"], given:{ neutral:["Briar","Moss","Pip","Reed","Thistle"] }, family:[] },
+    { id:"core.generic-orc", labelKey:"NPCFORGE.NamePacks.Orc", ancestryIds:["core.orc"], supportedLocales:["en","de"], given:{ female:["Morga","Vesha","Rakka"], male:["Ghar","Rask","Drok"], neutral:["Kesh"] }, family:[] },
+    { id:"core.generic-dwarf", labelKey:"NPCFORGE.NamePacks.Dwarf", ancestryIds:["core.dwarf"], supportedLocales:["en","de"], given:{ female:["Dagna","Runa","Hilda"], male:["Hargun","Borin","Keld"], neutral:["Dori"] }, family:speakingFamilies.dwarf },
+    { id:"core.generic-catfolk", labelKey:"NPCFORGE.NamePacks.Catfolk", ancestryIds:["core.catfolk"], supportedLocales:["en","de"], given:{ female:["Sahri","Rasha","Nim"], male:["Meris","Tavi","Kesh"], neutral:["Miraal"] }, family:["Kesh","Miraal","Sahm"] },
+    { id:"core.generic-hobgoblin", labelKey:"NPCFORGE.NamePacks.Hobgoblin", ancestryIds:["core.hobgoblin"], supportedLocales:["en","de"], given:{ female:["Varka","Kassa","Torga"], male:["Dren","Mek","Vorg"], neutral:["Kren"] }, family:[] },
+    { id:"core.generic-lizardfolk", labelKey:"NPCFORGE.NamePacks.Lizardfolk", ancestryIds:["core.lizardfolk"], supportedLocales:["en","de"], given:{ female:["Sseska","Vess","Tassa"], male:["Irrek","Tassk","Korr"], neutral:["Sirr"] }, family:[] },
+    { id:"core.generic-kholo", labelKey:"NPCFORGE.NamePacks.Kholo", ancestryIds:["core.kholo"], supportedLocales:["en","de"], given:{ female:["Mava","Zuri","Rokha"], male:["Aru","Kesh","Varr"], neutral:["Naru"] }, family:[] },
+    { id:"core.generic-kobold", labelKey:"NPCFORGE.NamePacks.Kobold", ancestryIds:["core.kobold"], supportedLocales:["en","de"], given:{ female:["Tikka","Suri","Vexa"], male:["Krix","Vek","Zik"], neutral:["Rik"] }, family:[] },
+    { id:"core.generic-tengu", labelKey:"NPCFORGE.NamePacks.Tengu", ancestryIds:["core.tengu"], supportedLocales:["en","de"], given:{ female:["Miya","Sora","Aki"], male:["Kuro","Raku","Teki"], neutral:["Haru"] }, family:["Aki","Haru","Yori"] },
+    { id:"core.generic-tripkee", labelKey:"NPCFORGE.NamePacks.Tripkee", ancestryIds:["core.tripkee"], supportedLocales:["en","de"], given:{ female:["Kiri","Rilli","Pli"], male:["Plo","Tup","Bok"], neutral:["Kip"] }, family:[] },
+    { id:"core.generic-ratfolk", labelKey:"NPCFORGE.NamePacks.Ratfolk", ancestryIds:["core.ratfolk"], supportedLocales:["en","de"], given:{ female:["Nikka","Vessa","Rizzi"], male:["Rizz","Skit","Tekk"], neutral:["Tavi"] }, family:["Nim","Rik","Tekk"] }
   ];
   for (const pack of namePacks) registry.register("namePacks", source, { ...pack, weight: 10 });
 }

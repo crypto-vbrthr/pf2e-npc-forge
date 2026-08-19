@@ -1,3 +1,4 @@
+import { renderGeneratedName } from "../engine/names/name-renderer.js";
 import { MODULE_ID, SCHEMA_VERSION } from "../constants.js";
 import { deepClone, slugify } from "../engine/utils.js";
 
@@ -182,7 +183,7 @@ export class Pf2eDocumentAdapter {
     ].filter(Boolean).join("");
 
     return {
-      name: npc.identity.name,
+      name: npc.identity?.nameParts ? renderGeneratedName(npc.identity.nameParts, (key) => localized(key, key)) : npc.identity.name,
       type: "npc",
       folder,
       system: {

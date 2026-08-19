@@ -7,6 +7,6 @@ const source = fs.readFileSync(new URL("../../scripts/ui/npc-forge-app.js", impo
 test("preview scroll is captured before class-triggered rerender and restored after render", () => {
   assert.match(source, /_capturePreviewScroll\(\)/);
   assert.match(source, /_restorePreviewScroll\(\)/);
-  assert.match(source, /if \(classChanged \|\| categoryChanged \|\| professionChanged\) \{[\s\S]*?_capturePreviewScroll\(\);[\s\S]*?this\.render\(\)/);
+  assert.match(source, /if \(classChanged \|\| categoryChanged \|\| professionChanged \|\| ancestryChanged\) \{[\s\S]*?_capturePreviewScroll\(\);[\s\S]*?this\.render\(\)/);
   assert.match(source, /await super\._onRender\(context, options\);[\s\S]*?_restorePreviewScroll\(\);/);
 });

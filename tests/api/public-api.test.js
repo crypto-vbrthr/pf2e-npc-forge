@@ -22,3 +22,15 @@ test("external modules can register ancestry profiles through the public API", (
   assert.equal(api.content.get("ancestries", "ancestry-addon.testfolk").sourceModule, "ancestry-addon");
   assert.ok(api.capabilities.has("ancestry-registration"));
 });
+
+test("public API exposes localized name pack registration and discovery", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  api.content.registerNamePack("names-addon", { id: "names-addon.de", ancestryIds: ["core.human"], supportedLocales: ["de"], given: ["Ada"], family: [], weight: 1 });
+  const german = api.content.listNamePacks({ ancestryId: "core.human", locale: "de" });
+  const english = api.content.listNamePacks({ ancestryId: "core.human", locale: "en" });
+  assert.ok(german.some((pack) => pack.id === "names-addon.de"));
+  assert.ok(!english.some((pack) => pack.id === "names-addon.de"));
+  assert.ok(api.capabilities.has("name-pack-registration"));
+  assert.ok(api.capabilities.has("localized-name-generation"));
+});

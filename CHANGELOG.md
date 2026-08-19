@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.3 – Persistent Action Bars Layout Fix
+
+- Moved **Generate** into a dedicated non-scrolling action bar beneath the controls pane so it remains visible while form sections scroll.
+- Moved **Create Actor** into a dedicated non-scrolling action bar beneath the preview pane.
+- Action bars now occupy their own layout row instead of using sticky overlays, so they no longer cover controls or preview content.
+- Split both editor columns into an independently scrolling content area plus a persistent footer.
+- Updated preview scroll preservation to track the new preview scroll container.
+- Added regression coverage for persistent, non-overlay action bars.
+
+
 ## 0.5.1 - Localization Namespace Hotfix
 
 - Fixed a localization namespace collision introduced in 0.5.0 by mixing flat dotted keys with a nested `NPCFORGE` object in the same language file.
@@ -101,3 +111,15 @@
 ## 0.1.0 – Architecture Baseline
 
 - Initial engine/API/adapter/editor architecture.
+
+## 0.5.2 – Names & Localization
+
+- Replaced flat core name lists with ancestry-aware, gender-aware name packs.
+- Added semantic generated-name parts so speaking surnames can render differently per locale without changing the generated identity or seed.
+- Added localized family-name components such as `Ironhand` / `Eisenhand`, `Stonehelm` / `Steinhelm`, and equivalent human, halfling, and gnome components.
+- Added a Name Pack selector to the standalone editor, filtered by ancestry and current Foundry locale.
+- Preserved manually entered names verbatim and excluded them from localization transforms.
+- Added public `registerNamePack()` capability metadata and `listNamePacks()` discovery with ancestry/locale filtering.
+- Added backwards compatibility for simple third-party name packs that still provide flat `given` string arrays.
+- Advanced neutral NPC schema to version 5 and public API version to 0.5.2.
+- Added regression tests for semantic localization, gender-aware pools, external name packs, manual-name preservation, API discovery, and existing preview scroll behavior.

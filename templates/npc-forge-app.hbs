@@ -1,5 +1,6 @@
 <div class="npc-forge-shell">
   <form data-npc-forge-request class="npc-forge-controls">
+    <div class="npc-forge-controls-scroll">
     <header class="npc-forge-panel-header">
       <h2>{{localize "NPCFORGE.App.CreateHeading"}}</h2>
       <p>{{localize "NPCFORGE.App.CreateText"}}</p>
@@ -49,6 +50,12 @@
       <summary>{{localize "NPCFORGE.Sections.Identity"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label>{{localize "NPCFORGE.Fields.Name"}}<input type="text" name="identityName" value="{{request.identity.name}}" placeholder="{{localize "NPCFORGE.Fields.Automatic"}}"></label>
+        <label>{{localize "NPCFORGE.Fields.NamePack"}}
+          <select name="identityNamePack">
+            <option value="">{{localize "NPCFORGE.Fields.Automatic"}}</option>
+            {{#each namePackOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select>
+        </label>
         <label>{{localize "NPCFORGE.Fields.Gender"}}
           <select name="identityGender">{{#each genderOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
         </label>
@@ -62,10 +69,12 @@
       <div class="npc-forge-section-body"><p class="npc-forge-muted">{{localize "NPCFORGE.App.EquipmentGeneratedText"}}</p></div>
     </details>
 
-    <div class="npc-forge-actions"><button type="button" data-action="generate"><i class="fa-solid fa-dice"></i> {{localize "NPCFORGE.Controls.Generate"}}</button></div>
+    </div>
+    <div class="npc-forge-actions npc-forge-action-bar"><button type="button" data-action="generate"><i class="fa-solid fa-dice"></i> {{localize "NPCFORGE.Controls.Generate"}}</button></div>
   </form>
 
-  <section class="npc-forge-preview npc-forge-creature-preview">
+  <section class="npc-forge-preview">
+    <div class="npc-forge-preview-scroll npc-forge-creature-preview">
     {{#if hasPreview}}
       <article class="npc-forge-sheet-card npc-forge-sheet-header">
         <div class="npc-forge-sheet-title">
@@ -156,9 +165,10 @@
         </div>
       </section>
 
-      <div class="npc-forge-preview-actions"><button type="button" data-action="createActor"><i class="fa-solid fa-user-plus"></i> {{localize "NPCFORGE.Controls.CreateActor"}}</button></div>
     {{else}}
       <div class="npc-forge-empty">{{localize "NPCFORGE.App.NoPreview"}}</div>
     {{/if}}
+    </div>
+    {{#if hasPreview}}<div class="npc-forge-preview-actions npc-forge-action-bar"><button type="button" data-action="createActor"><i class="fa-solid fa-user-plus"></i> {{localize "NPCFORGE.Controls.CreateActor"}}</button></div>{{/if}}
   </section>
 </div>
