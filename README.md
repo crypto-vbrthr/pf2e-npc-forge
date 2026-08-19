@@ -1,14 +1,14 @@
 # PF2E NPC Forge
 
-**Version 0.2.0 – Core Statistics & Skills**
+**Version 0.3.5 – Preview Scroll Preservation Fix**
 
 NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
 
-## 0.2.0 focus
+## 0.3.5 focus
 
-This release replaces the 0.1.0 placeholder statistics with a benchmark-driven statistics layer based on the PF2e GM Core creature-building guidance. Generated NPCs now receive coherent ability modifiers, Perception, AC, HP, saves, ancestry speed, relevant skills, and profession Lore. Class, profession, ancestry, and role data contribute through explicit content-profile hints rather than UI logic.
+This maintenance release preserves the preview scroll position across class-driven rerenders and full preview regeneration. The fix is centralized in the standalone editor application so future UI refresh paths can reuse the same behavior instead of adding one-off patches.
 
-The standalone Actor-directory workflow, neutral NPC model, public API, PF2e document adapter, seeded generation, content registry, and embedded editor contract remain intact.
+All class profiles, abilities, compendium-backed equipment, public API contracts, and embedded-editor behavior from 0.3.4 remain unchanged.
 
 ### Compendium-backed equipment
 

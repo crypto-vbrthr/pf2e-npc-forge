@@ -30,7 +30,10 @@ const DAMAGE_KEYS = {
 const WEAPON_KEYS = {
   spear: "NPCFORGE.Weapons.Spear",
   dagger: "NPCFORGE.Weapons.Dagger",
-  club: "NPCFORGE.Weapons.Club"
+  club: "NPCFORGE.Weapons.Club",
+  longsword: "NPCFORGE.Weapons.Longsword",
+  rapier: "NPCFORGE.Weapons.Rapier",
+  fist: "NPCFORGE.Weapons.Fist"
 };
 
 function signed(value) {

@@ -35,12 +35,27 @@ function generateName(registry, resolver, ancestry, random) {
 
 function generateBaselineLoadout(level, profession, classProfile) {
   const isGuard = profession?.id === "core.guard";
+  const classId = classProfile?.id;
   const isDexterityFocused = classProfile?.attributeTiers?.dex === "high" || profession?.attributeBias?.dex === "high";
-  const weapon = isGuard
-    ? { id: "primary-weapon", name: "Spear", labelKey: "NPCFORGE.Weapons.Spear", type: "weapon", source: "compendium", compendium: { packId: "pf2e.equipment-srd", slug: "spear" }, damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["thrown-20"] }
-    : isDexterityFocused
-      ? { id: "primary-weapon", name: "Dagger", labelKey: "NPCFORGE.Weapons.Dagger", type: "weapon", source: "compendium", compendium: { packId: "pf2e.equipment-srd", slug: "dagger" }, damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
-      : { id: "primary-weapon", name: "Club", labelKey: "NPCFORGE.Weapons.Club", type: "weapon", source: "compendium", compendium: { packId: "pf2e.equipment-srd", slug: "club" }, damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: [] };
+  const semanticWeapon = classId === "core.monk"
+    ? { name: "Fist", labelKey: "NPCFORGE.Weapons.Fist", slug: null, damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: ["agile", "finesse", "unarmed"] }
+    : ["core.barbarian", "core.champion"].includes(classId)
+      ? { name: "Longsword", labelKey: "NPCFORGE.Weapons.Longsword", slug: "longsword", damage: { dice: 1, die: "d8", type: "slashing" }, traits: ["versatile-p"] }
+      : classId === "core.swashbuckler"
+        ? { name: "Rapier", labelKey: "NPCFORGE.Weapons.Rapier", slug: "rapier", damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["deadly-d8", "disarm", "finesse"] }
+        : classId === "core.alchemist"
+          ? { name: "Dagger", labelKey: "NPCFORGE.Weapons.Dagger", slug: "dagger", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
+          : isGuard
+            ? { name: "Spear", labelKey: "NPCFORGE.Weapons.Spear", slug: "spear", damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["thrown-20"] }
+            : isDexterityFocused
+              ? { name: "Dagger", labelKey: "NPCFORGE.Weapons.Dagger", slug: "dagger", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
+              : { name: "Club", labelKey: "NPCFORGE.Weapons.Club", slug: "club", damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: [] };
+  const weapon = {
+    id: "primary-weapon", name: semanticWeapon.name, labelKey: semanticWeapon.labelKey, type: classId === "core.monk" ? "unarmed" : "weapon",
+    source: semanticWeapon.slug ? "compendium" : "generated",
+    ...(semanticWeapon.slug ? { compendium: { packId: "pf2e.equipment-srd", slug: semanticWeapon.slug } } : {}),
+    damage: semanticWeapon.damage, traits: semanticWeapon.traits
+  };
   const attack = {
     id: "primary-attack",
     sourceWeaponId: weapon.id,

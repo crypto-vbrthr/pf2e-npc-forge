@@ -34,6 +34,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     this.targetFolderId = targetFolderId;
     this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, profession: "core.guard", role: "core.ordinary" };
     this.preview = null;
+    this._pendingPreviewScrollTop = null;
   }
 
   async _prepareContext(options) {
@@ -55,8 +56,21 @@ export class NpcForgeApp extends HandlebarsApplication {
     };
   }
 
+  _capturePreviewScroll() {
+    const preview = this.element?.querySelector?.(".npc-forge-preview");
+    this._pendingPreviewScrollTop = preview?.scrollTop ?? 0;
+  }
+
+  _restorePreviewScroll() {
+    if (this._pendingPreviewScrollTop == null) return;
+    const preview = this.element?.querySelector?.(".npc-forge-preview");
+    if (preview) preview.scrollTop = this._pendingPreviewScrollTop;
+    this._pendingPreviewScrollTop = null;
+  }
+
   async _onRender(context, options) {
     await super._onRender(context, options);
+    this._restorePreviewScroll();
     const form = this.element.querySelector("form[data-npc-forge-request]");
     form?.addEventListener("input", (event) => {
       const data = new FormData(form);
@@ -70,7 +84,10 @@ export class NpcForgeApp extends HandlebarsApplication {
         classSpecialization: classChanged ? null : (String(data.get("classSpecialization") ?? "") || null),
         profession: String(data.get("profession") ?? "core.guard")
       };
-      if (classChanged) this.render();
+      if (classChanged) {
+        this._capturePreviewScroll();
+        this.render();
+      }
     });
   }
 
@@ -79,6 +96,7 @@ export class NpcForgeApp extends HandlebarsApplication {
       this.preview = await this.api.engine.generate(this.request);
       // Keep the resolved specialization visible after an automatic selection.
       this.request.classSpecialization = this.preview.build?.classSpecialization?.id ?? null;
+      this._capturePreviewScroll();
       await this.render();
     } catch (error) {
       console.error("PF2E NPC Forge | Generation failed", error);

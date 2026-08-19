@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.5 - Preview Scroll Preservation Fix
+
+- Preserved the NPC preview scroll position when changing the selected class profile.
+- Applied the same preservation path to full preview regeneration so future partial/full preview refreshes do not unexpectedly jump to the top.
+- Centralized preview scroll capture/restore in the standalone editor application instead of patching individual class options.
+- Added regression coverage for the scroll-preservation hooks.
+
+## 0.3.4 - Core Class Profile Expansion
+
+- Expanded the built-in class-profile catalog to all sixteen remastered Player Core / Player Core 2 classes.
+- Added Bard, Druid, Witch, Alchemist, Barbarian, Investigator, Swashbuckler, Monk, Oracle, Champion, and Sorcerer profiles.
+- Added representative, weighted class specializations such as bard muses, druid orders, witch patrons, alchemist research fields, barbarian instincts, investigator methodologies, swashbuckler styles, monk stances, oracle mysteries, champion causes, and sorcerer bloodlines.
+- Added NPC-facing signature abilities for every new class profile and specialization.
+- Kept spellcasting-oriented abilities deliberately descriptive until the dedicated spellcasting engine is implemented.
+- Added class-aware baseline weapon choices for monks, swashbucklers, barbarians, and champions while preserving compendium-backed equipment where applicable.
+- Added complete German and English localization for all new class, specialization, ability, and weapon labels.
+- Added capability `core-class-profile-expansion`.
+- Added regression tests covering full core-class registration, representative specializations, deterministic automatic specialization, and representative class abilities.
+
+
 ## 0.3.3 - Compendium-backed Equipment & Strikes
 
 - Weapons in generated NPC loadouts now carry semantic PF2e equipment-compendium references.
