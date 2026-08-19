@@ -13,6 +13,8 @@ const TYPES = Object.freeze([
   "personalityPacks",
   "appearancePacks",
   "equipmentProfiles",
+  "spellcastingProfiles",
+  "spellThemes",
   "quickPresets"
 ]);
 

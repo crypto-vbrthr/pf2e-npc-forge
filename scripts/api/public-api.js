@@ -28,6 +28,8 @@ export class NpcForgeApi {
       registerPersonalityPack: (moduleId, definition) => registry.register("personalityPacks", moduleId, definition),
       registerAppearancePack: (moduleId, definition) => registry.register("appearancePacks", moduleId, definition),
       registerEquipmentProfile: (moduleId, definition) => registry.register("equipmentProfiles", moduleId, definition),
+      registerSpellcastingProfile: (moduleId, definition) => registry.register("spellcastingProfiles", moduleId, definition),
+      registerSpellTheme: (moduleId, definition) => registry.register("spellThemes", moduleId, definition),
       registerQuickPreset: (moduleId, definition) => registry.register("quickPresets", moduleId, definition),
       list: (type) => registry.list(type),
       get: (type, id) => registry.get(type, id)

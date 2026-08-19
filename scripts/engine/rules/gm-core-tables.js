@@ -93,3 +93,38 @@ export function weaponScaledDamageFormula({ level, tier = "average", die = "d6" 
     benchmarkFormula: benchmark.formula
   };
 }
+
+
+export const SPELLCASTING_BENCHMARKS = Object.freeze({
+  "-1": { extreme:{dc:19,attack:11}, high:{dc:16,attack:8}, average:{dc:13,attack:5} },
+  "0": { extreme:{dc:19,attack:11}, high:{dc:16,attack:8}, average:{dc:13,attack:5} },
+  "1": { extreme:{dc:20,attack:12}, high:{dc:17,attack:9}, average:{dc:14,attack:6} },
+  "2": { extreme:{dc:22,attack:14}, high:{dc:18,attack:10}, average:{dc:15,attack:7} },
+  "3": { extreme:{dc:23,attack:15}, high:{dc:20,attack:12}, average:{dc:17,attack:9} },
+  "4": { extreme:{dc:25,attack:17}, high:{dc:21,attack:13}, average:{dc:18,attack:10} },
+  "5": { extreme:{dc:26,attack:18}, high:{dc:22,attack:14}, average:{dc:19,attack:11} },
+  "6": { extreme:{dc:27,attack:19}, high:{dc:24,attack:16}, average:{dc:21,attack:13} },
+  "7": { extreme:{dc:29,attack:21}, high:{dc:25,attack:17}, average:{dc:22,attack:14} },
+  "8": { extreme:{dc:30,attack:22}, high:{dc:26,attack:18}, average:{dc:23,attack:15} },
+  "9": { extreme:{dc:32,attack:24}, high:{dc:28,attack:20}, average:{dc:25,attack:17} },
+  "10": { extreme:{dc:33,attack:25}, high:{dc:29,attack:21}, average:{dc:26,attack:18} },
+  "11": { extreme:{dc:34,attack:26}, high:{dc:30,attack:22}, average:{dc:27,attack:19} },
+  "12": { extreme:{dc:36,attack:28}, high:{dc:32,attack:24}, average:{dc:29,attack:21} },
+  "13": { extreme:{dc:37,attack:29}, high:{dc:33,attack:25}, average:{dc:30,attack:22} },
+  "14": { extreme:{dc:39,attack:31}, high:{dc:34,attack:26}, average:{dc:31,attack:23} },
+  "15": { extreme:{dc:40,attack:32}, high:{dc:36,attack:28}, average:{dc:33,attack:25} },
+  "16": { extreme:{dc:41,attack:33}, high:{dc:37,attack:29}, average:{dc:34,attack:26} },
+  "17": { extreme:{dc:43,attack:35}, high:{dc:38,attack:30}, average:{dc:35,attack:27} },
+  "18": { extreme:{dc:44,attack:36}, high:{dc:40,attack:32}, average:{dc:37,attack:29} },
+  "19": { extreme:{dc:46,attack:38}, high:{dc:41,attack:33}, average:{dc:38,attack:30} },
+  "20": { extreme:{dc:47,attack:39}, high:{dc:42,attack:34}, average:{dc:39,attack:31} },
+  "21": { extreme:{dc:48,attack:40}, high:{dc:44,attack:36}, average:{dc:41,attack:33} },
+  "22": { extreme:{dc:50,attack:42}, high:{dc:45,attack:37}, average:{dc:42,attack:34} },
+  "23": { extreme:{dc:51,attack:43}, high:{dc:46,attack:38}, average:{dc:43,attack:35} },
+  "24": { extreme:{dc:52,attack:44}, high:{dc:48,attack:40}, average:{dc:45,attack:37} }
+});
+
+export function spellcastingBenchmark(level, tier = "high") {
+  const row = SPELLCASTING_BENCHMARKS[String(Math.max(-1, Math.min(24, Number(level))))];
+  return row?.[tier] ?? row?.high ?? null;
+}

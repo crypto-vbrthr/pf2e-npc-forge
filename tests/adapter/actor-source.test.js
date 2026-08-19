@@ -166,3 +166,44 @@ test("adapter writes generated personality to public notes and keeps secrets pri
   assert.ok(source.system.details.privateNotes.length > 0);
   assert.ok(!source.system.details.publicNotes.includes(npc.personality.secret?.id ?? "__never__"));
 });
+
+
+test("async actor source materializes spellcasting entry and compendium-backed spells", async () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const engine = new NpcEngine({ registry });
+  const npc = engine.generate({ seed:"spell-adapter", level:5, classProfile:"core.wizard", profession:"core.scholar" });
+  const spellDocs = new Map();
+  for (const entry of npc.spellcasting) for (const spell of entry.preparedSpells) spellDocs.set(spell.slug, { uuid:`Compendium.pf2e.spells-srd.Item.${spell.slug}`, toObject:()=>({ name:spell.slug, type:"spell", system:{ slug:spell.slug, location:{ value:null } } }) });
+  globalThis.game = { i18n:{ localize:(k)=>k }, packs:new Map([
+    ["pf2e.spells-srd", { getIndex: async()=>[...spellDocs.keys()].map((slug,i)=>({_id:`s${i}`,type:"spell",system:{slug}})), getDocument: async(id)=>[...spellDocs.values()][Number(String(id).slice(1))] }],
+    ["pf2e.equipment-srd", { getIndex: async()=>[], getDocument: async()=>null }]
+  ]) };
+  const adapter = new Pf2eDocumentAdapter();
+  const source = await adapter.toActorSourceAsync(npc);
+  const entry = source.items.find((item)=>item.type === "spellcastingEntry");
+  assert.ok(entry);
+  const spells = source.items.filter((item)=>item.type === "spell");
+  assert.ok(spells.length > 0);
+  assert.ok(spells.every((spell)=>spell.system.location.value === entry._id));
+  assert.ok(spells.every((spell)=>typeof spell._id === "string" && spell._id.length > 0));
+  const preparedIds = Object.values(entry.system.slots ?? {}).flatMap((slot)=>slot.prepared ?? []).map((slot)=>slot.id);
+  assert.ok(preparedIds.length > 0);
+  assert.ok(preparedIds.every((id)=>spells.some((spell)=>spell._id === id)));
+});
+
+test("spontaneous spellcasting creates populated rank slots", async () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const engine = new NpcEngine({ registry });
+  const npc = engine.generate({ seed:"spell-adapter-spontaneous", level:5, classProfile:"core.bard", profession:"core.entertainer" });
+  const spellDocs = new Map();
+  for (const cast of npc.spellcasting) for (const spell of cast.preparedSpells) spellDocs.set(spell.slug, { uuid:`Compendium.pf2e.spells-srd.Item.${spell.slug}`, toObject:()=>({ name:spell.slug, type:"spell", system:{ slug:spell.slug, level:{value:spell.rank}, location:{ value:null } } }) });
+  globalThis.game = { i18n:{ localize:(k)=>k }, packs:new Map([
+    ["pf2e.spells-srd", { getIndex: async()=>[...spellDocs.keys()].map((slug,i)=>({_id:`s${i}`,type:"spell",system:{slug}})), getDocument: async(id)=>[...spellDocs.values()][Number(String(id).slice(1))] }],
+    ["pf2e.equipment-srd", { getIndex: async()=>[], getDocument: async()=>null }]
+  ]) };
+  const source = await new Pf2eDocumentAdapter().toActorSourceAsync(npc);
+  const entry = source.items.find((item)=>item.type === "spellcastingEntry");
+  assert.equal(entry.system.prepared.value, "spontaneous");
+  assert.ok(Object.values(entry.system.slots).some((slot)=>Number(slot.max) > 0));
+  assert.ok(Object.values(entry.system.slots).some((slot)=>Number(slot.value) > 0));
+});

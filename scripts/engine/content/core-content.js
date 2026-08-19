@@ -503,4 +503,77 @@ export function registerCoreContent(registry) {
       { id:"core.appearance.posture.slight-limp", category:"posture", labelKey:"NPCFORGE.Appearance.Traits.SlightLimp", weight:2, preferredTags:["veteran","martial"] }
     ]
   });
+
+  const spellcastingProfiles = [
+    { id:"core.spellcasting.wizard", classProfileId:"core.wizard", tradition:"arcane", mode:"prepared", ability:"int", sourceType:"spellbook", themeId:"core.spells.arcane", tier:"high" },
+    { id:"core.spellcasting.cleric", classProfileId:"core.cleric", tradition:"divine", mode:"prepared", ability:"wis", sourceType:"divine", themeId:"core.spells.divine", tier:"high" },
+    { id:"core.spellcasting.druid", classProfileId:"core.druid", tradition:"primal", mode:"prepared", ability:"wis", sourceType:"primal", themeId:"core.spells.primal", tier:"high" },
+    { id:"core.spellcasting.bard", classProfileId:"core.bard", tradition:"occult", mode:"spontaneous", ability:"cha", sourceType:"repertoire", themeId:"core.spells.occult", tier:"high", focusPoints:1 },
+    { id:"core.spellcasting.witch", classProfileId:"core.witch", tradition:"occult", mode:"prepared", ability:"int", sourceType:"familiar", themeId:"core.spells.occult", tier:"high", focusPoints:1 },
+    { id:"core.spellcasting.oracle", classProfileId:"core.oracle", tradition:"divine", mode:"spontaneous", ability:"cha", sourceType:"mystery", themeId:"core.spells.divine", tier:"high", focusPoints:1 },
+    { id:"core.spellcasting.sorcerer", classProfileId:"core.sorcerer", tradition:"arcane", mode:"spontaneous", ability:"cha", sourceType:"bloodline", themeId:"core.spells.arcane", tier:"high", focusPoints:1 }
+  ];
+  for (const profile of spellcastingProfiles) registry.register("spellcastingProfiles", source, profile);
+
+  const spellThemes = [
+    { id:"core.spells.arcane", tradition:"arcane", ranks:{
+      0:["detect-magic","shield","telekinetic-hand","ignition","figment"],
+      1:["force-barrage","mystic-armor","fear","breathe-fire","sure-strike"],
+      2:["invisibility","revealing-light","dispel-magic","blur","resist-energy"],
+      3:["fireball","haste","slow","lightning-bolt","earthbind"],
+      4:["fly","wall-of-fire","confusion","translocate","vision-of-death"],
+      5:["banishment","howling-blizzard","wall-of-stone","sending","truespeech"],
+      6:["chain-lightning","disintegrate","never-mind","wall-of-force","true-seeing"],
+      7:["contingency","energy-aegis","planar-palace","teleport","true-target"],
+      8:["disappearance","earthquake","horrid-wilting","uncontrollable-dance","whirlwind"],
+      9:["foresight","implosion","meteor-swarm","resplendent-mansion","weird"],
+      10:["cataclysm","manifestation","remake","time-stop"]
+    }},
+    { id:"core.spells.divine", tradition:"divine", ranks:{
+      0:["detect-magic","divine-lance","guidance","light","stabilize"],
+      1:["heal","bless","bane","fear","sanctuary"],
+      2:["cleanse-affliction","restoration","see-the-unseen","sound-burst","spiritual-armament"],
+      3:["heroism","holy-light","blindness","crisis-of-faith","ring-of-truth"],
+      4:["divine-wrath","freedom-of-movement","vital-beacon","air-walk","talking-corpse"],
+      5:["banishment","breath-of-life","death-ward","flame-strike","sending"],
+      6:["blade-barrier","field-of-life","raise-dead","spiritual-armament","zealous-conviction"],
+      7:["divine-decree","regenerate","resurrection","sunburst","tempest-of-shades"],
+      8:["divine-aura","holy-cascade","moment-of-renewal","spiritual-epidemic"],
+      9:["bind-soul","foresight","massacre","overwhelming-presence"],
+      10:["avatar","miracle","revival"]
+    }},
+    { id:"core.spells.occult", tradition:"occult", ranks:{
+      0:["detect-magic","daze","figment","guidance","telekinetic-hand"],
+      1:["fear","illusory-disguise","soothe","sleep","sure-strike"],
+      2:["invisibility","dispel-magic","revealing-light","touch-of-idiocy","laughing-fit"],
+      3:["haste","slow","heroism","hypnotize","mind-reading"],
+      4:["confusion","vision-of-death","translocate","suggestion","talking-corpse"],
+      5:["banishment","sending","synesthesia","telepathic-bond","hallucination"],
+      6:["never-mind","true-seeing","vibrant-pattern","collective-transposition","phantasmal-calamity"],
+      7:["contingency","teleport","true-target","visions-of-danger","retrocognition"],
+      8:["disappearance","uncontrollable-dance","spiritual-epidemic","dream-council"],
+      9:["foresight","overwhelming-presence","weird","resplendent-mansion"],
+      10:["manifestation","remake","time-stop"]
+    }},
+    { id:"core.spells.primal", tradition:"primal", ranks:{
+      0:["detect-magic","electric-arc","ignition","tangle-vine","guidance"],
+      1:["heal","breathe-fire","fear","gust-of-wind","pest-form"],
+      2:["animal-form","dispel-magic","resist-energy","revealing-light","water-breathing"],
+      3:["fireball","lightning-bolt","haste","slow","wall-of-wind"],
+      4:["fly","wall-of-fire","freedom-of-movement","air-walk","stoneskin"],
+      5:["howling-blizzard","wall-of-stone","control-water","death-ward","tree-stride"],
+      6:["chain-lightning","field-of-life","stone-to-flesh","true-seeing","wall-of-force"],
+      7:["energy-aegis","regenerate","sunburst","volcanic-eruption","teleport"],
+      8:["earthquake","whirlwind","moment-of-renewal","horrid-wilting"],
+      9:["meteor-swarm","implosion","foresight","shapechange"],
+      10:["cataclysm","manifestation","revival"]
+    }},
+    { id:"core.spells.divine-healing", tradition:"divine", ranks:{1:["heal","bless","sanctuary"],2:["cleanse-affliction","restoration","spiritual-armament"],3:["heroism","holy-light"],4:["vital-beacon","freedom-of-movement"],5:["breath-of-life","death-ward"],6:["field-of-life","raise-dead"],7:["regenerate","resurrection"],8:["moment-of-renewal","divine-aura"],9:["foresight","overwhelming-presence"],10:["revival","miracle"]}},
+    { id:"core.spells.divine-battle", tradition:"divine", ranks:{1:["bless","bane","fear"],2:["spiritual-armament","sound-burst"],3:["heroism","holy-light","crisis-of-faith"],4:["divine-wrath","freedom-of-movement"],5:["flame-strike","banishment"],6:["blade-barrier","zealous-conviction"],7:["divine-decree","sunburst"],8:["divine-aura","holy-cascade"],9:["massacre","overwhelming-presence"],10:["avatar"]}},
+    { id:"core.spells.primal-storm", tradition:"primal", ranks:{1:["gust-of-wind","heal"],2:["resist-energy","water-breathing"],3:["lightning-bolt","wall-of-wind"],4:["fly","air-walk"],5:["howling-blizzard","control-water"],6:["chain-lightning","wall-of-force"],7:["volcanic-eruption","sunburst"],8:["whirlwind","earthquake"],9:["meteor-swarm"],10:["cataclysm"]}},
+    { id:"core.spells.primal-growth", tradition:"primal", ranks:{1:["heal","tangle-vine"],2:["animal-form","resist-energy"],3:["haste","slow"],4:["freedom-of-movement","stoneskin"],5:["tree-stride","wall-of-stone"],6:["field-of-life","stone-to-flesh"],7:["regenerate","energy-aegis"],8:["moment-of-renewal"],9:["shapechange"],10:["revival"]}},
+    { id:"core.spells.occult-support", tradition:"occult", ranks:{1:["soothe","fear","illusory-disguise"],2:["invisibility","revealing-light"],3:["heroism","haste","slow"],4:["suggestion","confusion"],5:["sending","telepathic-bond","synesthesia"],6:["true-seeing","vibrant-pattern"],7:["true-target","contingency"],8:["uncontrollable-dance"],9:["foresight","overwhelming-presence"],10:["manifestation"]}}
+  ];
+  for (const theme of spellThemes) registry.register("spellThemes", source, theme);
+
 }

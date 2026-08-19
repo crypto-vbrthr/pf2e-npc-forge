@@ -34,5 +34,10 @@ export function validateNpcModel(npc) {
     if (!ability.id || !ability.labelKey) errors.push("Each NPC ability requires id and labelKey");
     if (!new Set(["action", "reaction", "free", "passive"]).has(ability.actionType)) errors.push(`Invalid NPC ability actionType for ${ability.id ?? "unknown"}`);
   }
+  for (const entry of npc.spellcasting ?? []) {
+    if (!entry.tradition) errors.push("Spellcasting entry requires a tradition");
+    if (!Number.isFinite(entry.dc) || !Number.isFinite(entry.attack)) errors.push("Spellcasting entry requires DC and attack modifier");
+    if ((entry.spells ?? []).some((spell) => !spell.slug || !Number.isInteger(spell.rank))) errors.push("Spellcasting spells require slug and integer rank");
+  }
   return { valid: errors.length === 0, errors, warnings };
 }

@@ -168,6 +168,19 @@ export function presentNpc(npc, localize = (key) => key) {
       : localize("NPCFORGE.AbilityTypes.OneAction")
   }));
 
+
+  const spellcasting = (npc.spellcasting ?? []).map((entry) => ({
+    ...entry,
+    displayTradition: localize(`NPCFORGE.Spellcasting.Tradition.${entry.tradition?.[0]?.toUpperCase() ?? ""}${entry.tradition?.slice(1) ?? ""}`),
+    displayMode: localize(entry.mode === "spontaneous" ? "NPCFORGE.Spellcasting.Spontaneous" : "NPCFORGE.Spellcasting.Prepared"),
+    displaySource: localize(`NPCFORGE.Spellcasting.Source.${entry.sourceType?.replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase()).replace(/-/g, "") ?? "Magic"}`),
+    ranks: Array.from({ length: (entry.highestRank ?? 0) + 1 }, (_, rank) => ({
+      rank,
+      displayRank: rank === 0 ? localize("NPCFORGE.Spellcasting.Cantrips") : `${localize("NPCFORGE.Spellcasting.Rank")} ${rank}`,
+      spells: (entry.preparedSpells ?? entry.spells ?? []).filter((spell) => spell.rank === rank).map((spell) => ({ ...spell, displayName: spell.labelKey ? localize(spell.labelKey) : String(spell.slug ?? "").replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) }))
+    })).filter((rank) => rank.spells.length)
+  }));
+
   const attributes = npc.statistics?.attributes ?? {};
   const saves = npc.statistics?.saves ?? {};
 
@@ -208,6 +221,7 @@ export function presentNpc(npc, localize = (key) => key) {
     inventory,
     attacks,
     abilities,
+    spellcasting,
     personality: presentPersonality(npc.personality, localize)
   };
 }

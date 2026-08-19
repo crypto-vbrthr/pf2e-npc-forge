@@ -12,6 +12,7 @@ import { buildIdentity, resolveGender } from "./builders/identity-builder.js";
 import { generateNameData } from "./names/name-generator.js";
 import { buildAppearance } from "./builders/appearance-builder.js";
 import { buildPersonality } from "./builders/personality-builder.js";
+import { buildSpellcasting } from "./builders/spellcasting-builder.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -83,6 +84,9 @@ export class NpcEngine {
       registry: this.registry
     });
 
+    const spellcastingResult = buildSpellcasting({ level, classProfile, specialization: classSpecialization, profession, registry: this.registry, random });
+    loadout.inventory.push(...spellcastingResult.inventoryItems);
+
     const personality = buildPersonality({
       request: normalized.personality,
       ancestry,
@@ -116,7 +120,7 @@ export class NpcEngine {
       statistics,
       skills,
       abilities,
-      spellcasting: [],
+      spellcasting: spellcastingResult.entries,
       inventory: loadout.inventory,
       attacks: [...loadout.attacks, ...ancestryAttacks],
       relationships: [],

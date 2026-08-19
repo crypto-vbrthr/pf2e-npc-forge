@@ -200,6 +200,24 @@
         </div>
       </section>
 
+
+      {{#if view.spellcasting.length}}
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Spellcasting"}}</h2>
+        <div class="npc-forge-sheet-list npc-forge-spellcasting-list">
+          {{#each view.spellcasting}}
+            <article class="npc-forge-sheet-entry npc-forge-spellcasting">
+              <header><strong>{{displayTradition}} · {{displayMode}}</strong><span>{{localize "NPCFORGE.Spellcasting.DC"}} {{dc}} · {{localize "NPCFORGE.Spellcasting.Attack"}} +{{attack}}</span></header>
+              <p class="npc-forge-muted">{{displaySource}}{{#if highestRank}} · {{localize "NPCFORGE.Spellcasting.HighestRank"}} {{highestRank}}{{/if}}{{#if focusPoints}} · {{localize "NPCFORGE.Spellcasting.FocusPoints"}} {{focusPoints}}{{/if}}</p>
+              {{#each ranks}}
+                <div class="npc-forge-spell-rank"><strong>{{displayRank}}</strong>: {{#each spells}}{{displayName}}{{#unless @last}}, {{/unless}}{{/each}}</div>
+              {{/each}}
+            </article>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
       <section class="npc-forge-sheet-section">
         <h2>{{localize "NPCFORGE.Sections.Equipment"}}</h2>
         <div class="npc-forge-sheet-list npc-forge-inventory-list">

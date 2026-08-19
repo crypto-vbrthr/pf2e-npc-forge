@@ -2,7 +2,7 @@
   "id": "pf2e-npc-forge",
   "title": "PF2E NPC Forge",
   "description": "A modular PF2e NPC generation platform with a public engine, content registry, document adapter, embedded editor API, and quick NPC workflow.",
-  "version": "0.6.1",
+  "version": "0.7.1",
   "authors": [
     {
       "name": "crypto-vbrthr"

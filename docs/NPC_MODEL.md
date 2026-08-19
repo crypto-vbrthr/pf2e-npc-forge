@@ -128,3 +128,8 @@ Each attack can include benchmark provenance in addition to its executable modif
 ```
 
 The item and the NPC Strike intentionally remain distinct. A compendium weapon preserves its authentic PF2e item data and value; the Strike uses creature-building damage appropriate to the NPC level.
+
+
+## Spellcasting
+
+`spellcasting[]` contains neutral entries with tradition, prepared/spontaneous mode, ability, GM Core DC/attack benchmark, highest rank, focus points, prepared spells, and known spells. A wizard spellbook is represented as an inventory item carrying semantic known-spell metadata.

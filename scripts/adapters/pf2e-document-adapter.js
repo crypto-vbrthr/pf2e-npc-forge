@@ -21,6 +21,19 @@ async function findCompendiumDocument(reference) {
   return pack.getDocument(entry._id);
 }
 
+async function findCompendiumDocumentCandidates(references = []) {
+  for (const reference of references) {
+    const document = await findCompendiumDocument(reference);
+    if (document) return { document, reference };
+  }
+  return { document: null, reference: null };
+}
+
+function randomEmbeddedId(prefix = "npcf") {
+  const value = globalThis.foundry?.utils?.randomID?.() ?? `${prefix}${Math.random().toString(36).slice(2, 14)}`;
+  return String(value).slice(0, 16);
+}
+
 function cleanEmbeddedItemSource(source) {
   const clone = deepClone(source);
   delete clone._id;
@@ -112,7 +125,13 @@ function physicalItemFromInventory(item) {
 
 async function physicalItemFromInventoryAsync(item) {
   if (item.type === "unarmed") return { source: null, facts: null, compendiumBacked: false };
-  const document = await findCompendiumDocument(item.compendium);
+  let document = await findCompendiumDocument(item.compendium);
+  let resolvedReference = item.compendium ?? null;
+  if (!document && Array.isArray(item.compendiumCandidates)) {
+    const resolved = await findCompendiumDocumentCandidates(item.compendiumCandidates);
+    document = resolved.document;
+    resolvedReference = resolved.reference;
+  }
   if (!document) {
     const source = physicalItemFromInventory(item);
     return { source, facts: item.type === "weapon" ? weaponFactsFromSource(source) : null, compendiumBacked: false };
@@ -133,11 +152,95 @@ async function physicalItemFromInventoryAsync(item) {
     purpose: item.purpose ?? null,
     origin: item.origin ?? null,
     compendiumBacked: true,
-    sourcePack: item.compendium.packId,
-    sourceSlug: item.compendium.slug,
+    sourcePack: resolvedReference?.packId ?? null,
+    sourceSlug: resolvedReference?.slug ?? null,
     sourceUuid: document.uuid ?? null
   };
   return { source, facts: source.type === "weapon" ? weaponFactsFromSource(source) : null, compendiumBacked: true };
+}
+
+function spellcastingEntryItem(entry) {
+  const id = randomEmbeddedId("cast");
+  return {
+    _id: id,
+    name: localized(`NPCFORGE.Spellcasting.Tradition.${entry.tradition[0].toUpperCase()}${entry.tradition.slice(1)}`, entry.tradition),
+    type: "spellcastingEntry",
+    system: {
+      tradition: { value: entry.tradition },
+      prepared: { value: entry.mode === "spontaneous" ? "spontaneous" : "prepared", flexible: false },
+      spelldc: { value: entry.attack, dc: entry.dc },
+      proficiency: { value: 1 },
+      slots: {},
+      showSlotlessLevels: { value: true }
+    },
+    flags: { [MODULE_ID]: { generated:true, spellcastingProfileId:entry.profileId ?? null, benchmarkTier:entry.benchmarkTier ?? null, castingAbility: entry.ability ?? null } }
+  };
+}
+
+async function spellItemsFromEntry(entry, entryId) {
+  const items = [];
+  for (const spell of entry.preparedSpells ?? entry.spells ?? []) {
+    const document = await findCompendiumDocument(spell.compendium);
+    if (!document) continue;
+    const source = cleanEmbeddedItemSource(document.toObject());
+    source._id = randomEmbeddedId("spell");
+    source.system ??= {};
+    source.system.location ??= {};
+    source.system.location.value = entryId;
+    if (spell.rank > 0 && Number(source.system.level?.value ?? spell.rank) !== spell.rank) {
+      source.system.location.heightenedLevel = spell.rank;
+    } else {
+      delete source.system.location.heightenedLevel;
+    }
+    source.flags ??= {};
+    source.flags[MODULE_ID] = { ...(source.flags[MODULE_ID] ?? {}), generated:true, compendiumBacked:true, spellRank:spell.rank, spellSlug:spell.slug };
+    items.push(source);
+  }
+  return items;
+}
+
+function populateSpellcastingSlots(entryItem, entry, spellItems) {
+  const byRank = new Map();
+  for (const spell of spellItems) {
+    const rank = Number(spell.flags?.[MODULE_ID]?.spellRank ?? spell.system?.level?.value ?? 0);
+    const list = byRank.get(rank) ?? [];
+    list.push(spell);
+    byRank.set(rank, list);
+  }
+
+  const slots = {};
+  for (let rank = 0; rank <= Number(entry.highestRank ?? 0); rank++) {
+    const spells = byRank.get(rank) ?? [];
+    if (!spells.length && rank !== 0) continue;
+    const key = `slot${rank}`;
+    if (entry.mode === "prepared") {
+      slots[key] = {
+        max: Math.max(spells.length, rank === 0 ? 1 : 0),
+        prepared: spells.map((spell) => ({ id: spell._id }))
+      };
+    } else {
+      slots[key] = {
+        max: Math.max(spells.length, rank === 0 ? 1 : 0),
+        value: Math.max(spells.length, rank === 0 ? 1 : 0)
+      };
+    }
+  }
+  entryItem.system.slots = slots;
+  return entryItem;
+}
+
+function enrichSpellbookSource(source, inventoryItem) {
+  if (!inventoryItem?.spellbook?.spells?.length) return source;
+  source.flags ??= {};
+  source.flags[MODULE_ID] = {
+    ...(source.flags[MODULE_ID] ?? {}),
+    spellbook: { tradition: inventoryItem.spellbook.tradition, spells: deepClone(inventoryItem.spellbook.spells) }
+  };
+  const list = inventoryItem.spellbook.spells.map((spell) => `${spell.rank === 0 ? localized("NPCFORGE.Spellcasting.Cantrip", "Cantrip") : `${localized("NPCFORGE.Spellcasting.Rank", "Rank")} ${spell.rank}`}: ${humanizeSlug(spell.slug)}`).join("<br>");
+  source.system ??= {};
+  source.system.description ??= { value:"" };
+  source.system.description.value = `${source.system.description.value ?? ""}<hr><p><strong>${localized("NPCFORGE.Items.SpellbookContents", "Spellbook contents")}</strong><br>${list}</p>`;
+  return source;
 }
 
 function skillSource(skills = []) {
@@ -170,6 +273,7 @@ export class Pf2eDocumentAdapter {
     }
     for (const attack of npc.attacks ?? []) items.push(meleeItemFromAttack(attack));
     for (const ability of npc.abilities ?? []) items.push(actionItemFromAbility(ability));
+    for (const entry of npc.spellcasting ?? []) items.push(spellcastingEntryItem(entry));
 
     const profession = npc.build.profession?.labelKey ? localized(npc.build.profession.labelKey, npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC") : (npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC");
     const classProfile = npc.build.classProfile?.labelKey ? localized(npc.build.classProfile.labelKey, npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "") : (npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "");
@@ -267,13 +371,22 @@ export class Pf2eDocumentAdapter {
     for (const inventoryItem of npc.inventory ?? []) {
       const resolved = await physicalItemFromInventoryAsync(inventoryItem);
       if (!resolved.source) continue;
+      if (inventoryItem.purpose === "spellbook") enrichSpellbookSource(resolved.source, inventoryItem);
       inventoryItems.push(resolved.source);
       if (resolved.facts) weaponFactsById.set(inventoryItem.id, resolved.facts);
       if (resolved.compendiumBacked) source.flags[MODULE_ID].compendiumEquipment = true;
     }
 
     const meleeItems = (npc.attacks ?? []).map((attack) => meleeItemFromAttack(attack, weaponFactsById.get(attack.sourceWeaponId) ?? null));
-    source.items = [...inventoryItems, ...meleeItems, ...abilityItems];
+    const spellcastingItems = [];
+    for (const entry of npc.spellcasting ?? []) {
+      const entryItem = spellcastingEntryItem(entry);
+      const spells = await spellItemsFromEntry(entry, entryItem._id);
+      populateSpellcastingSlots(entryItem, entry, spells);
+      spellcastingItems.push(entryItem, ...spells);
+    }
+    source.items = [...inventoryItems, ...meleeItems, ...abilityItems, ...spellcastingItems];
+    if ((npc.spellcasting ?? []).length) source.flags[MODULE_ID].spellcasting = true;
     return source;
   }
 

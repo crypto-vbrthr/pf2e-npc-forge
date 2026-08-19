@@ -221,3 +221,8 @@ strike.damage.benchmarkFormula;  // printed GM Core benchmark, "3d10+14"
 ```
 
 External class profiles can set `statistics.damage` to `low`, `average`, `high`, or `extreme`. If omitted, NPC Forge derives a conservative default from the class profile and its tags.
+
+
+## Spellcasting content
+
+External modules can register spellcasting profiles and thematic spell pools with `api.content.registerSpellcastingProfile(moduleId, definition)` and `api.content.registerSpellTheme(moduleId, definition)`. Generated `npc.spellcasting` data is neutral and the Document Adapter materializes PF2e spellcasting entries and compendium-backed spell Items.
