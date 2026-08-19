@@ -17,7 +17,7 @@ test("editor rerenders preserve controls and preview scroll positions", () => {
 });
 
 test("collapsible section state uses stable ids and is restored after rerender", () => {
-  for (const id of ["basics", "identity", "personality", "appearance", "equipment"]) {
+  for (const id of ["basics", "identity", "personality", "appearance", "equipment", "integrations"]) {
     assert.match(template, new RegExp(`data-section-id="${id}"`));
   }
   assert.match(source, /querySelectorAll\?\.\("details\[data-section-id\]"\)/);

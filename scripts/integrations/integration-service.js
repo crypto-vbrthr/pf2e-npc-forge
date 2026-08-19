@@ -15,12 +15,20 @@ export class IntegrationService {
     this.required = required;
   }
 
+  get module() {
+    return globalThis.game?.modules?.get?.(this.moduleId) ?? null;
+  }
+
   get api() {
-    return globalThis.game?.modules?.get?.(this.moduleId)?.api ?? null;
+    return this.module?.api ?? null;
   }
 
   get installed() {
-    return Boolean(globalThis.game?.modules?.get?.(this.moduleId));
+    return Boolean(this.module);
+  }
+
+  get active() {
+    return Boolean(this.module?.active);
   }
 
   get available() {
@@ -44,6 +52,7 @@ export class IntegrationService {
     return {
       moduleId: this.moduleId,
       installed: this.installed,
+      active: this.active,
       available: this.available,
       ready: this.ready,
       capabilities: this.capabilities

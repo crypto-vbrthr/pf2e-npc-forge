@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.3 – External Integration Diagnostics & Poison Reliability
+
+- Added a dedicated External Integrations editor section showing whether Affliction Forge, Item Forge, and Loot Forge are connected, incomplete, inactive, or unavailable.
+- Affliction Forge status now reports enabled library count and discovered injury-poison availability for the current NPC level.
+- Added a UI poison policy selector: contextual automatic selection or force a poison whenever a compatible injury poison is available.
+- Added explicit Actor-creation notifications explaining whether a poison was applied or skipped because of chance, integration availability, attack eligibility, or missing content.
+- Hardened injury-poison discovery: if the preferred level window contains no compatible injury poison, NPC Forge widens the enabled-library search and chooses the nearest available injury poison instead of silently giving up.
+- Integration status now distinguishes installed, active, API-available, and ready states.
+- Added public async `api.integrations.inspect({ level })` diagnostics while retaining synchronous `api.integrations.status()`.
+- Added regression coverage for widened poison discovery and integration diagnostics.
+
 ## 0.8.2 – Stable Controls Scroll Restoration
 
 - Fixed the controls pane drifting to the middle of the editor after clicking Generate.

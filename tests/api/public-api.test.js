@@ -54,3 +54,14 @@ test("public API exposes personality pack registration and roleplaying capabilit
   assert.ok(api.capabilities.has("personality-generation"));
   assert.ok(api.capabilities.has("roleplaying-kit"));
 });
+
+test("public API exposes synchronous integration status and async diagnostics", async () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  assert.equal(typeof api.integrations.status, "function");
+  assert.equal(typeof api.integrations.inspect, "function");
+  assert.ok(api.capabilities.has("integration-diagnostics"));
+  const details = await api.integrations.inspect({ level: 5 });
+  assert.equal(details.afflictionForge.ready, false);
+  assert.equal(details.itemForge.ready, false);
+});

@@ -107,3 +107,26 @@
   grid-column: 1 / -1;
   margin: 0;
 }
+
+/* 0.8.3 external integration status */
+.npc-forge-integration-status-list { display: grid; gap: 0.45rem; }
+.npc-forge-integration-status-row {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-light-primary) 55%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-bg-option, #1c1c1c) 70%, transparent);
+}
+.npc-forge-integration-status-main { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.npc-forge-integration-badge {
+  flex: 0 0 auto;
+  padding: 0.08rem 0.42rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  opacity: 0.86;
+}
+.npc-forge-integration-status-row.connected .npc-forge-integration-badge { opacity: 1; }
+.npc-forge-integration-status-row.inactive,
+.npc-forge-integration-status-row.unavailable { opacity: 0.68; }
+.npc-forge-integration-details { margin-top: 0.25rem; font-size: 0.8rem; }

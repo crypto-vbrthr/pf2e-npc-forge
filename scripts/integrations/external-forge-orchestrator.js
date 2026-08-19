@@ -16,7 +16,7 @@ function localized(key, fallback = "") {
   return value && value !== key ? value : fallback;
 }
 
-function relevantPoisonChance(npc) {
+export function relevantPoisonChance(npc) {
   const classId = npc.build?.classProfile?.id;
   const specId = npc.build?.classSpecialization?.id;
   const professionTags = new Set(npc.build?.profession?.tags ?? []);
@@ -35,25 +35,100 @@ function poisonLevelWindow(level) {
   return { minLevel: Math.max(0, numeric - 3), maxLevel: Math.max(0, numeric + 1) };
 }
 
-async function findInjuryPoison(api, npc) {
-  const window = poisonLevelWindow(npc.build?.level);
-  const descriptors = await api.libraries.search({ types: ["poison"], ...window });
+async function injuryPoisonCandidates(api, descriptors = []) {
   const valid = [];
   for (const descriptor of descriptors ?? []) {
     const uuid = descriptor.uuid ?? descriptor.sourceUuid ?? null;
     if (!uuid) continue;
     try {
       const definition = await api.templates.read(uuid);
-      if (definition?.delivery?.injuryPoison === true) valid.push({ descriptor, definition, uuid });
+      if (definition?.delivery?.injuryPoison === true) {
+        valid.push({ descriptor, definition, uuid });
+      }
     } catch {
       // Ignore malformed/unreadable external templates and continue searching.
     }
   }
+  return valid;
+}
+
+function sortPoisonCandidates(valid, npc) {
+  return [...valid].sort((a, b) => Math.abs(Number(a.descriptor.level ?? 0) - npc.build.level) - Math.abs(Number(b.descriptor.level ?? 0) - npc.build.level)
+    || String(a.descriptor.name).localeCompare(String(b.descriptor.name)));
+}
+
+async function findInjuryPoison(api, npc, diagnostics = null) {
+  const window = poisonLevelWindow(npc.build?.level);
+  let preferredDescriptors = [];
+  try {
+    preferredDescriptors = await api.libraries.search({ types: ["poison"], ...window });
+  } catch (error) {
+    diagnostics?.warnings?.push(`Affliction Forge poison search failed: ${error.message}`);
+    return null;
+  }
+
+  let valid = await injuryPoisonCandidates(api, preferredDescriptors);
+  let widened = false;
+
+  // An enabled library can legitimately have a gap around the NPC's level. In
+  // that case, widen the search instead of silently producing no poison at all.
+  // The nearest enabled injury poison is still preferred, keeping the result
+  // useful while preserving Affliction Forge as the source of truth.
+  if (!valid.length) {
+    try {
+      const allPoisonDescriptors = await api.libraries.search({ types: ["poison"] });
+      valid = await injuryPoisonCandidates(api, allPoisonDescriptors);
+      widened = valid.length > 0;
+    } catch (error) {
+      diagnostics?.warnings?.push(`Affliction Forge widened poison search failed: ${error.message}`);
+      return null;
+    }
+  }
+
   if (!valid.length) return null;
-  valid.sort((a, b) => Math.abs(Number(a.descriptor.level ?? 0) - npc.build.level) - Math.abs(Number(b.descriptor.level ?? 0) - npc.build.level) || String(a.descriptor.name).localeCompare(String(b.descriptor.name)));
-  const topDistance = Math.abs(Number(valid[0].descriptor.level ?? 0) - npc.build.level);
-  const pool = valid.filter((candidate) => Math.abs(Number(candidate.descriptor.level ?? 0) - npc.build.level) <= topDistance + 1);
-  return pool[Math.floor(hash01(`${npc.generation.seed}:injury-poison`) * pool.length) % pool.length];
+  const sorted = sortPoisonCandidates(valid, npc);
+  const topDistance = Math.abs(Number(sorted[0].descriptor.level ?? 0) - npc.build.level);
+  const pool = sorted.filter((candidate) => Math.abs(Number(candidate.descriptor.level ?? 0) - npc.build.level) <= topDistance + 1);
+  const selected = pool[Math.floor(hash01(`${npc.generation.seed}:injury-poison`) * pool.length) % pool.length];
+  return { ...selected, widened };
+}
+
+export async function inspectExternalIntegrations({ integrations, level = 0 } = {}) {
+  const afflictionService = integrations?.afflictions;
+  const itemService = integrations?.items;
+  const lootService = integrations?.loot;
+  const affliction = afflictionService?.status?.() ?? { moduleId: "pf2e-affliction-forge", installed: false, active: false, available: false, ready: false };
+  const items = itemService?.status?.() ?? { moduleId: "pf2e-item-forge", installed: false, active: false, available: false, ready: false };
+  const loot = lootService?.status?.() ?? { moduleId: "pf2e-loot-forge", installed: false, active: false, available: false, ready: false };
+
+  const details = {
+    afflictionForge: { ...affliction, enabledLibraries: null, providers: null, poisonsInRange: null, injuryPoisonsInRange: null, injuryPoisonsTotal: null, probeError: null },
+    itemForge: { ...items },
+    lootForge: { ...loot }
+  };
+
+  if (afflictionService?.ready) {
+    try {
+      const summary = afflictionService.api.libraries.summary?.() ?? null;
+      const window = poisonLevelWindow(level);
+      const descriptors = await afflictionService.api.libraries.search({ types: ["poison"], ...window });
+      const injury = await injuryPoisonCandidates(afflictionService.api, descriptors);
+      details.afflictionForge.enabledLibraries = summary?.enabled ?? null;
+      details.afflictionForge.providers = summary?.providers ?? null;
+      details.afflictionForge.poisonsInRange = descriptors?.length ?? 0;
+      details.afflictionForge.injuryPoisonsInRange = injury.length;
+      if (!injury.length) {
+        const allPoisonDescriptors = await afflictionService.api.libraries.search({ types: ["poison"] });
+        details.afflictionForge.injuryPoisonsTotal = (await injuryPoisonCandidates(afflictionService.api, allPoisonDescriptors)).length;
+      } else {
+        details.afflictionForge.injuryPoisonsTotal = injury.length;
+      }
+    } catch (error) {
+      details.afflictionForge.probeError = error?.message ?? String(error);
+    }
+  }
+
+  return details;
 }
 
 function poisonCharges(npc) {
@@ -76,7 +151,7 @@ export async function applyAfflictionForgeIntegration({ npc, meleeItems, integra
   if (!eligible.length) return { applied: false, reason: "no-eligible-attack" };
   if (request.policy !== "always" && hash01(`${npc.generation.seed}:poison-chance`) >= relevantPoisonChance(npc)) return { applied: false, reason: "chance" };
 
-  const candidate = await findInjuryPoison(service.api, npc);
+  const candidate = await findInjuryPoison(service.api, npc, diagnostics);
   if (!candidate) {
     diagnostics?.fallbacks?.push("no-injury-poison-match");
     return { applied: false, reason: "no-match" };
@@ -92,7 +167,7 @@ export async function applyAfflictionForgeIntegration({ npc, meleeItems, integra
     ...(host.flags[MODULE_ID] ?? {}),
     injuryPoison: { templateUuid: candidate.uuid, label: candidate.descriptor.name, charges }
   };
-  return { applied: true, templateUuid: candidate.uuid, label: candidate.descriptor.name, charges, attackId: eligible[0].attack.id };
+  return { applied: true, templateUuid: candidate.uuid, label: candidate.descriptor.name, charges, attackId: eligible[0].attack.id, widenedSearch: candidate.widened === true };
 }
 
 function personalTreasureCategory(npc) {

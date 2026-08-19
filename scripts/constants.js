@@ -1,5 +1,5 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "0.8.0";
+export const API_VERSION = "0.8.3";
 export const SCHEMA_VERSION = 10;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",
@@ -48,5 +48,6 @@ export const CAPABILITIES = Object.freeze([
   "external-forge-integrations",
   "affliction-forge-injury-poisons",
   "item-forge-personal-treasures",
-  "integration-capability-reporting"
+  "integration-capability-reporting",
+  "integration-diagnostics"
 ]);

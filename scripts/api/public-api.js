@@ -1,6 +1,7 @@
 import { API_VERSION, CAPABILITIES, SCHEMA_VERSION } from "../constants.js";
 import { NpcEditorSession } from "../ui/npc-editor-session.js";
 import { availableNamePacks } from "../engine/names/name-generator.js";
+import { inspectExternalIntegrations } from "../integrations/external-forge-orchestrator.js";
 
 export class NpcForgeApi {
   constructor({ engine, registry, documents, integrations, openApplication } = {}) {
@@ -15,10 +16,11 @@ export class NpcForgeApi {
       items: integrations?.items,
       loot: integrations?.loot,
       status: () => ({
-        afflictionForge: integrations?.afflictions?.status?.() ?? { available: false, ready: false },
-        itemForge: integrations?.items?.status?.() ?? { available: false, ready: false },
-        lootForge: integrations?.loot?.status?.() ?? { available: false, ready: false }
-      })
+        afflictionForge: integrations?.afflictions?.status?.() ?? { installed: false, active: false, available: false, ready: false },
+        itemForge: integrations?.items?.status?.() ?? { installed: false, active: false, available: false, ready: false },
+        lootForge: integrations?.loot?.status?.() ?? { installed: false, active: false, available: false, ready: false }
+      }),
+      inspect: (options = {}) => inspectExternalIntegrations({ integrations, ...options })
     });
     this.openApplication = openApplication;
     this.registry = registry;

@@ -13,6 +13,29 @@ function definitionOptions(values, selectedId) {
   }));
 }
 
+
+function integrationRow(labelKey, status, { details = null } = {}) {
+  let stateKey = "NPCFORGE.Integrations.StatusUnavailable";
+  let stateClass = "unavailable";
+  if (status?.ready) {
+    stateKey = "NPCFORGE.Integrations.StatusConnected";
+    stateClass = "connected";
+  } else if (status?.active) {
+    stateKey = "NPCFORGE.Integrations.StatusIncomplete";
+    stateClass = "incomplete";
+  } else if (status?.installed) {
+    stateKey = "NPCFORGE.Integrations.StatusInactive";
+    stateClass = "inactive";
+  }
+  return {
+    moduleId: status?.moduleId ?? null,
+    label: game.i18n.localize(labelKey),
+    statusLabel: game.i18n.localize(stateKey),
+    stateClass,
+    details
+  };
+}
+
 export class NpcForgeApp extends HandlebarsApplication {
   static DEFAULT_OPTIONS = {
     id: `${MODULE_ID}-application`,
@@ -35,6 +58,17 @@ export class NpcForgeApp extends HandlebarsApplication {
     this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, professionCategory: "core.profession-category.civic", profession: "core.guard", professionSpecialization: null, role: "core.ordinary", identity: { name: null, generateName: true, gender: "random", ageCategory: "random" }, appearance: { enabled: true, intensity: "medium", allowScars: true, allowAgeFeatures: true, allowBodyShape: true, allowPosture: true }, personality: { enabled: true, intensity: "medium", allowSecrets: true }, inventory: { enabled: true, personalItems: false, allowPoisonedWeapons: false, poisonPolicy: "automatic" } };
     this.preview = null;
     this._pendingUiState = null;
+    this._integrationInspectionCache = null;
+  }
+
+  async _inspectIntegrations() {
+    const level = Number(this.request.level ?? 0);
+    const now = Date.now();
+    const cached = this._integrationInspectionCache;
+    if (cached?.level === level && now - cached.timestamp < 5000) return cached.value;
+    const value = await this.api.integrations.inspect({ level });
+    this._integrationInspectionCache = { level, timestamp: now, value };
+    return value;
   }
 
   async _prepareContext(options) {
@@ -48,6 +82,25 @@ export class NpcForgeApp extends HandlebarsApplication {
       ? this.api.registry.children("professionSpecializations", this.request.profession)
       : [];
     const namePacks = this.api.content.listNamePacks({ ancestryId: this.request.ancestry, locale: game.i18n.lang ?? "en" });
+    const integrationStatus = await this._inspectIntegrations();
+    const afflictionStatus = integrationStatus.afflictionForge;
+    let afflictionDetails = null;
+    if (afflictionStatus?.ready) {
+      if (afflictionStatus.probeError) {
+        afflictionDetails = game.i18n.localize("NPCFORGE.Integrations.ProbeFailed");
+      } else if (Number.isInteger(afflictionStatus.injuryPoisonsInRange)) {
+        afflictionDetails = game.i18n.format("NPCFORGE.Integrations.AfflictionDetails", {
+          libraries: afflictionStatus.enabledLibraries ?? "?",
+          poisons: afflictionStatus.injuryPoisonsInRange,
+          total: afflictionStatus.injuryPoisonsTotal ?? afflictionStatus.injuryPoisonsInRange
+        });
+      }
+    }
+    const integrationRows = [
+      integrationRow("NPCFORGE.Integrations.AfflictionForgeName", afflictionStatus, { details: afflictionDetails }),
+      integrationRow("NPCFORGE.Integrations.ItemForgeName", integrationStatus.itemForge),
+      integrationRow("NPCFORGE.Integrations.LootForgeName", integrationStatus.lootForge)
+    ];
     return {
       ...context,
       preview: this.preview,
@@ -85,8 +138,13 @@ export class NpcForgeApp extends HandlebarsApplication {
       inventoryEnabled: this.request.inventory?.enabled !== false,
       personalItemsEnabled: this.request.inventory?.personalItems === true,
       poisonedWeaponsEnabled: this.request.inventory?.allowPoisonedWeapons === true,
-      afflictionForgeReady: this.api.integrations?.afflictions?.ready === true,
-      itemForgeReady: this.api.integrations?.items?.ready === true,
+      poisonPolicyOptions: [
+        { value: "automatic", labelKey: "NPCFORGE.Integrations.PoisonPolicyAutomatic", selected: (this.request.inventory?.poisonPolicy ?? "automatic") === "automatic" },
+        { value: "always", labelKey: "NPCFORGE.Integrations.PoisonPolicyAlways", selected: this.request.inventory?.poisonPolicy === "always" }
+      ],
+      afflictionForgeReady: afflictionStatus?.ready === true,
+      itemForgeReady: integrationStatus.itemForge?.ready === true,
+      integrationRows,
       personalityIntensityOptions: [
         { value: "low", labelKey: "NPCFORGE.Personality.IntensityLow", selected: (this.request.personality?.intensity ?? "medium") === "low" },
         { value: "medium", labelKey: "NPCFORGE.Personality.IntensityMedium", selected: (this.request.personality?.intensity ?? "medium") === "medium" },
@@ -200,7 +258,7 @@ export class NpcForgeApp extends HandlebarsApplication {
           enabled: data.get("inventoryEnabled") === "on",
           personalItems: data.get("personalItems") === "on",
           allowPoisonedWeapons: data.get("allowPoisonedWeapons") === "on",
-          poisonPolicy: "automatic"
+          poisonPolicy: String(data.get("poisonPolicy") ?? "automatic") === "always" ? "always" : "automatic"
         }
       };
       if (classChanged || categoryChanged || professionChanged || ancestryChanged) {
@@ -230,6 +288,20 @@ export class NpcForgeApp extends HandlebarsApplication {
       if (!this.preview) this.preview = await this.api.engine.generate(this.request);
       const actor = await this.api.documents.createActor(this.preview, { folder: this.targetFolderId, renderSheet: true });
       ui.notifications.info(game.i18n.format("NPCFORGE.Notifications.ActorCreated", { name: actor.name }));
+      if (this.preview.integrations?.afflictionForge?.requested) {
+        const poison = actor.flags?.[MODULE_ID]?.integrations?.afflictionForge;
+        if (poison?.applied) {
+          ui.notifications.info(game.i18n.format("NPCFORGE.Notifications.PoisonApplied", { poison: poison.label, charges: poison.charges }));
+        } else if (poison?.reason) {
+          const reasonKey = {
+            unavailable: "NPCFORGE.Notifications.PoisonUnavailable",
+            "no-eligible-attack": "NPCFORGE.Notifications.PoisonNoEligibleAttack",
+            chance: "NPCFORGE.Notifications.PoisonChanceSkipped",
+            "no-match": "NPCFORGE.Notifications.PoisonNoMatch"
+          }[poison.reason];
+          if (reasonKey) ui.notifications.warn(game.i18n.localize(reasonKey));
+        }
+      }
     } catch (error) {
       console.error("PF2E NPC Forge | Actor creation failed", error);
       ui.notifications.error(game.i18n.localize("NPCFORGE.Notifications.ActorCreationFailed"));

@@ -94,9 +94,25 @@
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.GenerateEquipment"}}</span><input type="checkbox" name="inventoryEnabled" {{#if inventoryEnabled}}checked{{/if}}></label>
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.PersonalItems"}}</span><input type="checkbox" name="personalItems" {{#if personalItemsEnabled}}checked{{/if}}></label>
-        <p class="npc-forge-muted npc-forge-form-grid-wide">{{#if itemForgeReady}}{{localize "NPCFORGE.Integrations.ItemForgeReady"}}{{else}}{{localize "NPCFORGE.Integrations.ItemForgeUnavailable"}}{{/if}}</p>
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.PoisonedWeapons"}}</span><input type="checkbox" name="allowPoisonedWeapons" {{#if poisonedWeaponsEnabled}}checked{{/if}}></label>
-        <p class="npc-forge-muted npc-forge-form-grid-wide">{{#if afflictionForgeReady}}{{localize "NPCFORGE.Integrations.AfflictionForgeReady"}}{{else}}{{localize "NPCFORGE.Integrations.AfflictionForgeUnavailable"}}{{/if}}</p>
+        <label class="npc-forge-form-grid-wide">{{localize "NPCFORGE.Integrations.PoisonPolicy"}}
+          <select name="poisonPolicy">{{#each poisonPolicyOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+        </label>
+      </div>
+    </details>
+
+    <details class="npc-forge-section" data-section-id="integrations">
+      <summary>{{localize "NPCFORGE.Sections.Integrations"}}</summary>
+      <div class="npc-forge-section-body npc-forge-integration-status-list">
+        {{#each integrationRows}}
+          <div class="npc-forge-integration-status-row {{stateClass}}">
+            <div class="npc-forge-integration-status-main">
+              <strong>{{label}}</strong>
+              <span class="npc-forge-integration-badge">{{statusLabel}}</span>
+            </div>
+            {{#if details}}<div class="npc-forge-muted npc-forge-integration-details">{{details}}</div>{{/if}}
+          </div>
+        {{/each}}
       </div>
     </details>
 

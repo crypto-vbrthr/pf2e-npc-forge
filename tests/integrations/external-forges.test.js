@@ -57,3 +57,35 @@ test("Item Forge gracefully degrades when unavailable", async () => {
   assert.equal(result.applied, false);
   assert.ok(diagnostics.fallbacks.includes("item-forge-unavailable"));
 });
+
+test("Affliction Forge widens poison search when preferred level window has no injury poison", async () => {
+  const searches = [];
+  const api = {
+    libraries: {
+      search: async (options = {}) => {
+        searches.push(options);
+        if (options.minLevel != null) return [{ uuid: "Compendium.poison.Item.contact", name: "Contact Poison", level: 8 }];
+        return [{ uuid: "Compendium.poison.Item.injury", name: "Distant Injury Poison", level: 2 }];
+      }
+    },
+    templates: {
+      read: async (uuid) => uuid.endsWith("injury")
+        ? { afflictionType: "poison", delivery: { injuryPoison: true } }
+        : { afflictionType: "poison", delivery: { injuryPoison: false } }
+    },
+    references: {
+      createInjuryPoison: ({ templateUuid, label, charges }) => ({ id: "injury-poison", templateUuid, label, delivery: { type: "injury-poison", charges } }),
+      addToSource: (source, reference) => ({ ...source, flags: { ...(source.flags ?? {}), "pf2e-affliction-forge": { afflictionReferences: [reference] } } })
+    }
+  };
+  const result = await applyAfflictionForgeIntegration({
+    npc: baseNpc(),
+    meleeItems: [{ name: "Dagger", type: "melee", flags: {} }],
+    integrations: { afflictions: { ready: true, api } },
+    diagnostics: { warnings: [], fallbacks: [] }
+  });
+  assert.equal(result.applied, true);
+  assert.equal(result.widenedSearch, true);
+  assert.equal(result.templateUuid, "Compendium.poison.Item.injury");
+  assert.equal(searches.length, 2);
+});

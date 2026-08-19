@@ -59,6 +59,8 @@ NPC Forge can optionally delegate specialist content instead of reimplementing i
 - **Affliction Forge**: when poisoned weapons are allowed, eligible slashing/piercing NPC Strikes may receive a level-appropriate injury-poison reference. The reference is created through Affliction Forge and attached to the generated melee source, including charge tracking.
 - **Item Forge**: when personal valuables are enabled, NPC Forge asks Item Forge to generate one personal treasure/art object appropriate to the NPC level and broad profession context. The returned creation-ready Item source is embedded in the generated Actor.
 - Both integrations are optional. Missing or incompatible modules are treated as graceful fallbacks and never prevent baseline NPC creation.
-- Integration state can be inspected through `api.integrations.status()`.
+- Integration state can be inspected through `api.integrations.status()`; 0.8.3 also adds async `api.integrations.inspect({ level })` diagnostics.
+- The standalone editor has an **External Integrations** section that distinguishes connected, incomplete, inactive, and unavailable modules. Affliction Forge diagnostics also show enabled libraries and compatible injury-poison availability.
+- Poison generation can use contextual automatic weighting or **always when possible** mode for deterministic testing/specialist NPCs. If no compatible poison exists in the preferred level window, the adapter widens the enabled-library search and picks the nearest available injury poison.
 
 The neutral NPC model records integration requests, while materialization happens in the asynchronous PF2e Document Adapter. This keeps the NPC Engine deterministic and UI-free.

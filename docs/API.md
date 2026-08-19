@@ -236,11 +236,19 @@ NPC Forge exposes optional integration services through the public API:
 const api = game.modules.get("pf2e-npc-forge")?.api;
 const status = api.integrations.status();
 
+status.afflictionForge.installed;
+status.afflictionForge.active;
+status.afflictionForge.available;
 status.afflictionForge.ready;
 status.itemForge.ready;
+
+const diagnostics = await api.integrations.inspect({ level: 8 });
+diagnostics.afflictionForge.enabledLibraries;
+diagnostics.afflictionForge.injuryPoisonsInRange;
+diagnostics.afflictionForge.injuryPoisonsTotal;
 ```
 
-The raw service wrappers are also available as `api.integrations.afflictions`, `api.integrations.items`, and `api.integrations.loot`. Consumers should prefer `status()` for capability/reporting UI and should not depend on private integration implementation details.
+The raw service wrappers are also available as `api.integrations.afflictions`, `api.integrations.items`, and `api.integrations.loot`. Consumers should prefer `status()` for cheap synchronous capability checks and `inspect()` for diagnostic/reporting UI. They should not depend on private integration implementation details.
 
 Generation requests may opt into specialist materialization:
 
@@ -263,9 +271,11 @@ const source = await api.documents.toActorSourceAsync(npc);
 
 ### Affliction Forge
 
-When enabled, the adapter searches enabled Affliction Forge libraries for nearby-level poison templates and verifies `delivery.injuryPoison === true`. A selected poison is attached through Affliction Forge's public `references.createInjuryPoison()` and `references.addToSource()` contract. Only eligible piercing/slashing melee sources are considered. The automatic policy is weighted toward rogues, alchemists, and criminal professions.
+When enabled, the adapter searches enabled Affliction Forge libraries for nearby-level poison templates and verifies `delivery.injuryPoison === true` after the library search has filtered to poison templates. A selected poison is attached through Affliction Forge's public `references.createInjuryPoison()` and `references.addToSource()` contract. Only eligible piercing/slashing melee sources are considered. The automatic policy is weighted toward rogues, alchemists, and criminal professions.
 
-For deterministic integration tests or specialist callers, the normalized request also accepts `inventory.poisonPolicy: "always"` and an optional `inventory.poisonCharges`. The normal NPC Forge UI uses `automatic`.
+If the preferred level window contains no compatible injury poison, the adapter performs a widened search across enabled poison libraries and selects among the nearest available injury poisons. This prevents content gaps from looking like a broken integration while preserving enabled-library state as the authority.
+
+For deterministic integration tests or specialist callers, the normalized request accepts `inventory.poisonPolicy: "always"` and an optional `inventory.poisonCharges`. The standalone editor exposes both `automatic` and `always` policies. Actor creation also reports why a requested poison was applied or skipped.
 
 ### Item Forge
 
