@@ -1,21 +1,14 @@
 # Neutral NPC Model
 
-The neutral NPC model is JSON-serializable and intentionally avoids Foundry Documents.
+NPC Forge 0.2.0 uses schema version 2. The engine returns plain serializable data and never a Foundry document.
 
-Top-level sections in schema version 1:
+Core model areas:
 
-- `generation`
-- `identity`
-- `build`
-- `personality`
-- `statistics`
-- `skills`
-- `abilities`
-- `spellcasting`
-- `inventory`
-- `attacks`
-- `relationships`
-- `biography`
-- `diagnostics`
+- `identity`: name, ancestry, later appearance data.
+- `build`: level, class profile, profession/category, role.
+- `statistics`: six ability modifiers, perception, AC, HP, saves, speed, plus benchmark tiers.
+- `skills`: relevant standard skills and profession Lore entries with modifier, tier, source, and linked ability when applicable.
+- `inventory` and `attacks`: baseline loadout data retained from 0.1.0.
+- `diagnostics`: warnings/fallbacks.
 
-Version 0.1.0 uses only a minimal subset of each section. Fields may be added compatibly before 1.0, while schema migrations will be documented when semantics change.
+`statistics.benchmarkSource` identifies the PF2e GM Core creature-building benchmark used by the core builder. Consumers must treat the neutral model as the stable interchange format and must not depend on PF2e Actor internals.

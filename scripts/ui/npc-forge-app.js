@@ -1,7 +1,12 @@
 import { MODULE_ID } from "../constants.js";
+import { presentNpc } from "./npc-presentation.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const HandlebarsApplication = HandlebarsApplicationMixin(ApplicationV2);
+
+function selectOptions(values, selectedId) {
+  return values.map(([value, labelKey]) => ({ value, labelKey, selected: value === selectedId }));
+}
 
 export class NpcForgeApp extends HandlebarsApplication {
   static DEFAULT_OPTIONS = {
@@ -9,7 +14,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     classes: [MODULE_ID, "npc-forge-application"],
     tag: "section",
     window: { title: "NPCFORGE.App.Title", icon: "fa-solid fa-user-gear", resizable: true },
-    position: { width: 880, height: 650 },
+    position: { width: 980, height: 720 },
     actions: {
       generate: NpcForgeApp.#onGenerate,
       createActor: NpcForgeApp.#onCreateActor
@@ -28,7 +33,29 @@ export class NpcForgeApp extends HandlebarsApplication {
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    return { ...context, preview: this.preview, hasPreview: Boolean(this.preview), targetFolderId: this.targetFolderId };
+    const localize = (key) => game.i18n.localize(key);
+    return {
+      ...context,
+      preview: this.preview,
+      view: presentNpc(this.preview, localize),
+      hasPreview: Boolean(this.preview),
+      targetFolderId: this.targetFolderId,
+      request: this.request,
+      ancestryOptions: selectOptions([
+        ["core.human", "NPCFORGE.Content.Ancestry.Human"],
+        ["core.dwarf", "NPCFORGE.Content.Ancestry.Dwarf"]
+      ], this.request.ancestry),
+      classOptions: selectOptions([
+        ["core.fighter", "NPCFORGE.Content.ClassProfile.Fighter"]
+      ], this.request.classProfile),
+      professionOptions: selectOptions([
+        ["core.guard", "NPCFORGE.Content.Profession.Guard"],
+        ["core.blacksmith", "NPCFORGE.Content.Profession.Blacksmith"],
+        ["core.thief", "NPCFORGE.Content.Profession.Thief"],
+        ["core.highwayman", "NPCFORGE.Content.Profession.Highwayman"],
+        ["core.assassin", "NPCFORGE.Content.Profession.Assassin"]
+      ], this.request.profession)
+    };
   }
 
   async _onRender(context, options) {

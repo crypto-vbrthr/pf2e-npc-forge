@@ -8,8 +8,8 @@ export function normalizeRequest(request = {}) {
   };
   const rawLevel = request.level;
   const level = typeof rawLevel === "number"
-    ? { mode: "fixed", value: clamp(Math.trunc(rawLevel), -1, 25) }
-    : { mode: rawLevel?.mode ?? "fixed", value: clamp(Math.trunc(rawLevel?.value ?? 1), -1, 25), min: rawLevel?.min, max: rawLevel?.max };
+    ? { mode: "fixed", value: clamp(Math.trunc(rawLevel), -1, 24) }
+    : { mode: rawLevel?.mode ?? "fixed", value: clamp(Math.trunc(rawLevel?.value ?? 1), -1, 24), min: rawLevel?.min, max: rawLevel?.max };
 
   return {
     schemaVersion: 1,

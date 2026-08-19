@@ -1,45 +1,21 @@
 # PF2E NPC Forge
 
-PF2E NPC Forge is a modular NPC generation platform for Foundry VTT and the Pathfinder Second Edition system.
+**Version 0.2.0 – Core Statistics & Skills**
 
-## Version 0.1.0 — Architecture Baseline
+NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
 
-This release intentionally implements a small vertical slice. Its purpose is to establish stable contracts before the content library grows.
+## 0.2.0 focus
 
-### Included
+This release replaces the 0.1.0 placeholder statistics with a benchmark-driven statistics layer based on the PF2e GM Core creature-building guidance. Generated NPCs now receive coherent ability modifiers, Perception, AC, HP, saves, ancestry speed, relevant skills, and profession Lore. Class, profession, ancestry, and role data contribute through explicit content-profile hints rather than UI logic.
 
-- UI-free `NpcEngine`
-- deterministic seeded random service
-- weighted resolver
-- extensible content registry
-- profession-category hierarchy
-- public registration API for class and profession content
-- neutral serializable NPC model
-- public PF2e document adapter
-- public embedded editor-session contract
-- Actor Directory launch button
-- minimal standalone live preview
-- minimal Human/Dwarf, Fighter, Guard/Blacksmith/Criminal content
-- automated contract tests
-- English architecture/API documentation
+The standalone Actor-directory workflow, neutral NPC model, public API, PF2e document adapter, seeded generation, content registry, and embedded editor contract remain intact.
 
-### Intentionally deferred
+## Testing
 
-Full statistics, spellcasting, rich class analogues, profession specialization, localized semantic name generation, appearance, personality, Item Forge valuables, Affliction Forge injury poisons, and full quick-NPC presets are later milestones.
+Run:
 
-## API
-
-```js
-const api = game.modules.get("pf2e-npc-forge")?.api;
-const npc = await api.engine.generate({
-  seed: "example-guard",
-  level: 3,
-  ancestry: "core.human",
-  classProfile: "core.fighter",
-  profession: "core.guard"
-});
-
-const actor = await api.documents.createActor(npc);
+```sh
+npm test
 ```
 
-See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.
+See `docs/TESTING.md`, `docs/API.md`, and `docs/ARCHITECTURE.md`.

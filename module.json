@@ -2,25 +2,48 @@
   "id": "pf2e-npc-forge",
   "title": "PF2E NPC Forge",
   "description": "A modular PF2e NPC generation platform with a public engine, content registry, document adapter, embedded editor API, and quick NPC workflow.",
-  "version": "0.1.0",
-  "authors": [{ "name": "crypto-vbrthr" }],
-  "compatibility": { "minimum": "14", "verified": "14" },
-  "relationships": {
-    "systems": [{
-      "id": "pf2e",
-      "type": "system",
-      "compatibility": { "minimum": "8.1.2" }
-    }]
-  },
-  "esmodules": ["scripts/main.js"],
-  "languages": [
-    { "lang": "en", "name": "English", "path": "lang/en.json" },
-    { "lang": "de", "name": "Deutsch", "path": "lang/de.json" }
+  "version": "0.2.1",
+  "authors": [
+    {
+      "name": "crypto-vbrthr"
+    }
   ],
-  "styles": ["styles/npc-forge.css"],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "8.1.2"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "styles": [
+    "styles/npc-forge.css"
+  ],
   "license": "LICENSE",
   "readme": "README.md",
   "url": "https://github.com/crypto-vbrthr/pf2e-npc-forge",
   "manifest": "https://raw.githubusercontent.com/crypto-vbrthr/pf2e-npc-forge/main/module.json",
-  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/0.1.0/pf2e-npc-forge.zip"
+  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/0.2.1/pf2e-npc-forge.zip"
 }

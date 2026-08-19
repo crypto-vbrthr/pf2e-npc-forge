@@ -1,62 +1,33 @@
 # Public API
 
-```js
-const api = game.modules.get("pf2e-npc-forge")?.api;
-```
+Obtain the API from `game.modules.get("pf2e-npc-forge")?.api` after the module is ready.
 
-## Capability checks
+## Versions
 
-```js
-api.capabilities.has("embedded-editor");
-api.capabilities.has("profession-registration");
-```
+- API version: `0.2.0`
+- Neutral NPC schema: `2`
 
-## Generate a neutral NPC
+## Generation
 
 ```js
-const npc = await api.engine.generate({
-  seed: "stable-example",
-  level: 4,
-  ancestry: "core.dwarf",
+const npc = api.engine.generate({
+  seed: "example-guard",
+  level: 5,
+  ancestry: "core.human",
   classProfile: "core.fighter",
-  profession: "core.blacksmith"
+  profession: "core.guard",
+  role: "core.veteran"
 });
 ```
 
-## Create a PF2e Actor
+The returned object is plain serializable data. In 0.2.0 it includes benchmark-driven attributes, Perception, AC, HP, saves, speed, relevant skills, and profession Lore.
+
+## Actor creation
 
 ```js
-await api.documents.createActor(npc, { folder: folderId });
+const actor = await api.documents.createActor(npc, { folder: folderId });
 ```
 
-## Register profession content
+## Capabilities
 
-```js
-api.content.registerProfessionCategory("my-module", {
-  id: "my-module.sailors",
-  labelKey: "MYMODULE.Category.Sailors",
-  weight: 10
-});
-
-api.content.registerProfession("my-module", {
-  id: "my-module.shipwright",
-  parentId: "my-module.sailors",
-  labelKey: "MYMODULE.Profession.Shipwright",
-  tags: ["maritime", "craft"],
-  weight: 10
-});
-```
-
-## Register a class profile
-
-```js
-api.content.registerClassProfile("my-module", {
-  id: "my-module.duelist",
-  labelKey: "MYMODULE.ClassProfile.Duelist",
-  tags: ["martial", "finesse"],
-  preferredSkills: ["acrobatics"],
-  weight: 5
-});
-```
-
-Duplicate IDs are rejected. External content should always use a module namespace.
+Check `api.capabilities` rather than assuming a feature from the module version. New 0.2.0 capabilities include `gm-core-statistics`, `skill-generation`, and `profession-lore`.

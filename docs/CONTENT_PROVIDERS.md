@@ -1,15 +1,28 @@
 # Content Providers
 
-NPC Forge content is registry-driven. External modules can add class profiles, profession categories, professions, profession specializations, roles, name packs, personality packs, appearance packs, equipment profiles, and quick presets.
+External modules can register profiles through the public content API.
 
-## Profession hierarchy
+## Class profile statistic hints
 
-Version 0.1.0 supports `parentId` on profession definitions. A generation request can select a category and let the weighted resolver choose a child profession.
+A class profile can now provide tier-based hints:
 
 ```js
-const npc = api.engine.generate({
-  profession: { mode: "category", id: "core.profession-category.criminal" }
-});
+{
+  id: "my-module.martial",
+  attributeTiers: { str: "high", dex: "average", con: "high" },
+  statistics: {
+    perception: "average",
+    ac: "high",
+    hp: "average",
+    attack: "high",
+    saves: { fortitude: "high", reflex: "average", will: "low" }
+  },
+  skillBias: { athletics: "high" }
+}
 ```
 
-Weights are relative and do not need to sum to 100.
+Supported tiers are `low`, `average`, `high`, and `extreme`; perception and saves additionally support `terrible`. Extreme ability modifiers at levels where GM Core has no extreme entry automatically fall back to high.
+
+## Profession hints
+
+Professions may provide `attributeBias`, `skillBias`, and `lore`. Profession bias can strengthen a class-profile preference but does not reduce it.

@@ -1,23 +1,14 @@
 # Architecture
 
-## Design goals
+NPC Forge is separated into four public-facing layers:
 
-NPC Forge separates generation, Foundry/PF2e document materialization, content registration, and user interfaces. The engine has no UI dependency and does not create Foundry documents.
+1. **NPC Engine**: UI-free generation of a neutral NPC model.
+2. **Content Registry**: built-in and third-party profiles.
+3. **PF2e Document Adapter**: translates neutral models into PF2e Actor sources/documents.
+4. **Editor UI**: standalone or embedded client of the public API.
 
-## Layers
+## 0.2.0 statistics layer
 
-1. **NPC Engine** — normalizes generation requests and produces a neutral NPC model.
-2. **Content Registry** — stores core and externally registered content under stable IDs.
-3. **PF2e Document Adapter** — converts neutral NPC data to PF2e Actor sources and creates Actors.
-4. **Public API** — exposes engine, adapter, content registration, capabilities, and editor sessions.
-5. **Editor UI** — standalone or embedded client of the same engine/API.
+Core statistics are generated from dedicated GM Core benchmark tables for levels -1 through 24. Class profiles express benchmark tiers rather than hard-coded final numbers. Professions can bias abilities and skills; roles can apply narrow numeric adjustments. This keeps content definitions reusable while centralizing PF2e benchmark math.
 
-## Data flow
-
-`Generation Request -> NpcEngine -> Neutral NPC Model -> Pf2eDocumentAdapter -> Foundry Actor`
-
-The standalone GUI is deliberately not part of that data flow.
-
-## Extension boundary
-
-External modules must use `game.modules.get("pf2e-npc-forge").api`. Internal file paths and application classes are not public contracts.
+`statistics-builder.js` owns ability modifiers, perception, AC, HP, saves, and speed. `skill-builder.js` owns relevant standard skills and profession Lore. Neither builder creates Foundry documents.

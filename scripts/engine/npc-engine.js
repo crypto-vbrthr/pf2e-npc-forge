@@ -4,21 +4,22 @@ import { WeightedResolver } from "./resolver/weighted-resolver.js";
 import { normalizeRequest } from "./pipeline/normalize-request.js";
 import { validateNpcModel } from "./validation/npc-validator.js";
 import { deepClone } from "./utils.js";
+import { buildStatistics } from "./builders/statistics-builder.js";
+import { buildSkills } from "./builders/skill-builder.js";
+import { ruleValue, ATTACK_BONUS } from "./rules/gm-core-tables.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
-    const min = Number.isInteger(level.min) ? level.min : 0;
-    const max = Number.isInteger(level.max) ? level.max : Math.max(min, 5);
-    return random.int(min, max);
+    const min = Number.isInteger(level.min) ? Math.max(-1, level.min) : 0;
+    const max = Number.isInteger(level.max) ? Math.min(24, level.max) : Math.max(min, 5);
+    return random.int(Math.min(min, max), Math.max(min, max));
   }
-  return Number.isInteger(level.value) ? level.value : 1;
+  return Number.isInteger(level.value) ? Math.max(-1, Math.min(24, level.value)) : 1;
 }
 
 function resolveDefinition(registry, resolver, type, requestPart) {
   if (requestPart?.mode === "fixed") return registry.get(type, requestPart.id);
-  if (requestPart?.mode === "category" && type === "professions") {
-    return resolver.resolve(registry.children("professions", requestPart.id));
-  }
+  if (requestPart?.mode === "category" && type === "professions") return resolver.resolve(registry.children("professions", requestPart.id));
   return resolver.resolve(registry.list(type));
 }
 
@@ -31,38 +32,19 @@ function generateName(registry, resolver, ancestry, random) {
   return family ? `${given} ${family}` : given;
 }
 
-function baseStats(level) {
-  const l = Number(level) || 0;
-  return {
-    attributes: { str: 3, dex: 1, con: 2, int: 0, wis: 1, cha: 0 },
-    perception: 6 + l,
-    ac: 16 + l,
-    hp: Math.max(10, 20 + l * 15),
-    saves: { fortitude: 7 + l, reflex: 5 + l, will: 5 + l },
-    speed: 25
-  };
-}
-
-function generateSkills(level, classProfile, profession) {
-  const entries = new Map();
-  for (const skill of classProfile?.preferredSkills ?? []) entries.set(skill, 6 + level);
-  for (const [skill, bias] of Object.entries(profession?.skillBias ?? {})) {
-    const bonus = bias === "high" ? 7 + level : bias === "medium" ? 5 + level : 3 + level;
-    entries.set(skill, Math.max(entries.get(skill) ?? -999, bonus));
-  }
-  return [...entries].map(([slug, modifier]) => ({ slug, modifier }));
-}
-
-function generateBaselineLoadout(level, profession) {
+function generateBaselineLoadout(level, profession, classProfile) {
   const isGuard = profession?.id === "core.guard";
+  const isDexterityFocused = classProfile?.attributeTiers?.dex === "high" || profession?.attributeBias?.dex === "high";
   const weapon = isGuard
     ? { id: "primary-weapon", name: "Spear", type: "weapon", source: "baseline", damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["thrown-20"] }
-    : { id: "primary-weapon", name: "Dagger", type: "weapon", source: "baseline", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] };
+    : isDexterityFocused
+      ? { id: "primary-weapon", name: "Dagger", type: "weapon", source: "baseline", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
+      : { id: "primary-weapon", name: "Club", type: "weapon", source: "baseline", damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: [] };
   const attack = {
     id: "primary-attack",
     sourceWeaponId: weapon.id,
     label: weapon.name,
-    modifier: 7 + level,
+    modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
     damage: { formula: `${weapon.damage.dice}${weapon.damage.die}+${Math.max(1, 2 + Math.floor(level / 3))}`, type: weapon.damage.type },
     traits: [...weapon.traits]
   };
@@ -75,9 +57,7 @@ export class NpcEngine {
     this.randomFactory = randomFactory;
   }
 
-  normalize(request) {
-    return normalizeRequest(request);
-  }
+  normalize(request) { return normalizeRequest(request); }
 
   generate(request = {}) {
     const normalized = this.normalize(request);
@@ -90,16 +70,28 @@ export class NpcEngine {
     const profession = resolveDefinition(this.registry, resolver, "professions", normalized.profession);
     const role = resolveDefinition(this.registry, resolver, "roles", normalized.role);
     const name = normalized.identity.name || (normalized.identity.generateName ? generateName(this.registry, resolver, ancestry, random) : "Unnamed NPC");
-    const loadout = normalized.inventory.enabled ? generateBaselineLoadout(level, profession) : { inventory: [], attacks: [] };
+    const statistics = buildStatistics({ level, ancestry, classProfile, profession, role });
+    const skills = buildSkills({ level, classProfile, profession, role });
+    const loadout = normalized.inventory.enabled ? generateBaselineLoadout(level, profession, classProfile) : { inventory: [], attacks: [] };
 
     const npc = {
       schemaVersion: SCHEMA_VERSION,
-      generation: { seed, sources: [ancestry?.sourceModule, classProfile?.sourceModule, profession?.sourceModule].filter(Boolean) },
+      generation: {
+        seed,
+        sources: [ancestry?.sourceModule, classProfile?.sourceModule, profession?.sourceModule, role?.sourceModule].filter(Boolean),
+        benchmark: "PF2e GM Core creature-building guidance"
+      },
       identity: { name, ancestry, appearance: normalized.appearance.enabled ? { generated: false, traits: [] } : null },
-      build: { level, classProfile, profession, professionCategory: profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null, role },
+      build: {
+        level,
+        classProfile,
+        profession,
+        professionCategory: profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null,
+        role
+      },
       personality: normalized.personality.enabled ? { generated: false, traits: [] } : null,
-      statistics: baseStats(level),
-      skills: generateSkills(level, classProfile, profession),
+      statistics,
+      skills,
       abilities: [],
       spellcasting: [],
       inventory: loadout.inventory,
@@ -119,7 +111,5 @@ export class NpcEngine {
     return deepClone(npc);
   }
 
-  validate(npc) {
-    return validateNpcModel(npc);
-  }
+  validate(npc) { return validateNpcModel(npc); }
 }
