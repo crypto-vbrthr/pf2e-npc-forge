@@ -31,3 +31,40 @@ const actor = await api.documents.createActor(npc, { folder: folderId });
 ## Capabilities
 
 Check `api.capabilities` rather than assuming a feature from the module version. New 0.2.0 capabilities include `gm-core-statistics`, `skill-generation`, and `profession-lore`.
+
+
+## Class profile and ability extensions (0.3.0)
+
+```js
+api.content.registerClassProfile(moduleId, profile);
+api.content.registerClassSpecialization(moduleId, specialization);
+api.content.registerAbility(moduleId, abilityDefinition);
+```
+
+A specialization references its parent profile with `parentId` and may add `abilityIds`. Ability definitions are neutral data and are converted to PF2e action items only by the document adapter.
+
+## Compendium-backed actor sources
+
+`documents.toActorSource(npc, options)` remains a synchronous fallback/source-inspection helper and does not perform compendium I/O.
+
+Use `await documents.toActorSourceAsync(npc, options)` when the returned source must contain cloned PF2e compendium equipment. `documents.createActor()` and `documents.createActors()` call this path automatically.
+
+```js
+const npc = api.engine.generate(request);
+const source = await api.documents.toActorSourceAsync(npc, { folder: folderId });
+const actor = await api.documents.createActor(npc, { folder: folderId });
+```
+
+Weapon references currently use the PF2e equipment pack and a stable item slug, for example:
+
+```js
+{
+  type: "weapon",
+  compendium: {
+    packId: "pf2e.equipment-srd",
+    slug: "spear"
+  }
+}
+```
+
+If the pack or item is unavailable, the adapter falls back to the neutral model's weapon data and reports no hard failure. The generated NPC strike keeps engine-owned NPC attack/damage scaling while inheriting weapon identity, traits, and damage type from the resolved PF2e item.

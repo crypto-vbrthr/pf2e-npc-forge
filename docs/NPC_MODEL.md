@@ -12,3 +12,25 @@ Core model areas:
 - `diagnostics`: warnings/fallbacks.
 
 `statistics.benchmarkSource` identifies the PF2e GM Core creature-building benchmark used by the core builder. Consumers must treat the neutral model as the stable interchange format and must not depend on PF2e Actor internals.
+
+
+## Class specialization and abilities
+
+`build.classSpecialization` contains the resolved optional specialization. `abilities` is an array of neutral ability definitions with `id`, localization keys, `actionType`, optional `actions`, traits, source metadata, and optional scaling parameters.
+
+## Equipment references
+
+Inventory entries can include a semantic compendium reference without becoming Foundry documents:
+
+```js
+{
+  id: "primary-weapon",
+  type: "weapon",
+  source: "compendium",
+  compendium: { packId: "pf2e.equipment-srd", slug: "spear" },
+  damage: { dice: 1, die: "d6", type: "piercing" },
+  traits: ["thrown-20"]
+}
+```
+
+The local damage/trait fields are deliberate fallbacks and allow deterministic previews and graceful operation when Foundry or a target compendium is unavailable.

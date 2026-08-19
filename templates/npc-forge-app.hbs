@@ -10,13 +10,21 @@
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label>{{localize "NPCFORGE.Fields.Level"}}<input type="number" name="level" value="{{request.level}}" min="-1" max="24"></label>
         <label>{{localize "NPCFORGE.Fields.Ancestry"}}
-          <select name="ancestry">{{#each ancestryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+          <select name="ancestry">{{#each ancestryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
         </label>
         <label>{{localize "NPCFORGE.Fields.ClassProfile"}}
-          <select name="classProfile">{{#each classOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+          <select name="classProfile">{{#each classOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
         </label>
+        {{#if hasSpecializations}}
+        <label>{{localize "NPCFORGE.Fields.ClassSpecialization"}}
+          <select name="classSpecialization">
+            <option value="">{{localize "NPCFORGE.Fields.Automatic"}}</option>
+            {{#each specializationOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select>
+        </label>
+        {{/if}}
         <label>{{localize "NPCFORGE.Fields.Profession"}}
-          <select name="profession">{{#each professionOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+          <select name="profession">{{#each professionOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
         </label>
       </div>
     </details>
@@ -33,63 +41,74 @@
     <div class="npc-forge-actions"><button type="button" data-action="generate"><i class="fa-solid fa-dice"></i> {{localize "NPCFORGE.Controls.Generate"}}</button></div>
   </form>
 
-  <section class="npc-forge-preview">
+  <section class="npc-forge-preview npc-forge-creature-preview">
     {{#if hasPreview}}
-      <article class="npc-forge-card npc-forge-identity-card">
-        <div>
-          <h2>{{view.name}}</h2>
-          <p>{{view.identityLine}} · {{localize "NPCFORGE.Fields.Level"}} {{view.level}}</p>
+      <article class="npc-forge-sheet-card npc-forge-sheet-header">
+        <div class="npc-forge-sheet-title">
+          <h1>{{view.name}}</h1>
+          <p>{{view.identityLine}}</p>
         </div>
+        <div class="npc-forge-sheet-level">{{localize "NPCFORGE.Fields.Level"}} {{view.level}}</div>
       </article>
 
-      <details class="npc-forge-card" open>
-        <summary>{{localize "NPCFORGE.Sections.CoreStatistics"}}</summary>
-        <div class="npc-forge-card-body">
-          <div class="npc-forge-metric-grid">
-            <div><span>{{localize "NPCFORGE.Stats.AC"}}</span><strong>{{view.statistics.ac}}</strong></div>
-            <div><span>{{localize "NPCFORGE.Stats.HP"}}</span><strong>{{view.statistics.hp}}</strong></div>
-            <div><span>{{localize "NPCFORGE.Stats.Perception"}}</span><strong>{{view.statistics.perception}}</strong></div>
-            <div><span>{{localize "NPCFORGE.Stats.Speed"}}</span><strong>{{view.statistics.speed}} {{localize "NPCFORGE.Units.Feet"}}</strong></div>
-          </div>
-          <div class="npc-forge-subheading">{{localize "NPCFORGE.Stats.Saves"}}</div>
-          <div class="npc-forge-compact-grid three">
-            <div><span>{{localize "NPCFORGE.Stats.Fortitude"}}</span><strong>{{view.statistics.saves.fortitude}}</strong></div>
-            <div><span>{{localize "NPCFORGE.Stats.Reflex"}}</span><strong>{{view.statistics.saves.reflex}}</strong></div>
-            <div><span>{{localize "NPCFORGE.Stats.Will"}}</span><strong>{{view.statistics.saves.will}}</strong></div>
-          </div>
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Attributes"}}</h2>
+        <div class="npc-forge-stat-grid npc-forge-stat-grid-attributes">
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.STR"}}</span><strong>{{view.statistics.attributes.str}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.DEX"}}</span><strong>{{view.statistics.attributes.dex}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.CON"}}</span><strong>{{view.statistics.attributes.con}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.INT"}}</span><strong>{{view.statistics.attributes.int}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.WIS"}}</span><strong>{{view.statistics.attributes.wis}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.CHA"}}</span><strong>{{view.statistics.attributes.cha}}</strong></div>
         </div>
-      </details>
+      </section>
 
-      <details class="npc-forge-card" open>
-        <summary>{{localize "NPCFORGE.Sections.Attributes"}}</summary>
-        <div class="npc-forge-card-body npc-forge-compact-grid six">
-          <div><span>{{localize "NPCFORGE.Attributes.STR"}}</span><strong>{{view.statistics.attributes.str}}</strong></div>
-          <div><span>{{localize "NPCFORGE.Attributes.DEX"}}</span><strong>{{view.statistics.attributes.dex}}</strong></div>
-          <div><span>{{localize "NPCFORGE.Attributes.CON"}}</span><strong>{{view.statistics.attributes.con}}</strong></div>
-          <div><span>{{localize "NPCFORGE.Attributes.INT"}}</span><strong>{{view.statistics.attributes.int}}</strong></div>
-          <div><span>{{localize "NPCFORGE.Attributes.WIS"}}</span><strong>{{view.statistics.attributes.wis}}</strong></div>
-          <div><span>{{localize "NPCFORGE.Attributes.CHA"}}</span><strong>{{view.statistics.attributes.cha}}</strong></div>
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Sections.Defenses"}}</h2>
+        <div class="npc-forge-stat-grid npc-forge-stat-grid-defense">
+          <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Stats.AC"}}</span><strong>{{view.statistics.ac}}</strong></div>
+          <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Stats.HP"}}</span><strong>{{view.statistics.hp}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Stats.Perception"}}</span><strong>{{view.statistics.perception}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Stats.Fortitude"}}</span><strong>{{view.statistics.saves.fortitude}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Stats.Reflex"}}</span><strong>{{view.statistics.saves.reflex}}</strong></div>
+          <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Stats.Will"}}</span><strong>{{view.statistics.saves.will}}</strong></div>
+          <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Stats.Speed"}}</span><strong>{{view.statistics.speed}} {{localize "NPCFORGE.Units.Feet"}}</strong></div>
         </div>
-      </details>
+      </section>
 
-      <details class="npc-forge-card" open>
-        <summary>{{localize "NPCFORGE.Fields.Skills"}}</summary>
-        <div class="npc-forge-card-body npc-forge-list-grid">
-          {{#each view.skills}}<div class="npc-forge-row"><span>{{displayName}}</span><strong>{{displayModifier}}</strong></div>{{/each}}
-        </div>
-      </details>
-
-      <details class="npc-forge-card" open>
-        <summary>{{localize "NPCFORGE.Fields.Attacks"}}</summary>
-        <div class="npc-forge-card-body npc-forge-attack-list">
-          {{#each view.attacks}}
-            <div class="npc-forge-attack">
-              <div class="npc-forge-row"><strong>{{displayName}}</strong><strong>{{displayModifier}}</strong></div>
-              <small>{{displayDamage}} {{displayDamageType}}</small>
-            </div>
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Fields.Skills"}}</h2>
+        <div class="npc-forge-sheet-list npc-forge-sheet-list-grid">
+          {{#each view.skills}}
+            <div class="npc-forge-sheet-list-row"><span>{{displayName}}</span><strong>{{displayModifier}}</strong></div>
           {{/each}}
         </div>
-      </details>
+      </section>
+
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Fields.Abilities"}}</h2>
+        <div class="npc-forge-sheet-list npc-forge-ability-list">
+          {{#each view.abilities}}
+            <article class="npc-forge-sheet-entry npc-forge-ability">
+              <header><strong>{{displayName}}</strong><span class="npc-forge-ability-action">{{displayAction}}</span></header>
+              <p>{{displayDescription}}</p>
+            </article>
+          {{/each}}
+          {{#unless view.abilities.length}}<div class="npc-forge-muted">{{localize "NPCFORGE.App.NoAbilities"}}</div>{{/unless}}
+        </div>
+      </section>
+
+      <section class="npc-forge-sheet-section">
+        <h2>{{localize "NPCFORGE.Fields.Attacks"}}</h2>
+        <div class="npc-forge-sheet-list npc-forge-attack-list">
+          {{#each view.attacks}}
+            <article class="npc-forge-sheet-entry npc-forge-attack">
+              <header><strong>{{displayName}}</strong><strong>{{displayModifier}}</strong></header>
+              <p>{{displayDamage}} {{displayDamageType}}</p>
+            </article>
+          {{/each}}
+        </div>
+      </section>
 
       <div class="npc-forge-preview-actions"><button type="button" data-action="createActor"><i class="fa-solid fa-user-plus"></i> {{localize "NPCFORGE.Controls.CreateActor"}}</button></div>
     {{else}}

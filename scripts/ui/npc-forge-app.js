@@ -4,8 +4,13 @@ import { presentNpc } from "./npc-presentation.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const HandlebarsApplication = HandlebarsApplicationMixin(ApplicationV2);
 
-function selectOptions(values, selectedId) {
-  return values.map(([value, labelKey]) => ({ value, labelKey, selected: value === selectedId }));
+function definitionOptions(values, selectedId) {
+  return values.map((entry) => ({
+    value: entry.id,
+    labelKey: entry.labelKey,
+    label: entry.label ?? entry.id,
+    selected: entry.id === selectedId
+  }));
 }
 
 export class NpcForgeApp extends HandlebarsApplication {
@@ -14,7 +19,7 @@ export class NpcForgeApp extends HandlebarsApplication {
     classes: [MODULE_ID, "npc-forge-application"],
     tag: "section",
     window: { title: "NPCFORGE.App.Title", icon: "fa-solid fa-user-gear", resizable: true },
-    position: { width: 980, height: 720 },
+    position: { width: 1040, height: 760 },
     actions: {
       generate: NpcForgeApp.#onGenerate,
       createActor: NpcForgeApp.#onCreateActor
@@ -27,13 +32,14 @@ export class NpcForgeApp extends HandlebarsApplication {
     super(options);
     this.api = api;
     this.targetFolderId = targetFolderId;
-    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", profession: "core.guard", role: "core.ordinary" };
+    this.request = { level: 3, ancestry: "core.human", classProfile: "core.fighter", classSpecialization: null, profession: "core.guard", role: "core.ordinary" };
     this.preview = null;
   }
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const localize = (key) => game.i18n.localize(key);
+    const classSpecializations = this.api.registry.children("classSpecializations", this.request.classProfile);
     return {
       ...context,
       preview: this.preview,
@@ -41,41 +47,38 @@ export class NpcForgeApp extends HandlebarsApplication {
       hasPreview: Boolean(this.preview),
       targetFolderId: this.targetFolderId,
       request: this.request,
-      ancestryOptions: selectOptions([
-        ["core.human", "NPCFORGE.Content.Ancestry.Human"],
-        ["core.dwarf", "NPCFORGE.Content.Ancestry.Dwarf"]
-      ], this.request.ancestry),
-      classOptions: selectOptions([
-        ["core.fighter", "NPCFORGE.Content.ClassProfile.Fighter"]
-      ], this.request.classProfile),
-      professionOptions: selectOptions([
-        ["core.guard", "NPCFORGE.Content.Profession.Guard"],
-        ["core.blacksmith", "NPCFORGE.Content.Profession.Blacksmith"],
-        ["core.thief", "NPCFORGE.Content.Profession.Thief"],
-        ["core.highwayman", "NPCFORGE.Content.Profession.Highwayman"],
-        ["core.assassin", "NPCFORGE.Content.Profession.Assassin"]
-      ], this.request.profession)
+      ancestryOptions: definitionOptions(this.api.content.list("ancestries"), this.request.ancestry),
+      classOptions: definitionOptions(this.api.content.list("classProfiles"), this.request.classProfile),
+      specializationOptions: definitionOptions(classSpecializations, this.request.classSpecialization),
+      hasSpecializations: classSpecializations.length > 0,
+      professionOptions: definitionOptions(this.api.content.list("professions"), this.request.profession)
     };
   }
 
   async _onRender(context, options) {
     await super._onRender(context, options);
     const form = this.element.querySelector("form[data-npc-forge-request]");
-    form?.addEventListener("input", () => {
+    form?.addEventListener("input", (event) => {
       const data = new FormData(form);
+      const nextClass = String(data.get("classProfile") ?? "core.fighter");
+      const classChanged = nextClass !== this.request.classProfile;
       this.request = {
         ...this.request,
         level: Number(data.get("level") ?? 3),
         ancestry: String(data.get("ancestry") ?? "core.human"),
-        classProfile: String(data.get("classProfile") ?? "core.fighter"),
+        classProfile: nextClass,
+        classSpecialization: classChanged ? null : (String(data.get("classSpecialization") ?? "") || null),
         profession: String(data.get("profession") ?? "core.guard")
       };
+      if (classChanged) this.render();
     });
   }
 
   static async #onGenerate() {
     try {
       this.preview = await this.api.engine.generate(this.request);
+      // Keep the resolved specialization visible after an automatic selection.
+      this.request.classSpecialization = this.preview.build?.classSpecialization?.id ?? null;
       await this.render();
     } catch (error) {
       console.error("PF2E NPC Forge | Generation failed", error);

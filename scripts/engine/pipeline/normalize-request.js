@@ -17,6 +17,7 @@ export function normalizeRequest(request = {}) {
     level,
     ancestry: fixed(request.ancestry, "core.human"),
     classProfile: fixed(request.classProfile, "core.fighter"),
+    classSpecialization: fixed(request.classSpecialization, null),
     profession: fixed(request.profession, "core.guard"),
     role: fixed(request.role, "core.ordinary"),
     identity: {

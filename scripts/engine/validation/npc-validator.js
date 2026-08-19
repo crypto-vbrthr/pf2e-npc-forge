@@ -20,8 +20,13 @@ export function validateNpcModel(npc) {
     if (!Number.isFinite(stats?.saves?.[save])) errors.push(`NPC requires numeric statistics.saves.${save}`);
   }
   if (!Array.isArray(npc?.skills)) errors.push("NPC skills must be an array");
+  if (!Array.isArray(npc?.abilities)) errors.push("NPC abilities must be an array");
   for (const skill of npc?.skills ?? []) {
     if (!skill.slug || !Number.isFinite(skill.modifier)) errors.push("Each NPC skill requires slug and numeric modifier");
+  }
+  for (const ability of npc?.abilities ?? []) {
+    if (!ability.id || !ability.labelKey) errors.push("Each NPC ability requires id and labelKey");
+    if (!new Set(["action", "reaction", "free", "passive"]).has(ability.actionType)) errors.push(`Invalid NPC ability actionType for ${ability.id ?? "unknown"}`);
   }
   return { valid: errors.length === 0, errors, warnings };
 }

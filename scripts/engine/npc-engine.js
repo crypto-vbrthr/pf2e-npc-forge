@@ -6,6 +6,7 @@ import { validateNpcModel } from "./validation/npc-validator.js";
 import { deepClone } from "./utils.js";
 import { buildStatistics } from "./builders/statistics-builder.js";
 import { buildSkills } from "./builders/skill-builder.js";
+import { buildAbilities } from "./builders/ability-builder.js";
 import { ruleValue, ATTACK_BONUS } from "./rules/gm-core-tables.js";
 
 function resolveLevel(level, random) {
@@ -36,14 +37,15 @@ function generateBaselineLoadout(level, profession, classProfile) {
   const isGuard = profession?.id === "core.guard";
   const isDexterityFocused = classProfile?.attributeTiers?.dex === "high" || profession?.attributeBias?.dex === "high";
   const weapon = isGuard
-    ? { id: "primary-weapon", name: "Spear", type: "weapon", source: "baseline", damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["thrown-20"] }
+    ? { id: "primary-weapon", name: "Spear", labelKey: "NPCFORGE.Weapons.Spear", type: "weapon", source: "compendium", compendium: { packId: "pf2e.equipment-srd", slug: "spear" }, damage: { dice: 1, die: "d6", type: "piercing" }, traits: ["thrown-20"] }
     : isDexterityFocused
-      ? { id: "primary-weapon", name: "Dagger", type: "weapon", source: "baseline", damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
-      : { id: "primary-weapon", name: "Club", type: "weapon", source: "baseline", damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: [] };
+      ? { id: "primary-weapon", name: "Dagger", labelKey: "NPCFORGE.Weapons.Dagger", type: "weapon", source: "compendium", compendium: { packId: "pf2e.equipment-srd", slug: "dagger" }, damage: { dice: 1, die: "d4", type: "piercing" }, traits: ["agile", "finesse"] }
+      : { id: "primary-weapon", name: "Club", labelKey: "NPCFORGE.Weapons.Club", type: "weapon", source: "compendium", compendium: { packId: "pf2e.equipment-srd", slug: "club" }, damage: { dice: 1, die: "d6", type: "bludgeoning" }, traits: [] };
   const attack = {
     id: "primary-attack",
     sourceWeaponId: weapon.id,
     label: weapon.name,
+    labelKey: weapon.labelKey,
     modifier: ruleValue(ATTACK_BONUS, level, classProfile?.statistics?.attack ?? "average"),
     damage: { formula: `${weapon.damage.dice}${weapon.damage.die}+${Math.max(1, 2 + Math.floor(level / 3))}`, type: weapon.damage.type },
     traits: [...weapon.traits]
@@ -68,11 +70,19 @@ export class NpcEngine {
     const ancestry = resolveDefinition(this.registry, resolver, "ancestries", normalized.ancestry);
     const classProfile = resolveDefinition(this.registry, resolver, "classProfiles", normalized.classProfile);
     const profession = resolveDefinition(this.registry, resolver, "professions", normalized.profession);
+    let classSpecialization = null;
+    if (normalized.classSpecialization?.mode === "fixed" && normalized.classSpecialization.id) {
+      classSpecialization = this.registry.get("classSpecializations", normalized.classSpecialization.id);
+    } else {
+      const candidates = this.registry.children("classSpecializations", classProfile?.id);
+      classSpecialization = candidates.length ? resolver.resolve(candidates) : null;
+    }
     const role = resolveDefinition(this.registry, resolver, "roles", normalized.role);
     const name = normalized.identity.name || (normalized.identity.generateName ? generateName(this.registry, resolver, ancestry, random) : "Unnamed NPC");
     const statistics = buildStatistics({ level, ancestry, classProfile, profession, role });
     const skills = buildSkills({ level, classProfile, profession, role });
     const loadout = normalized.inventory.enabled ? generateBaselineLoadout(level, profession, classProfile) : { inventory: [], attacks: [] };
+    const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
 
     const npc = {
       schemaVersion: SCHEMA_VERSION,
@@ -85,6 +95,7 @@ export class NpcEngine {
       build: {
         level,
         classProfile,
+        classSpecialization,
         profession,
         professionCategory: profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null,
         role
@@ -92,7 +103,7 @@ export class NpcEngine {
       personality: normalized.personality.enabled ? { generated: false, traits: [] } : null,
       statistics,
       skills,
-      abilities: [],
+      abilities,
       spellcasting: [],
       inventory: loadout.inventory,
       attacks: loadout.attacks,

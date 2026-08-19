@@ -15,6 +15,8 @@ export class NpcForgeApi {
 
     this.content = Object.freeze({
       registerClassProfile: (moduleId, definition) => registry.register("classProfiles", moduleId, definition),
+      registerClassSpecialization: (moduleId, definition) => registry.register("classSpecializations", moduleId, definition),
+      registerAbility: (moduleId, definition) => registry.register("abilityDefinitions", moduleId, definition),
       registerProfessionCategory: (moduleId, definition) => registry.register("professionCategories", moduleId, definition),
       registerProfession: (moduleId, definition) => registry.register("professions", moduleId, definition),
       registerProfessionSpecialization: (moduleId, definition) => registry.register("professionSpecializations", moduleId, definition),

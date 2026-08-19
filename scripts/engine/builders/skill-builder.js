@@ -37,7 +37,7 @@ export function buildSkills({ level, classProfile, profession, role }) {
 
   for (const lore of profession?.lore ?? []) {
     const slug = lore.slug ?? `${String(lore).toLowerCase().replace(/[^a-z0-9]+/g, "-")}-lore`;
-    addSkill(map, slug, lore.tier ?? "high", `profession:${profession.id}`, { type: "lore", label: lore.label ?? String(lore) });
+    addSkill(map, slug, lore.tier ?? "high", `profession:${profession.id}`, { type: "lore", label: lore.label ?? lore.slug ?? String(lore), labelKey: lore.labelKey ?? null });
   }
 
   const modifierAdjustment = Number(role?.skillModifierAdjustment ?? 0) || 0;

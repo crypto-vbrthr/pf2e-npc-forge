@@ -49,12 +49,20 @@ function localizeWeapon(item, localize) {
   return key ? localize(key) : (item?.name ?? "");
 }
 
+function localizeDamageFormula(formula, localize) {
+  const text = String(formula ?? "");
+  const dieLetter = localize("NPCFORGE.Notation.DieLetter");
+  if (!dieLetter || dieLetter === "NPCFORGE.Notation.DieLetter" || dieLetter === "d") return text;
+  return text.replace(/(\d+)d(\d+)/gi, `$1${dieLetter}$2`);
+}
+
 export function presentNpc(npc, localize = (key) => key) {
   if (!npc) return null;
   const profession = localizeDefinition(npc.build?.profession, localize);
   const classProfile = localizeDefinition(npc.build?.classProfile, localize);
   const ancestry = localizeDefinition(npc.identity?.ancestry, localize);
   const role = localizeDefinition(npc.build?.role, localize);
+  const classSpecialization = localizeDefinition(npc.build?.classSpecialization, localize);
 
   const skills = (npc.skills ?? []).map((skill) => ({
     ...skill,
@@ -70,10 +78,28 @@ export function presentNpc(npc, localize = (key) => key) {
       ...attack,
       displayName: localizeWeapon(weapon ?? { name: attack.label }, localize),
       displayModifier: signed(attack.modifier),
-      displayDamage: attack.damage?.formula ?? "",
+      displayDamage: localizeDamageFormula(attack.damage?.formula ?? "", localize),
       displayDamageType: damageKey ? localize(damageKey) : (attack.damage?.type ?? "")
     };
   });
+
+
+  const inventory = (npc.inventory ?? []).map((item) => ({
+    ...item,
+    displayName: item.type === "weapon" ? localizeWeapon(item, localize) : (item.labelKey ? localize(item.labelKey) : (item.name ?? item.id))
+  }));
+
+  const abilities = (npc.abilities ?? []).map((ability) => ({
+    ...ability,
+    displayName: ability.labelKey ? localize(ability.labelKey) : (ability.label ?? ability.id),
+    displayDescription: ability.descriptionKey ? localize(ability.descriptionKey).replace("{dice}", ability.parameters?.dice ?? "") : (ability.description ?? ""),
+    displayAction: ability.actionType === "reaction" ? localize("NPCFORGE.AbilityTypes.Reaction")
+      : ability.actionType === "free" ? localize("NPCFORGE.AbilityTypes.FreeAction")
+      : ability.actionType === "passive" ? localize("NPCFORGE.AbilityTypes.Passive")
+      : ability.actions === 2 ? localize("NPCFORGE.AbilityTypes.TwoActions")
+      : ability.actions === 3 ? localize("NPCFORGE.AbilityTypes.ThreeActions")
+      : localize("NPCFORGE.AbilityTypes.OneAction")
+  }));
 
   const attributes = npc.statistics?.attributes ?? {};
   const saves = npc.statistics?.saves ?? {};
@@ -83,9 +109,10 @@ export function presentNpc(npc, localize = (key) => key) {
     ancestry,
     profession,
     classProfile,
+    classSpecialization,
     role,
     level: npc.build?.level ?? 0,
-    identityLine: [ancestry, profession, classProfile].filter(Boolean).join(" · "),
+    identityLine: [ancestry, profession, classProfile, classSpecialization].filter(Boolean).join(" · "),
     statistics: {
       ac: npc.statistics?.ac,
       hp: npc.statistics?.hp,
@@ -99,7 +126,9 @@ export function presentNpc(npc, localize = (key) => key) {
       attributes: Object.fromEntries(Object.entries(attributes).map(([key, value]) => [key, signed(value)]))
     },
     skills,
-    attacks
+    inventory,
+    attacks,
+    abilities
   };
 }
 

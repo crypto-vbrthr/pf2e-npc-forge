@@ -10,6 +10,11 @@ This release replaces the 0.1.0 placeholder statistics with a benchmark-driven s
 
 The standalone Actor-directory workflow, neutral NPC model, public API, PF2e document adapter, seeded generation, content registry, and embedded editor contract remain intact.
 
+### Compendium-backed equipment
+
+Generated weapon choices are semantic references until Foundry document creation. The PF2e document adapter resolves them against the regular `pf2e.equipment-srd` pack and clones the real PF2e weapon into the NPC actor. This preserves the weapon's normal PF2e data, including its price/value, traits, group, base item, and description. NPC strikes use the resolved weapon for identity and weapon traits, but NPC-level attack and damage scaling remains controlled by the NPC Engine. If the compendium cannot be resolved, actor creation falls back to the generated weapon source rather than failing.
+
+
 ## Testing
 
 Run:

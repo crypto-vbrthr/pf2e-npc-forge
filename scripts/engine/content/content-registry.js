@@ -3,6 +3,8 @@ import { deepClone } from "../utils.js";
 const TYPES = Object.freeze([
   "ancestries",
   "classProfiles",
+  "classSpecializations",
+  "abilityDefinitions",
   "professionCategories",
   "professions",
   "professionSpecializations",

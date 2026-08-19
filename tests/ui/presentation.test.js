@@ -38,3 +38,10 @@ test("presentation formats signed modifiers consistently", () => {
   assert.equal(view.statistics.attributes.str, "+4");
   assert.equal(view.attacks[0].displayModifier, "+12");
 });
+
+test("presentation localizes die notation and exposes localized inventory names", () => {
+  const localizedDictionary = { ...dictionary, "NPCFORGE.Notation.DieLetter": "W" };
+  const view = presentNpc(npc, (key) => localizedDictionary[key] ?? key);
+  assert.equal(view.attacks[0].displayDamage, "1W6+3");
+  assert.equal(view.inventory[0].displayName, "Speer");
+});

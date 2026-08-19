@@ -5,26 +5,83 @@ const STANDARD_SKILLS = new Set([
   "acrobatics", "arcana", "athletics", "crafting", "deception", "diplomacy", "intimidation", "medicine", "nature", "occultism", "performance", "religion", "society", "stealth", "survival", "thievery"
 ]);
 
-function meleeItemFromAttack(attack) {
+
+function getPack(packId) {
+  return globalThis.game?.packs?.get?.(packId) ?? null;
+}
+
+async function findCompendiumDocument(reference) {
+  if (!reference?.packId || !reference?.slug) return null;
+  const pack = getPack(reference.packId);
+  if (!pack) return null;
+  const index = await pack.getIndex({ fields: ["system.slug", "type"] });
+  const entry = Array.from(index ?? []).find((candidate) => candidate.type === "weapon" && candidate.system?.slug === reference.slug);
+  if (!entry) return null;
+  return pack.getDocument(entry._id);
+}
+
+function cleanEmbeddedItemSource(source) {
+  const clone = deepClone(source);
+  delete clone._id;
+  delete clone.folder;
+  delete clone.sort;
+  return clone;
+}
+
+function weaponFactsFromSource(source) {
+  const system = source?.system ?? {};
+  const damage = system.damage ?? {};
   return {
-    name: attack.label,
+    name: source?.name ?? null,
+    damageType: damage.damageType ?? damage.type ?? null,
+    die: damage.die ?? null,
+    dice: Number(damage.dice ?? 1),
+    traits: [...(system.traits?.value ?? [])]
+  };
+}
+
+function meleeItemFromAttack(attack, weaponFacts = null) {
+  return {
+    name: weaponFacts?.name ?? (attack.labelKey ? localized(attack.labelKey, attack.label) : attack.label),
     type: "melee",
     system: {
       bonus: { value: attack.modifier },
       damageRolls: {
-        primary: { damage: attack.damage.formula, damageType: attack.damage.type }
+        primary: { damage: attack.damage.formula, damageType: weaponFacts?.damageType ?? attack.damage.type }
       },
-      traits: { value: [...(attack.traits ?? [])] },
+      traits: { value: [...(weaponFacts?.traits?.length ? weaponFacts.traits : (attack.traits ?? []))] },
       weaponType: { value: "melee" }
     },
     flags: { [MODULE_ID]: { generated: true, sourceWeaponId: attack.sourceWeaponId ?? null } }
   };
 }
 
+
+function localized(key, fallback = "") {
+  return key && globalThis.game?.i18n?.localize ? globalThis.game.i18n.localize(key) : fallback;
+}
+
+function actionItemFromAbility(ability) {
+  const description = ability.descriptionKey ? localized(ability.descriptionKey, ability.descriptionKey).replace("{dice}", ability.parameters?.dice ?? "") : (ability.description ?? "");
+  const actionType = ability.actionType === "passive" ? "passive" : ability.actionType === "reaction" ? "reaction" : ability.actionType === "free" ? "free" : "action";
+  return {
+    name: ability.labelKey ? localized(ability.labelKey, ability.id) : ability.id,
+    type: "action",
+    system: {
+      actionType: { value: actionType },
+      actions: { value: ability.actions ?? null },
+      category: ability.actionType === "passive" ? "passive" : "offensive",
+      description: { value: description },
+      traits: { value: [...(ability.traits ?? [])] }
+    },
+    flags: { [MODULE_ID]: { generated: true, abilityId: ability.id, source: ability.source ?? null, parameters: ability.parameters ?? null } }
+  };
+}
+
 function physicalItemFromInventory(item) {
   if (item.type !== "weapon") return null;
   return {
-    name: item.name,
+    name: item.labelKey ? localized(item.labelKey, item.name) : item.name,
     type: "weapon",
     system: {
       category: "simple",
@@ -39,6 +96,27 @@ function physicalItemFromInventory(item) {
   };
 }
 
+async function physicalItemFromInventoryAsync(item) {
+  if (item.type !== "weapon") return { source: null, facts: null, compendiumBacked: false };
+  const document = await findCompendiumDocument(item.compendium);
+  if (!document) {
+    const source = physicalItemFromInventory(item);
+    return { source, facts: weaponFactsFromSource(source), compendiumBacked: false };
+  }
+  const source = cleanEmbeddedItemSource(document.toObject());
+  source.flags ??= {};
+  source.flags[MODULE_ID] = {
+    ...(source.flags[MODULE_ID] ?? {}),
+    generated: true,
+    inventoryId: item.id,
+    compendiumBacked: true,
+    sourcePack: item.compendium.packId,
+    sourceSlug: item.compendium.slug,
+    sourceUuid: document.uuid ?? null
+  };
+  return { source, facts: weaponFactsFromSource(source), compendiumBacked: true };
+}
+
 function skillSource(skills = []) {
   const result = {};
   for (const skill of skills) {
@@ -51,7 +129,7 @@ function skillSource(skills = []) {
 function loreNotes(skills = []) {
   return skills
     .filter((skill) => skill.type === "lore")
-    .map((skill) => `${skill.label ?? skill.slug} +${skill.modifier}`);
+    .map((skill) => `${skill.labelKey ? localized(skill.labelKey, skill.label ?? skill.slug) : (skill.label ?? skill.slug)} +${skill.modifier}`);
 }
 
 function attributeSource(attributes = {}) {
@@ -68,13 +146,14 @@ export class Pf2eDocumentAdapter {
       if (source) items.push(source);
     }
     for (const attack of npc.attacks ?? []) items.push(meleeItemFromAttack(attack));
+    for (const ability of npc.abilities ?? []) items.push(actionItemFromAbility(ability));
 
-    const profession = npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC";
-    const classProfile = npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "";
+    const profession = npc.build.profession?.labelKey ? localized(npc.build.profession.labelKey, npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC") : (npc.build.profession?.label ?? npc.build.profession?.id ?? "NPC");
+    const classProfile = npc.build.classProfile?.labelKey ? localized(npc.build.classProfile.labelKey, npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "") : (npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "");
     const lore = loreNotes(npc.skills);
     const publicNotes = [
       `<p><strong>${profession}</strong>${classProfile ? ` · ${classProfile}` : ""}</p>`,
-      lore.length ? `<p><strong>Lore:</strong> ${lore.join(", ")}</p>` : ""
+      lore.length ? `<p><strong>${localized("NPCFORGE.Fields.Lore", "Lore")}:</strong> ${lore.join(", ")}</p>` : ""
     ].filter(Boolean).join("");
 
     return {
@@ -106,6 +185,7 @@ export class Pf2eDocumentAdapter {
           seed: npc.generation.seed,
           ancestryId: npc.identity.ancestry?.id ?? null,
           classProfileId: npc.build.classProfile?.id ?? null,
+          classSpecializationId: npc.build.classSpecialization?.id ?? null,
           professionId: npc.build.profession?.id ?? null,
           roleId: npc.build.role?.id ?? null,
           sourceSlug: slugify(npc.identity.name),
@@ -115,8 +195,28 @@ export class Pf2eDocumentAdapter {
     };
   }
 
+  async toActorSourceAsync(npc, { folder = null } = {}) {
+    const source = this.toActorSource(npc, { folder });
+    const generatedNonWeaponItems = source.items.filter((item) => item.type !== "weapon" && item.type !== "melee");
+    const weaponItems = [];
+    const weaponFactsById = new Map();
+
+    for (const inventoryItem of npc.inventory ?? []) {
+      if (inventoryItem.type !== "weapon") continue;
+      const resolved = await physicalItemFromInventoryAsync(inventoryItem);
+      if (!resolved.source) continue;
+      weaponItems.push(resolved.source);
+      weaponFactsById.set(inventoryItem.id, resolved.facts);
+      if (resolved.compendiumBacked) source.flags[MODULE_ID].compendiumEquipment = true;
+    }
+
+    const meleeItems = (npc.attacks ?? []).map((attack) => meleeItemFromAttack(attack, weaponFactsById.get(attack.sourceWeaponId) ?? null));
+    source.items = [...weaponItems, ...meleeItems, ...generatedNonWeaponItems];
+    return source;
+  }
+
   async createActor(npc, options = {}) {
-    const source = this.toActorSource(npc, options);
+    const source = await this.toActorSourceAsync(npc, options);
     if (!globalThis.Actor?.create) throw new Error("Foundry Actor.create is unavailable");
     return globalThis.Actor.create(deepClone(source), { renderSheet: options.renderSheet ?? true });
   }
@@ -128,7 +228,8 @@ export class Pf2eDocumentAdapter {
       for (const npc of npcs) actors.push(await this.createActor(npc, { ...options, renderSheet: false }));
       return actors;
     }
-    const sources = npcs.map((npc) => this.toActorSource(npc, options));
+    const sources = [];
+    for (const npc of npcs) sources.push(await this.toActorSourceAsync(npc, options));
     return globalThis.Actor.createDocuments(sources);
   }
 }
