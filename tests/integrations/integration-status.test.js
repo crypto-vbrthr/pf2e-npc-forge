@@ -16,7 +16,9 @@ test("IntegrationService distinguishes installed, active, available and ready", 
       active: true,
       available: true,
       ready: true,
-      capabilities: null
+      capabilities: null,
+      implemented: true,
+      planned: false
     });
   } finally {
     globalThis.game = previousGame;
@@ -51,4 +53,32 @@ test("integration inspection reports Affliction Forge library and injury-poison 
   assert.equal(details.afflictionForge.providers, 2);
   assert.equal(details.afflictionForge.poisonsInRange, 2);
   assert.equal(details.afflictionForge.injuryPoisonsInRange, 1);
+});
+
+
+test("IntegrationService is not ready when the module is inactive even if an API object exists", () => {
+  const previousGame = globalThis.game;
+  globalThis.game = { modules: new Map([["example", { active: false, api: { ping() {} } }]]) };
+  try {
+    const service = new IntegrationService("example", { required: ["ping"] });
+    assert.equal(service.available, true);
+    assert.equal(service.active, false);
+    assert.equal(service.ready, false);
+  } finally {
+    globalThis.game = previousGame;
+  }
+});
+
+test("planned integrations report planned instead of ready", () => {
+  const previousGame = globalThis.game;
+  globalThis.game = { modules: new Map([["planned", { active: true, api: {} }]]) };
+  try {
+    const service = new IntegrationService("planned", { implemented: false });
+    const status = service.status();
+    assert.equal(status.ready, false);
+    assert.equal(status.planned, true);
+    assert.equal(status.active, true);
+  } finally {
+    globalThis.game = previousGame;
+  }
 });

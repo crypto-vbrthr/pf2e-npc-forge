@@ -1,11 +1,58 @@
 # Public API
 
-Obtain the API from `game.modules.get("pf2e-npc-forge")?.api` after the module is ready.
+Obtain the API after initialization:
+
+```js
+const api = game.modules.get("pf2e-npc-forge")?.api;
+```
+
+or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- API version: `0.2.0`
-- Neutral NPC schema: `2`
+- Public API version: `0.8.4`
+- Neutral NPC schema: `10`
+
+## Stability labels
+
+### Public
+
+Intended for external consumers and add-ons:
+
+- `api.engine.generate()`
+- `api.documents.toActorSource()`
+- `api.documents.toActorSourceAsync()`
+- `api.documents.createActor()`
+- `api.documents.createActors()`
+- `api.content.*` registration/list/get methods
+- `api.integrations.status()`
+- `api.integrations.inspect()`
+- `api.capabilities`, `api.apiVersion`, `api.schemaVersion`
+
+### Experimental
+
+Available for testing but not contract-frozen:
+
+- `api.ui.createEditor()` / `NpcEditorSession`
+- `api.documents.clearCompendiumCache()`
+- `api.documents.compendiumCacheStats()`
+- raw service wrappers at `api.integrations.afflictions/items/loot`
+
+### Internal
+
+Files under engine builders, UI implementation, integration orchestrator, and adapter helpers are implementation details. External modules should not import them directly.
+
+## Capability checks
+
+Always prefer capabilities to version guessing:
+
+```js
+if (api.capabilities.has("compendium-backed-spells")) {
+  // safe to rely on async spell materialization
+}
+```
+
+0.8.4 intentionally exposes `experimental-editor-session` and does **not** expose `embedded-editor`, because the real host-mounted editor UI is scheduled for the next architecture block.
 
 ## Generation
 
@@ -15,272 +62,143 @@ const npc = api.engine.generate({
   level: 5,
   ancestry: "core.human",
   classProfile: "core.fighter",
+  classSpecialization: null, // weighted/automatic
+  professionCategory: "core.profession-category.civic",
   profession: "core.guard",
-  role: "core.veteran"
-});
-```
-
-The returned object is plain serializable data. In 0.2.0 it includes benchmark-driven attributes, Perception, AC, HP, saves, speed, relevant skills, and profession Lore.
-
-## Actor creation
-
-```js
-const actor = await api.documents.createActor(npc, { folder: folderId });
-```
-
-## Capabilities
-
-Check `api.capabilities` rather than assuming a feature from the module version. New 0.2.0 capabilities include `gm-core-statistics`, `skill-generation`, and `profession-lore`.
-
-
-## Class profile and ability extensions (0.3.0)
-
-```js
-api.content.registerClassProfile(moduleId, profile);
-api.content.registerClassSpecialization(moduleId, specialization);
-api.content.registerAbility(moduleId, abilityDefinition);
-```
-
-A specialization references its parent profile with `parentId` and may add `abilityIds`. Ability definitions are neutral data and are converted to PF2e action items only by the document adapter.
-
-## Compendium-backed actor sources
-
-`documents.toActorSource(npc, options)` remains a synchronous fallback/source-inspection helper and does not perform compendium I/O.
-
-Use `await documents.toActorSourceAsync(npc, options)` when the returned source must contain cloned PF2e compendium equipment. `documents.createActor()` and `documents.createActors()` call this path automatically.
-
-```js
-const npc = api.engine.generate(request);
-const source = await api.documents.toActorSourceAsync(npc, { folder: folderId });
-const actor = await api.documents.createActor(npc, { folder: folderId });
-```
-
-Weapon references currently use the PF2e equipment pack and a stable item slug, for example:
-
-```js
-{
-  type: "weapon",
-  compendium: {
-    packId: "pf2e.equipment-srd",
-    slug: "spear"
+  role: "core.veteran",
+  inventory: {
+    enabled: true,
+    personalItems: true,
+    allowPoisonedWeapons: true,
+    poisonPolicy: "automatic"
   }
-}
-```
-
-If the pack or item is unavailable, the adapter falls back to the neutral model's weapon data and reports no hard failure. The generated NPC strike keeps engine-owned NPC attack/damage scaling while inheriting weapon identity, traits, and damage type from the resolved PF2e item.
-
-## Ancestry content (0.5.0)
-
-Add-on modules can register ancestry profiles through the stable public registry surface:
-
-```js
-api.content.registerAncestry("my-module", {
-  id: "my-module.ancestry.example",
-  labelKey: "MYMODULE.Ancestry.Example",
-  size: "med",
-  speed: 25,
-  traits: ["humanoid"],
-  languages: ["common"],
-  senses: ["low-light-vision"],
-  ageRanges: {
-    youngAdult: { min: 16, max: 24 },
-    adult: { min: 25, max: 50 },
-    middleAged: { min: 51, max: 70 },
-    elder: { min: 71, max: 100 }
-  },
-  naturalAttacks: []
 });
 ```
 
-The engine treats these as NPC-facing ancestry identity profiles. They are not complete PC ancestry progression objects and should not encode ancestry-feat advancement.
+The returned object is plain serializable data. `null` class specialization remains automatic across standalone-editor regenerations; the resolved specialization is visible in the generated NPC but is not silently written back as a fixed request.
 
-## Localized name generation (0.5.2)
-
-Register name packs with:
+## Actor materialization
 
 ```js
+const source = api.documents.toActorSource(npc);
+const fullSource = await api.documents.toActorSourceAsync(npc, { folder: folderId });
+const actor = await api.documents.createActor(npc, { folder: folderId });
+```
+
+`toActorSource()` is a synchronous fallback/inspection source. The asynchronous path resolves real PF2e equipment and spell compendium documents and performs optional Forge integrations.
+
+Batch creation:
+
+```js
+const actors = await api.documents.createActors(npcs, { folder: folderId });
+```
+
+The adapter caches pack indexes and resolved compendium documents across these operations.
+
+## Content registration
+
+Available registration methods:
+
+```js
+api.content.registerAncestry(moduleId, definition);
+api.content.registerClassProfile(moduleId, definition);
+api.content.registerClassSpecialization(moduleId, definition);
+api.content.registerAbility(moduleId, definition);
+api.content.registerProfessionCategory(moduleId, definition);
+api.content.registerProfession(moduleId, definition);
+api.content.registerProfessionSpecialization(moduleId, definition);
+api.content.registerRole(moduleId, definition);
 api.content.registerNamePack(moduleId, definition);
+api.content.registerPersonalityPack(moduleId, definition);
+api.content.registerAppearancePack(moduleId, definition);
+api.content.registerEquipmentProfile(moduleId, definition);
+api.content.registerSpellcastingProfile(moduleId, definition);
+api.content.registerSpellTheme(moduleId, definition);
+api.content.registerQuickPreset(moduleId, definition);
 ```
 
-Discover ancestry- and locale-compatible packs with:
+### Namespace contract
+
+A definition ID must be owned by the registering module:
 
 ```js
-api.content.listNamePacks({ ancestryId, locale, allowUntranslated });
-```
-
-Generation requests may select a pack and locale explicitly:
-
-```js
-const npc = api.engine.generate({
-  seed: "example-dwarf",
-  ancestry: "core.dwarf",
-  identity: {
-    gender: "female",
-    nameLocale: "de",
-    namePack: "core.generic-dwarf",
-    allowUntranslatedNamePacks: false
-  }
+api.content.registerRole("my-module", {
+  id: "my-module.elite-agent",
+  labelKey: "MYMODULE.Role.EliteAgent"
 });
 ```
 
-Generated identities expose `identity.nameParts` as the stable semantic representation. `identity.name` remains a fallback rendering for API compatibility; UI presentation and PF2e actor creation re-render semantic parts through the active localization catalog. Manual names are represented as `{ manual: "..." }` and are never translated.
-
-
-## Appearance packs (0.5.4)
-
-External modules can contribute physical appearance content without depending on the NPC Forge UI:
+This is rejected:
 
 ```js
-api.content.registerAppearancePack("my-module", {
-  id: "my-module.street-faces",
-  ancestryIds: ["core.human"], // optional
-  traits: [
-    {
-      id: "my-module.crooked-smile",
-      category: "facial",
-      labelKey: "MYMODULE.Appearance.CrookedSmile",
-      weight: 5,
-      preferredTags: ["criminal"]
-    }
-  ]
+api.content.registerRole("my-module", {
+  id: "core.veteran" // forbidden: core namespace belongs to NPC Forge
 });
 ```
 
-Supported core categories are `build`, `facial`, `complexion`, `age`, `scar`, `hands`, and `posture`. Trait definitions may use `ancestryIds`, `excludeAncestryIds`, `ageCategories`, `requiresTags`, `excludesTags`, and `preferredTags`. The engine stores semantic trait IDs in `identity.appearance`; localization is presentation-only.
+Cross-provider references remain allowed, for example an add-on specialization may use `parentId: "core.fighter"` while its own ID remains `my-module.*`.
 
-Generation request example:
+See `CONTENT_PROVIDERS.md`.
+
+## Names
 
 ```js
-const npc = api.engine.generate({
-  seed: "dock-veteran-01",
-  appearance: {
-    enabled: true,
-    intensity: "medium",
-    allowBodyShape: true,
-    allowScars: true,
-    allowAgeFeatures: true,
-    allowPosture: true
-  }
+const packs = api.content.listNamePacks({
+  ancestryId: "core.dwarf",
+  locale: "de",
+  allowUntranslated: false
 });
 ```
 
+Generated identities expose semantic `identity.nameParts`. Proper names can remain literal while speaking surnames/titles can localize without changing the generation seed.
 
-## Personality packs (0.6.0)
+## Spellcasting
 
-External modules can add personality material without depending on the standalone UI:
+External modules may register spellcasting profiles and spell themes. The neutral model stores spellcasting intent; the async adapter materializes PF2e `spellcastingEntry` and real spell Items and populates prepared/spontaneous slots.
 
-```js
-api.content.registerPersonalityPack("my-module", {
-  id: "my-module.city-personalities",
-  weight: 10,
-  traits: [
-    {
-      id: "my-module.cautious",
-      category: "trait",
-      labelKey: "MYMODULE.Personality.Cautious.Name",
-      descriptionKey: "MYMODULE.Personality.Cautious.Description",
-      weight: 5,
-      preferredTags: ["urban"]
-    }
-  ]
-});
-```
+## Integrations
 
-Supported categories are `demeanor`, `trait`, `motivation`, `flaw`, `quirk`, and `secret`. Definitions may use `ancestryIds`, `professionIds`, `classProfileIds`, `ageCategories`, `requiresTags`, `excludesTags`, `preferredTags`, and `avoidsTags`.
-
-Generation request:
+Cheap synchronous status:
 
 ```js
-const npc = api.engine.generate({
-  seed: "dockmaster-01",
-  personality: {
-    enabled: true,
-    intensity: "medium",
-    allowSecrets: true
-  }
-});
-```
-
-The generated neutral model exposes `npc.personality` plus a structured `roleplaying` section. Secrets are intended as GM information; the PF2e adapter places them in private notes.
-
-## Combat benchmark metadata (0.6.1)
-
-Generated attacks expose stable benchmark metadata for consumers such as Encounter Forge or diagnostics tools:
-
-```js
-const npc = api.engine.generate({ level: 12, classProfile: "core.fighter" });
-const strike = npc.attacks[0];
-
-strike.modifier;                 // 26
-strike.attackTier;               // "high"
-strike.damage.formula;           // weapon-die-preserving formula, e.g. "4d6+16"
-strike.damage.benchmarkTier;     // "high"
-strike.damage.expectedAverage;   // 30
-strike.damage.actualAverage;     // 30
-strike.damage.benchmarkFormula;  // printed GM Core benchmark, "3d10+14"
-```
-
-External class profiles can set `statistics.damage` to `low`, `average`, `high`, or `extreme`. If omitted, NPC Forge derives a conservative default from the class profile and its tags.
-
-
-## Spellcasting content
-
-External modules can register spellcasting profiles and thematic spell pools with `api.content.registerSpellcastingProfile(moduleId, definition)` and `api.content.registerSpellTheme(moduleId, definition)`. Generated `npc.spellcasting` data is neutral and the Document Adapter materializes PF2e spellcasting entries and compendium-backed spell Items.
-
-
-## External Forge integrations (0.8.0)
-
-NPC Forge exposes optional integration services through the public API:
-
-```js
-const api = game.modules.get("pf2e-npc-forge")?.api;
 const status = api.integrations.status();
-
-status.afflictionForge.installed;
-status.afflictionForge.active;
-status.afflictionForge.available;
 status.afflictionForge.ready;
 status.itemForge.ready;
+status.lootForge.planned;
+```
 
+Detailed async diagnostics:
+
+```js
 const diagnostics = await api.integrations.inspect({ level: 8 });
 diagnostics.afflictionForge.enabledLibraries;
 diagnostics.afflictionForge.injuryPoisonsInRange;
 diagnostics.afflictionForge.injuryPoisonsTotal;
 ```
 
-The raw service wrappers are also available as `api.integrations.afflictions`, `api.integrations.items`, and `api.integrations.loot`. Consumers should prefer `status()` for cheap synchronous capability checks and `inspect()` for diagnostic/reporting UI. They should not depend on private integration implementation details.
-
-Generation requests may opt into specialist materialization:
-
-```js
-const npc = api.engine.generate({
-  level: 8,
-  classProfile: "core.rogue",
-  profession: "core.thief",
-  inventory: {
-    enabled: true,
-    personalItems: true,
-    allowPoisonedWeapons: true
-  }
-});
-
-const source = await api.documents.toActorSourceAsync(npc);
-```
-
-`engine.generate()` remains synchronous and deterministic. It records integration intent only. External APIs are invoked later by `documents.toActorSourceAsync()`, `createActor()`, or `createActors()`. This separation prevents optional Foundry modules from becoming hard dependencies of the neutral engine.
+`ready` requires an **active** module in 0.8.4.
 
 ### Affliction Forge
 
-When enabled, the adapter searches enabled Affliction Forge libraries for nearby-level poison templates and verifies `delivery.injuryPoison === true` after the library search has filtered to poison templates. A selected poison is attached through Affliction Forge's public `references.createInjuryPoison()` and `references.addToSource()` contract. Only eligible piercing/slashing melee sources are considered. The automatic policy is weighted toward rogues, alchemists, and criminal professions.
-
-If the preferred level window contains no compatible injury poison, the adapter performs a widened search across enabled poison libraries and selects among the nearest available injury poisons. This prevents content gaps from looking like a broken integration while preserving enabled-library state as the authority.
-
-For deterministic integration tests or specialist callers, the normalized request accepts `inventory.poisonPolicy: "always"` and an optional `inventory.poisonCharges`. The standalone editor exposes both `automatic` and `always` policies. Actor creation also reports why a requested poison was applied or skipped.
+When requested, NPC Forge searches enabled Affliction Forge poison libraries, verifies `delivery.injuryPoison === true`, and attaches a reference through the Affliction Forge public API. By default only manufactured weapon attacks with a `sourceWeaponId` and piercing/slashing damage are eligible. Natural attacks are not automatically poison-coated.
 
 ### Item Forge
 
-When personal items are enabled, the adapter calls Item Forge's public `generate()` API in `treasure` mode. The category is chosen from broad NPC context and the target value scales conservatively with NPC level. The returned `itemSource` is embedded unchanged except for removal of transient document IDs and addition of NPC Forge provenance flags.
+When personal items are requested, NPC Forge calls Item Forge `generate()` in treasure mode. Category selection uses profession, role, class-profile, and class-specialization tags. Scholarly/arcane contexts prefer books, religious/divine contexts prefer ceremonial treasure, and mercantile/social contexts prefer jewelry.
 
-### Graceful degradation
+Errors written into NPC Forge integration flags are plain strings so Actor sources remain safely serializable.
 
-If an integration is missing, not ready, has no matching content, or generation fails, NPC creation continues. Integration diagnostics are recorded under `flags.pf2e-npc-forge.integrations` on the materialized Actor source.
+### Loot Forge
+
+0.8.4 detects Loot Forge but does not invoke it. Its service status reports `planned: true` and `ready: false`.
+
+## Experimental editor session
+
+```js
+const session = api.ui.createEditor({
+  initialRequest: { level: 5, profession: "core.guard" },
+  capabilities: { createActor: false }
+});
+```
+
+The lifecycle contract exists, but the mounted UI remains a placeholder in 0.8.4. Do not treat this as the finished embedded editor. See `EMBEDDED_EDITOR.md`.

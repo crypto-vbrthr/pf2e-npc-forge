@@ -20,6 +20,9 @@ function integrationRow(labelKey, status, { details = null } = {}) {
   if (status?.ready) {
     stateKey = "NPCFORGE.Integrations.StatusConnected";
     stateClass = "connected";
+  } else if (status?.planned && (status?.active || status?.available)) {
+    stateKey = "NPCFORGE.Integrations.StatusDetectedPlanned";
+    stateClass = "planned";
   } else if (status?.active) {
     stateKey = "NPCFORGE.Integrations.StatusIncomplete";
     stateClass = "incomplete";
@@ -110,6 +113,7 @@ export class NpcForgeApp extends HandlebarsApplication {
       request: this.request,
       ancestryOptions: definitionOptions(this.api.content.list("ancestries"), this.request.ancestry),
       classOptions: definitionOptions(this.api.content.list("classProfiles"), this.request.classProfile),
+      roleOptions: definitionOptions(this.api.content.list("roles"), this.request.role),
       specializationOptions: definitionOptions(classSpecializations, this.request.classSpecialization),
       hasSpecializations: classSpecializations.length > 0,
       professionCategoryOptions: definitionOptions(this.api.content.list("professionCategories"), this.request.professionCategory),
@@ -225,6 +229,7 @@ export class NpcForgeApp extends HandlebarsApplication {
         level: Number(data.get("level") ?? 3),
         ancestry: nextAncestry,
         classProfile: nextClass,
+        role: String(data.get("role") ?? "core.ordinary"),
         classSpecialization: classChanged ? null : (String(data.get("classSpecialization") ?? "") || null),
         professionCategory: nextCategory,
         profession: nextProfession,
@@ -272,8 +277,6 @@ export class NpcForgeApp extends HandlebarsApplication {
     try {
       this.request.identity = { ...(this.request.identity ?? {}), nameLocale: game.i18n.lang ?? "en" };
       this.preview = await this.api.engine.generate(this.request);
-      // Keep the resolved specialization visible after an automatic selection.
-      this.request.classSpecialization = this.preview.build?.classSpecialization?.id ?? null;
       this._captureUiState();
       await this.render();
     } catch (error) {

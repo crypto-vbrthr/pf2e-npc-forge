@@ -1,159 +1,156 @@
 # Neutral NPC Model
 
-NPC Forge 0.2.0 uses schema version 2. The engine returns plain serializable data and never a Foundry document.
+NPC Forge 0.8.4 uses **schema version 10**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
 
-Core model areas:
+Representative top-level shape:
 
-- `identity`: name, ancestry, later appearance data.
-- `build`: level, class profile, profession/category, role.
-- `statistics`: six ability modifiers, perception, AC, HP, saves, speed, plus benchmark tiers.
-- `skills`: relevant standard skills and profession Lore entries with modifier, tier, source, and linked ability when applicable.
-- `inventory` and `attacks`: baseline loadout data retained from 0.1.0.
-- `diagnostics`: warnings/fallbacks.
+```js
+{
+  schemaVersion: 10,
+  generation: { seed, benchmark, ... },
+  identity: { ... },
+  build: { ... },
+  statistics: { ... },
+  skills: [],
+  inventory: [],
+  attacks: [],
+  abilities: [],
+  spellcasting: [],
+  personality: { ... },
+  integrations: { ... }
+}
+```
 
-`statistics.benchmarkSource` identifies the PF2e GM Core creature-building benchmark used by the core builder. Consumers must treat the neutral model as the stable interchange format and must not depend on PF2e Actor internals.
+## `identity`
 
+Contains semantic identity data such as:
 
-## Class specialization and abilities
+- `name` fallback rendering;
+- `nameParts` semantic/localizable name representation;
+- `ancestry` definition;
+- `gender`;
+- age category/years;
+- size;
+- languages;
+- senses;
+- creature traits;
+- generated appearance traits.
 
-`build.classSpecialization` contains the resolved optional specialization. `abilities` is an array of neutral ability definitions with `id`, localization keys, `actionType`, optional `actions`, traits, source metadata, and optional scaling parameters.
+Appearance remains descriptive by default.
 
-## Equipment references
+## `build`
 
-Inventory entries can include a semantic compendium reference without becoming Foundry documents:
+Contains the resolved build axes:
+
+- `level`
+- `classProfile`
+- `classSpecialization`
+- `professionCategory`
+- `profession`
+- `professionSpecialization`
+- `role`
+
+The generated model stores the resolved specialization even when the request asked for an automatic/weighted specialization. Callers that want future rerolls should preserve the original request separately rather than feeding the resolved ID back as fixed input.
+
+## `statistics`
+
+Contains neutral NPC-facing statistics:
+
+- six attribute modifiers;
+- AC;
+- HP;
+- Perception;
+- Fortitude, Reflex, Will;
+- Speed.
+
+Benchmark provenance is retained under generation/attack metadata where useful.
+
+## `skills`
+
+Each skill entry includes a slug, modifier, source/tier metadata, and optional localization key. Lore skills are represented alongside standard PF2e skills with `type: "lore"`.
+
+## `inventory`
+
+Inventory entries are semantic sources. A physical entry can include a PF2e compendium reference:
 
 ```js
 {
   id: "primary-weapon",
   type: "weapon",
-  source: "compendium",
-  compendium: { packId: "pf2e.equipment-srd", slug: "spear" },
-  damage: { dice: 1, die: "d6", type: "piercing" },
-  traits: ["thrown-20"]
-}
-```
-
-The local damage/trait fields are deliberate fallbacks and allow deterministic previews and graceful operation when Foundry or a target compendium is unavailable.
-
-## 0.4.0 profession and inventory fields
-
-`build.professionCategory`, `build.profession`, and `build.professionSpecialization` preserve the resolved occupation hierarchy.
-
-Inventory entries may contain:
-
-```js
-{
-  id: "guard-shield",
-  type: "shield",
-  purpose: "shield",
-  origin: "profession",
-  quantity: 1,
-  equipped: true,
   compendium: {
     packId: "pf2e.equipment-srd",
-    slug: "steel-shield",
-    itemType: "shield"
+    slug: "spear",
+    itemType: "weapon"
   }
 }
 ```
 
-Weapons remain linked to generated NPC attacks through `attack.sourceWeaponId`.
+The neutral item is not the final Foundry Item. The async adapter resolves/clones the compendium document and adds provenance flags.
 
-## Identity model (schema v4)
+Wizard spellbooks are represented as inventory entries with semantic spellbook contents.
 
-`identity` now contains structured ancestry-facing information:
+## `attacks`
 
-```js
-{
-  name,
-  ancestry,
-  gender,
-  age: { category, years },
-  size,
-  traits: [],
-  languages: [],
-  senses: [],
-  appearance
-}
-```
+NPC attacks remain separate from inventory weapons so creature-building attack and damage benchmarks are engine-owned.
 
-Gender and age are identity data, not PF2e combat statistics. Age ranges are ancestry-aware generation ranges intended for plausible NPC presentation rather than PC aging rules.
+Important fields include:
 
+- `sourceWeaponId` for manufactured inventory weapons;
+- attack modifier and tier;
+- damage formula/type and benchmark metadata;
+- traits.
 
-## `identity.appearance`
+Intrinsic ancestry attacks use `sourceWeaponId: null`. In 0.8.4 this distinction is also used to prevent accidental injury-poison coating of natural attacks.
 
-When enabled, 0.5.4 adds a structured appearance record:
+## `abilities`
 
-```js
-{
-  generated: true,
-  intensity: "medium",
-  traits: [
-    {
-      id: "core.appearance.build.sturdy",
-      category: "build",
-      categoryKey: "NPCFORGE.Appearance.Category.Build",
-      labelKey: "NPCFORGE.Appearance.Traits.Sturdy",
-      source: { moduleId: "pf2e-npc-forge", packId: "core.appearance.general" }
-    }
-  ]
-}
-```
+Neutral class/specialization abilities include labels/descriptions, action type, traits, parameters, and provenance. The adapter converts them into PF2e action Items.
 
-Consumers should use `id`/`category` for logic and render `labelKey` through the active locale.
+## `spellcasting`
 
-## Personality model (schema 7)
+A spellcasting entry contains semantic casting information such as:
 
-`npc.personality` is either `null` or a structured generated personality object. It contains semantic entries for `demeanor`, `traits`, `motivation`, `flaw`, `quirk`, and optional `secret`, plus a derived `roleplaying` object. Visible strings remain localization-layer concerns; engine data stores stable IDs and localization keys.
+- tradition;
+- prepared/spontaneous mode;
+- casting ability;
+- source type (spellbook, repertoire, familiar, etc.);
+- DC and spell attack benchmark;
+- highest rank/focus points;
+- known/prepared/generated spells.
 
-The roleplaying object provides immediate table-facing guidance for first impression, normal conversation, behavior under pressure, and driving goal. Consumers should treat `secret` as GM-private information unless the user explicitly chooses otherwise.
+The adapter resolves real PF2e spell documents and constructs slot references.
 
-## Attack benchmark fields (schema 8)
+## `personality`
 
-Each attack can include benchmark provenance in addition to its executable modifier and damage formula:
+When enabled, the model contains:
+
+- demeanor;
+- traits;
+- motivation;
+- flaw;
+- quirk;
+- optional secret;
+- roleplaying kit (first impression, conversation behavior, pressure behavior, driving goal).
+
+Secrets are materialized into private GM notes by the PF2e adapter.
+
+## `integrations`
+
+Schema 10 stores **integration intent**, not external module results. For example:
 
 ```js
 {
-  modifier: 26,
-  attackTier: "high",
-  damage: {
-    formula: "4d6+16",
-    type: "piercing",
-    benchmarkTier: "high",
-    expectedAverage: 30,
-    actualAverage: 30,
-    benchmarkFormula: "3d10+14"
+  afflictionForge: {
+    requested: true,
+    policy: "automatic",
+    charges: null
+  },
+  itemForge: {
+    requested: true,
+    category: null,
+    targetValue: null
   }
 }
 ```
 
-The item and the NPC Strike intentionally remain distinct. A compendium weapon preserves its authentic PF2e item data and value; the Strike uses creature-building damage appropriate to the NPC level.
-
-
-## Spellcasting
-
-`spellcasting[]` contains neutral entries with tradition, prepared/spontaneous mode, ability, GM Core DC/attack benchmark, highest rank, focus points, prepared spells, and known spells. A wizard spellbook is represented as an inventory item carrying semantic known-spell metadata.
-
-
-## `integrations` (schema 10)
-
-The neutral model records requested optional integrations without containing external Foundry documents:
-
-```js
-{
-  integrations: {
-    afflictionForge: {
-      requested: true,
-      policy: "automatic",
-      charges: null
-    },
-    itemForge: {
-      requested: true,
-      category: null,
-      targetValue: null
-    }
-  }
-}
-```
-
-These are intents, not materialized results. The asynchronous document adapter performs the actual external API calls.
+The asynchronous adapter invokes external APIs and stores materialization diagnostics/results in Foundry Actor flags. These runtime results are not part of the neutral generation schema.

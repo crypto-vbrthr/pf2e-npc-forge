@@ -47,6 +47,14 @@ const DAMAGE_KEYS = {
 const GENDER_KEYS = { female: "NPCFORGE.Identity.GenderFemale", male: "NPCFORGE.Identity.GenderMale", nonbinary: "NPCFORGE.Identity.GenderNonbinary" };
 const AGE_KEYS = { youngAdult: "NPCFORGE.Identity.AgeYoungAdult", adult: "NPCFORGE.Identity.AgeAdult", middleAged: "NPCFORGE.Identity.AgeMiddleAged", elder: "NPCFORGE.Identity.AgeElder" };
 const SENSE_KEYS = { "low-light-vision": "NPCFORGE.Senses.LowLightVision", darkvision: "NPCFORGE.Senses.Darkvision" };
+const SIZE_KEYS = {
+  tiny: "NPCFORGE.Sizes.Tiny",
+  sm: "NPCFORGE.Sizes.Small",
+  med: "NPCFORGE.Sizes.Medium",
+  lg: "NPCFORGE.Sizes.Large",
+  huge: "NPCFORGE.Sizes.Huge",
+  grg: "NPCFORGE.Sizes.Gargantuan"
+};
 const LANGUAGE_KEYS = { common:"NPCFORGE.Languages.Common", elven:"NPCFORGE.Languages.Elven", gnomish:"NPCFORGE.Languages.Gnomish", fey:"NPCFORGE.Languages.Fey", goblin:"NPCFORGE.Languages.Goblin", halfling:"NPCFORGE.Languages.Halfling", orcish:"NPCFORGE.Languages.Orcish", dwarven:"NPCFORGE.Languages.Dwarven", amurrun:"NPCFORGE.Languages.Amurrun", iruxi:"NPCFORGE.Languages.Iruxi", kholo:"NPCFORGE.Languages.Kholo", sakvroth:"NPCFORGE.Languages.Sakvroth", tengu:"NPCFORGE.Languages.Tengu", tripkee:"NPCFORGE.Languages.Tripkee", ysoki:"NPCFORGE.Languages.Ysoki" };
 
 const WEAPON_KEYS = {
@@ -195,12 +203,12 @@ export function presentNpc(npc, localize = (key) => key) {
     professionSpecialization,
     role,
     level: npc.build?.level ?? 0,
-    identityLine: [ancestry, profession, professionSpecialization, classProfile, classSpecialization].filter(Boolean).join(" · "),
+    identityLine: [ancestry, profession, professionSpecialization, classProfile, classSpecialization, role].filter(Boolean).join(" · "),
     identity: {
       gender: GENDER_KEYS[npc.identity?.gender] ? localize(GENDER_KEYS[npc.identity.gender]) : (npc.identity?.gender ?? ""),
       ageCategory: AGE_KEYS[npc.identity?.age?.category] ? localize(AGE_KEYS[npc.identity.age.category]) : (npc.identity?.age?.category ?? ""),
       ageYears: npc.identity?.age?.years ?? null,
-      size: localize(npc.identity?.size === "sm" ? "NPCFORGE.Sizes.Small" : "NPCFORGE.Sizes.Medium"),
+      size: SIZE_KEYS[npc.identity?.size] ? localize(SIZE_KEYS[npc.identity.size]) : (npc.identity?.size ?? ""),
       languages: (npc.identity?.languages ?? []).map((language) => LANGUAGE_KEYS[language] ? localize(LANGUAGE_KEYS[language]) : language),
       senses: (npc.identity?.senses ?? []).map((sense) => SENSE_KEYS[sense] ? localize(SENSE_KEYS[sense]) : sense),
       appearance: presentAppearance(npc.identity?.appearance, localize)

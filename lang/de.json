@@ -631,5 +631,11 @@
   "NPCFORGE.Notifications.PoisonUnavailable": "Affliction Forge ist nicht einsatzbereit. Es wurde kein Gift angebracht.",
   "NPCFORGE.Notifications.PoisonNoEligibleAttack": "Kein geeigneter Hieb- oder Stichangriff für ein Verwundungsgift vorhanden.",
   "NPCFORGE.Notifications.PoisonChanceSkipped": "Die automatische Giftchance hat für diesen NPC kein Gift ausgewählt.",
-  "NPCFORGE.Notifications.PoisonNoMatch": "Affliction Forge enthält derzeit kein aktiviertes Verwundungsgift, das verwendet werden kann."
+  "NPCFORGE.Notifications.PoisonNoMatch": "Affliction Forge enthält derzeit kein aktiviertes Verwundungsgift, das verwendet werden kann.",
+  "NPCFORGE.Fields.Role": "Rolle",
+  "NPCFORGE.Sizes.Tiny": "Winzig",
+  "NPCFORGE.Sizes.Large": "Groß",
+  "NPCFORGE.Sizes.Huge": "Riesig",
+  "NPCFORGE.Sizes.Gargantuan": "Gigantisch",
+  "NPCFORGE.Integrations.StatusDetectedPlanned": "Erkannt, Integration geplant"
 }

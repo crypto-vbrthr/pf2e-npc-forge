@@ -207,3 +207,34 @@ test("spontaneous spellcasting creates populated rank slots", async () => {
   assert.ok(Object.values(entry.system.slots).some((slot)=>Number(slot.max) > 0));
   assert.ok(Object.values(entry.system.slots).some((slot)=>Number(slot.value) > 0));
 });
+
+test("async adapter caches compendium indexes and document resolutions across actor materialization", async () => {
+  const previousGame = globalThis.game;
+  let indexLoads = 0;
+  let documentLoads = 0;
+  const docs = new Map([
+    ["spear", { uuid: "Compendium.pf2e.equipment-srd.Item.spear", toObject: () => ({ _id:"spear", name:"Spear", type:"weapon", system:{ slug:"spear", damage:{ dice:1, die:"d6", damageType:"piercing" }, traits:{ value:[], rarity:"common" }, quantity:1 } }) }],
+    ["chain-shirt", { uuid: "Compendium.pf2e.equipment-srd.Item.chain", toObject: () => ({ _id:"chain-shirt", name:"Chain Shirt", type:"armor", system:{ slug:"chain-shirt", traits:{ value:[], rarity:"common" }, quantity:1 } }) }],
+    ["steel-shield", { uuid: "Compendium.pf2e.equipment-srd.Item.shield", toObject: () => ({ _id:"steel-shield", name:"Steel Shield", type:"shield", system:{ slug:"steel-shield", traits:{ value:[], rarity:"common" }, quantity:1 } }) }],
+    ["hooded-lantern", { uuid: "Compendium.pf2e.equipment-srd.Item.lantern", toObject: () => ({ _id:"hooded-lantern", name:"Hooded Lantern", type:"equipment", system:{ slug:"hooded-lantern", traits:{ value:[], rarity:"common" }, quantity:1 } }) }]
+  ]);
+  const index = [...docs.entries()].map(([slug, doc]) => ({ _id: slug, type: doc.toObject().type, system: { slug } }));
+  const pack = {
+    getIndex: async () => { indexLoads += 1; return index; },
+    getDocument: async (id) => { documentLoads += 1; return docs.get(id) ?? null; }
+  };
+  globalThis.game = { packs: new Map([["pf2e.equipment-srd", pack]]), i18n: { localize: (key) => key } };
+  try {
+    const registry = new ContentRegistry(); registerCoreContent(registry);
+    const npc = new NpcEngine({ registry }).generate({ seed: "cache-guard", level: 3, profession: "core.guard", classProfile: "core.fighter" });
+    const adapter = new Pf2eDocumentAdapter();
+    await adapter.toActorSourceAsync(npc);
+    const firstDocumentLoads = documentLoads;
+    await adapter.toActorSourceAsync(npc);
+    assert.equal(indexLoads, 1, "one pack index should serve all equipment lookups and subsequent actors");
+    assert.equal(documentLoads, firstDocumentLoads, "resolved compendium documents should be reused");
+    assert.equal(adapter.compendiumCacheStats().indexLoads, 1);
+  } finally {
+    globalThis.game = previousGame;
+  }
+});

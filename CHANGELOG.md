@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.8.4 – Architecture & Contract Hardening
+
+- Enforced content-provider namespace ownership: core content owns `core.*`, while external modules must register definitions under their own module namespace.
+- Corrected capability reporting: the placeholder editor session is now advertised as `experimental-editor-session`; the production `embedded-editor` capability is reserved for the real shared editor core.
+- Added Role selection to the standalone editor and included the resolved role in preview/Actor identity presentation.
+- Preserved automatic class specialization semantics across regeneration instead of silently converting the generated specialization into fixed input.
+- Hardened integration readiness so inactive modules cannot report ready.
+- Marked Loot Forge detection as a planned integration rather than a completed connection.
+- Corrected Item Forge context matching for scholarly, religious, mercantile, class-profile, and specialization tags.
+- Made Item Forge failure metadata safely serializable.
+- Restricted injury-poison application to manufactured piercing/slashing weapon attacks by default; intrinsic natural attacks are no longer selected accidentally.
+- Added complete PF2e size presentation for Tiny through Gargantuan.
+- Added a per-adapter PF2e compendium resolver cache for pack indexes and resolved documents, improving batch/Crowd materialization performance.
+- Updated public documentation to API 0.8.4 / neutral schema 10 and explicitly separated Public, Experimental, and Internal surfaces.
+- Added `npm run check:release` and `npm run check` for syntax, JSON, localization parity, version, and content-hierarchy validation.
+- Expanded regression coverage to 105 tests.
+
 ## 0.8.3 – External Integration Diagnostics & Poison Reliability
 
 - Added a dedicated External Integrations editor section showing whether Affliction Forge, Item Forge, and Loot Forge are connected, incomplete, inactive, or unavailable.

@@ -31,7 +31,7 @@ function installDirectoryButton(app, html) {
 }
 
 Hooks.once("init", () => {
-  console.log("PF2E NPC Forge | Initializing 0.8.0 External Forge Integrations");
+  console.log("PF2E NPC Forge | Initializing 0.8.4 Architecture & Contract Hardening");
   const registry = new ContentRegistry();
   registerCoreContent(registry);
   const integrations = createExternalIntegrations();

@@ -2,33 +2,12 @@ import { renderGeneratedName } from "../engine/names/name-renderer.js";
 import { MODULE_ID, SCHEMA_VERSION } from "../constants.js";
 import { deepClone, slugify } from "../engine/utils.js";
 import { applyAfflictionForgeIntegration, generateItemForgePersonalTreasure } from "../integrations/external-forge-orchestrator.js";
+import { CompendiumResolver } from "./compendium-resolver.js";
 
 const STANDARD_SKILLS = new Set([
   "acrobatics", "arcana", "athletics", "crafting", "deception", "diplomacy", "intimidation", "medicine", "nature", "occultism", "performance", "religion", "society", "stealth", "survival", "thievery"
 ]);
 
-
-function getPack(packId) {
-  return globalThis.game?.packs?.get?.(packId) ?? null;
-}
-
-async function findCompendiumDocument(reference) {
-  if (!reference?.packId || !reference?.slug) return null;
-  const pack = getPack(reference.packId);
-  if (!pack) return null;
-  const index = await pack.getIndex({ fields: ["system.slug", "type"] });
-  const entry = Array.from(index ?? []).find((candidate) => (!reference.itemType || candidate.type === reference.itemType) && candidate.system?.slug === reference.slug);
-  if (!entry) return null;
-  return pack.getDocument(entry._id);
-}
-
-async function findCompendiumDocumentCandidates(references = []) {
-  for (const reference of references) {
-    const document = await findCompendiumDocument(reference);
-    if (document) return { document, reference };
-  }
-  return { document: null, reference: null };
-}
 
 function randomEmbeddedId(prefix = "npcf") {
   const value = globalThis.foundry?.utils?.randomID?.() ?? `${prefix}${Math.random().toString(36).slice(2, 14)}`;
@@ -124,12 +103,12 @@ function physicalItemFromInventory(item) {
   return base;
 }
 
-async function physicalItemFromInventoryAsync(item) {
+async function physicalItemFromInventoryAsync(item, resolver) {
   if (item.type === "unarmed") return { source: null, facts: null, compendiumBacked: false };
-  let document = await findCompendiumDocument(item.compendium);
+  let document = await resolver.find(item.compendium);
   let resolvedReference = item.compendium ?? null;
   if (!document && Array.isArray(item.compendiumCandidates)) {
-    const resolved = await findCompendiumDocumentCandidates(item.compendiumCandidates);
+    const resolved = await resolver.findCandidates(item.compendiumCandidates);
     document = resolved.document;
     resolvedReference = resolved.reference;
   }
@@ -178,10 +157,10 @@ function spellcastingEntryItem(entry) {
   };
 }
 
-async function spellItemsFromEntry(entry, entryId) {
+async function spellItemsFromEntry(entry, entryId, resolver) {
   const items = [];
   for (const spell of entry.preparedSpells ?? entry.spells ?? []) {
-    const document = await findCompendiumDocument(spell.compendium);
+    const document = await resolver.find(spell.compendium);
     if (!document) continue;
     const source = cleanEmbeddedItemSource(document.toObject());
     source._id = randomEmbeddedId("spell");
@@ -264,7 +243,13 @@ function attributeSource(attributes = {}) {
 }
 
 export class Pf2eDocumentAdapter {
-  constructor({ integrations = {} } = {}) { this.integrations = integrations; }
+  constructor({ integrations = {}, compendiumResolver = null } = {}) {
+    this.integrations = integrations;
+    this.compendiumResolver = compendiumResolver ?? new CompendiumResolver();
+  }
+
+  clearCompendiumCache() { this.compendiumResolver.clear(); }
+  compendiumCacheStats() { return this.compendiumResolver.stats(); }
 
   toActorSource(npc, { folder = null } = {}) {
     const items = [];
@@ -280,7 +265,8 @@ export class Pf2eDocumentAdapter {
     const classProfile = npc.build.classProfile?.labelKey ? localized(npc.build.classProfile.labelKey, npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "") : (npc.build.classProfile?.label ?? npc.build.classProfile?.id ?? "");
     const lore = loreNotes(npc.skills);
     const ancestryName = npc.identity.ancestry?.labelKey ? localized(npc.identity.ancestry.labelKey, npc.identity.ancestry?.id ?? "") : (npc.identity.ancestry?.label ?? npc.identity.ancestry?.id ?? "");
-    const identityBits = [ancestryName, profession, classProfile].filter(Boolean).join(" · ");
+    const role = npc.build.role?.labelKey ? localized(npc.build.role.labelKey, npc.build.role?.label ?? npc.build.role?.id ?? "") : (npc.build.role?.label ?? npc.build.role?.id ?? "");
+    const identityBits = [ancestryName, profession, classProfile, role].filter(Boolean).join(" · ");
     const appearance = npc.identity.appearance?.generated
       ? (npc.identity.appearance.traits ?? []).map((trait) => trait.labelKey ? localized(trait.labelKey, trait.label ?? trait.id) : (trait.label ?? trait.id)).join(", ")
       : "";
@@ -370,7 +356,7 @@ export class Pf2eDocumentAdapter {
     const weaponFactsById = new Map();
 
     for (const inventoryItem of npc.inventory ?? []) {
-      const resolved = await physicalItemFromInventoryAsync(inventoryItem);
+      const resolved = await physicalItemFromInventoryAsync(inventoryItem, this.compendiumResolver);
       if (!resolved.source) continue;
       if (inventoryItem.purpose === "spellbook") enrichSpellbookSource(resolved.source, inventoryItem);
       inventoryItems.push(resolved.source);
@@ -397,7 +383,7 @@ export class Pf2eDocumentAdapter {
     const spellcastingItems = [];
     for (const entry of npc.spellcasting ?? []) {
       const entryItem = spellcastingEntryItem(entry);
-      const spells = await spellItemsFromEntry(entry, entryItem._id);
+      const spells = await spellItemsFromEntry(entry, entryItem._id, this.compendiumResolver);
       populateSpellcastingSlots(entryItem, entry, spells);
       spellcastingItems.push(entryItem, ...spells);
     }

@@ -21,3 +21,9 @@ test("preview and controls expose appearance traits without overloading identity
   assert.match(template, /appearanceAllowScars/);
   assert.match(template, /npc-forge-appearance-list/);
 });
+
+
+test("standalone editor exposes narrative role selection", () => {
+  assert.match(template, /name="role"/);
+  assert.match(template, /NPCFORGE\.Fields\.Role/);
+});

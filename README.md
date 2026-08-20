@@ -1,66 +1,102 @@
 # PF2E NPC Forge
 
-**Version 0.6.0 – Personality & Roleplaying**
+**Version 0.8.4 – Architecture & Contract Hardening**
 
-NPC Forge is a Foundry VTT module for generating fully usable Pathfinder 2e NPCs through a reusable, API-first engine.
+PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. The project is designed as a platform for other Forge modules rather than a single monolithic generator.
 
-## 0.6.0 Personality & Roleplaying
+## Current feature set
 
-NPCs can now receive a deterministic, structured personality consisting of demeanor, character traits, motivation, weakness, quirk, and an optional secret. A roleplaying kit derives immediate table-facing guidance for first impression, conversation, behavior under pressure, and driving goal. Profession, class, role, ancestry, and age tags can influence weighted personality selection.
+- Level-based PF2e NPC statistics, saves, Perception, skills, Lore, attacks, and damage benchmarks.
+- 16 remastered core class profiles with NPC-facing specializations and signature abilities.
+- 16 Player Core / Player Core 2 ancestry profiles with size, Speed, languages, senses, age, and selected intrinsic attacks.
+- Hierarchical professions and profession specializations with equipment profiles.
+- Ancestry-aware, locale-aware semantic name generation.
+- Structured appearance, personality, secrets, and a roleplaying kit.
+- Prepared and spontaneous spellcasting with compendium-backed spells and Wizard spellbooks.
+- Compendium-backed PF2e equipment with NPC-owned strike scaling.
+- Optional Affliction Forge injury-poison and Item Forge personal-treasure integration.
+- DE/EN UI and generated presentation.
 
-The neutral model stores semantic personality IDs and the PF2e adapter writes public roleplaying information to public notes while keeping generated secrets in private GM notes. External modules can extend the system through `api.content.registerPersonalityPack()`.
+## Architecture
 
+The generation path is deliberately split:
 
-### 0.5.4 Appearance & Physical Traits
-
-NPC identity can now include optional, structured physical features. The generator supports configurable intensity plus separate controls for body shape, scars/old injuries, age features, and posture. Traits are deterministic for a seed, localized in English/German, and can be supplied by external appearance packs.
-
-## 0.5.2 focus
-
-Name generation is now ancestry-aware, gender-aware, seed-stable, and localization-ready. The engine stores semantic generated-name parts instead of baking translated speaking surnames into the neutral NPC model. Presentation and PF2e document creation render those parts in the active locale.
-
-Core name packs cover all 16 currently bundled Player Core / Player Core 2 ancestry profiles. Proper given names remain stable, while speaking family names can localize naturally, for example `Ironhand` / `Eisenhand`.
-
-The standalone editor exposes a Name Pack selector filtered to the current ancestry and active Foundry locale. Manually entered names are never translated or rewritten.
-
-### External name packs
-
-Add-ons can register name packs through `api.content.registerNamePack()` and discover compatible packs through `api.content.listNamePacks()`. Packs can declare `supportedLocales`, ancestry constraints, gender-specific given-name pools, semantic localized family names, and optional epithets.
-
-See `docs/CONTENT_PROVIDERS.md` and `docs/API.md`.
-
-## Existing foundations
-
-NPC Forge already includes the neutral NPC engine, public API, embedded editor contract, PF2e document adapter, GM Core statistic generation, core class profiles and abilities, hierarchical professions, compendium-backed equipment and strikes, and core ancestry/identity generation.
-
-## Testing
-
-Run:
-
-```sh
-npm test
+```text
+Generation Request
+      ↓
+Neutral NPC Engine
+      ↓
+Neutral NPC Model (schema 10)
+      ↓
+PF2e Document Adapter
+      ↓
+Foundry NPC Actor + embedded Items
 ```
 
-See `docs/TESTING.md`, `docs/API.md`, and `docs/ARCHITECTURE.md`.
+The neutral engine does not need Foundry documents or optional Forge modules. External integrations are invoked only by the asynchronous document adapter during Actor materialization.
 
+See `docs/ARCHITECTURE.md` and `docs/NPC_MODEL.md`.
 
-## Spellcasting (0.7.0)
+## 0.8.4 hardening
 
-Spellcaster class profiles now generate compact NPC-ready spell lists using GM Core spell DC/attack benchmarks. Spells are resolved from the PF2e spell compendium when Actors are materialized. Wizards also receive a spellbook that records their known spells separately from the spells prepared for the generated NPC.
+0.8.4 focuses on contracts rather than adding a new content domain:
 
-## 0.8.1 editor state preservation
+- External content IDs are now required to belong to the registering module's namespace. Third-party modules can no longer claim `core.*` or another add-on's namespace.
+- The standalone editor exposes the NPC **Role** and the preview includes it.
+- Automatic class specialization remains automatic after regeneration instead of being silently converted into a fixed choice.
+- Item Forge context now recognizes the actual scholarly, religious, mercantile, class, and specialization tags used by NPC Forge content.
+- Loot Forge is reported as **detected / integration planned**, not falsely as a completed connection.
+- Integration readiness now requires the external module to be active.
+- Item Forge errors stored in Actor flags are plain serializable text.
+- Size presentation supports Tiny, Small, Medium, Large, Huge, and Gargantuan.
+- Injury poisons are restricted to manufactured weapon attacks by default; intrinsic claws, bites, and similar attacks are not poisoned accidentally.
+- PF2e compendium indexes and resolved documents are cached per document adapter, which substantially reduces repeated pack work for batch/Crowd generation.
+- Release checks now verify tests, JavaScript syntax, JSON, localization parity, version consistency, and core content hierarchy.
 
-0.8.1 preserves editor scroll positions and collapsible section state across generation and dependency-driven rerenders.
+## External integrations
 
-## 0.8.0 external Forge integrations
+The standalone editor has an **External Integrations** section showing the detected state of Affliction Forge, Item Forge, and Loot Forge.
 
-NPC Forge can optionally delegate specialist content instead of reimplementing it:
+- **Affliction Forge:** implemented. Can attach injury-poison references to suitable manufactured piercing/slashing weapon strikes.
+- **Item Forge:** implemented. Can generate a personal treasure/art object appropriate to broad NPC context.
+- **Loot Forge:** detected only. A direct Loot Forge bridge is planned, but 0.8.4 does not call Loot Forge generation APIs.
 
-- **Affliction Forge**: when poisoned weapons are allowed, eligible slashing/piercing NPC Strikes may receive a level-appropriate injury-poison reference. The reference is created through Affliction Forge and attached to the generated melee source, including charge tracking.
-- **Item Forge**: when personal valuables are enabled, NPC Forge asks Item Forge to generate one personal treasure/art object appropriate to the NPC level and broad profession context. The returned creation-ready Item source is embedded in the generated Actor.
-- Both integrations are optional. Missing or incompatible modules are treated as graceful fallbacks and never prevent baseline NPC creation.
-- Integration state can be inspected through `api.integrations.status()`; 0.8.3 also adds async `api.integrations.inspect({ level })` diagnostics.
-- The standalone editor has an **External Integrations** section that distinguishes connected, incomplete, inactive, and unavailable modules. Affliction Forge diagnostics also show enabled libraries and compatible injury-poison availability.
-- Poison generation can use contextual automatic weighting or **always when possible** mode for deterministic testing/specialist NPCs. If no compatible poison exists in the preferred level window, the adapter widens the enabled-library search and picks the nearest available injury poison.
+All integrations degrade gracefully. NPC creation continues if a specialist Forge is missing, inactive, incomplete, or returns no suitable result.
 
-The neutral NPC model records integration requests, while materialization happens in the asynchronous PF2e Document Adapter. This keeps the NPC Engine deterministic and UI-free.
+## Public API
+
+After `pf2eNpcForgeReady`:
+
+```js
+const api = game.modules.get("pf2e-npc-forge")?.api;
+const npc = api.engine.generate({
+  seed: "dock-guard-01",
+  level: 5,
+  ancestry: "core.human",
+  classProfile: "core.fighter",
+  profession: "core.guard",
+  role: "core.veteran"
+});
+
+const actor = await api.documents.createActor(npc);
+```
+
+The public API version is **0.8.4** and the neutral model schema is **10**. Consumers should check `api.capabilities` rather than infer features from the module version.
+
+See `docs/API.md` and `docs/CONTENT_PROVIDERS.md`.
+
+## Embedded editor status
+
+`api.ui.createEditor()` and the editor-session lifecycle remain **experimental** in 0.8.4. The current `mount()` renderer is still a placeholder and therefore the module deliberately does **not** advertise the production `embedded-editor` capability yet. The planned 0.8.5 block will make the standalone and embedded UI share the same real editor core.
+
+See `docs/EMBEDDED_EDITOR.md`.
+
+## Development and checks
+
+```bash
+npm test
+npm run check:release
+npm run check
+```
+
+`npm run check` runs the complete test suite followed by release-contract validation.

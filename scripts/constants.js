@@ -1,11 +1,11 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "0.8.3";
+export const API_VERSION = "0.8.4";
 export const SCHEMA_VERSION = 10;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",
   "actor-source-generation",
   "actor-creation",
-  "embedded-editor",
+  "experimental-editor-session",
   "profession-registration",
   "profession-category-registration",
   "class-profile-registration",
@@ -49,5 +49,9 @@ export const CAPABILITIES = Object.freeze([
   "affliction-forge-injury-poisons",
   "item-forge-personal-treasures",
   "integration-capability-reporting",
-  "integration-diagnostics"
+  "integration-diagnostics",
+  "content-namespace-enforcement",
+  "compendium-resolution-cache",
+  "role-selection-ui",
+  "contract-hardening"
 ]);

@@ -20,3 +20,8 @@ test("preview scroll preservation targets the actual preview scroll container", 
   assert.match(app, /querySelector\?\.\("\.npc-forge-preview-scroll"\)/);
   assert.match(app, /querySelector\?\.\("\.npc-forge-preview-scroll"\)/);
 });
+
+
+test("automatic class specialization remains automatic after generation", () => {
+  assert.doesNotMatch(app, /this\.request\.classSpecialization\s*=\s*this\.preview/);
+});

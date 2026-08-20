@@ -25,7 +25,7 @@ const npc = {
 
 test("presentation localizes semantic ids and PF2e labels", () => {
   const view = presentNpc(npc, localize);
-  assert.equal(view.identityLine, "Mensch · Stadtwache · Kämpfer");
+  assert.equal(view.identityLine, "Mensch · Stadtwache · Kämpfer · Gewöhnlich");
   assert.equal(view.skills[0].displayName, "Athletik");
   assert.equal(view.skills[1].displayName, "Rechtskunde");
   assert.equal(view.attacks[0].displayName, "Speer");
@@ -44,4 +44,23 @@ test("presentation localizes die notation and exposes localized inventory names"
   const view = presentNpc(npc, (key) => localizedDictionary[key] ?? key);
   assert.equal(view.attacks[0].displayDamage, "1W6+3");
   assert.equal(view.inventory[0].displayName, "Speer");
+});
+
+
+test("presentation localizes the complete PF2e size range", () => {
+  const sizeKeys = { tiny: "Winzig", sm: "Klein", med: "Mittel", lg: "Groß", huge: "Riesig", grg: "Gigantisch" };
+  for (const [size, expected] of Object.entries(sizeKeys)) {
+    const copy = structuredClone(npc);
+    copy.identity.size = size;
+    const view = presentNpc(copy, (key) => ({
+      ...dictionary,
+      "NPCFORGE.Sizes.Tiny": "Winzig",
+      "NPCFORGE.Sizes.Small": "Klein",
+      "NPCFORGE.Sizes.Medium": "Mittel",
+      "NPCFORGE.Sizes.Large": "Groß",
+      "NPCFORGE.Sizes.Huge": "Riesig",
+      "NPCFORGE.Sizes.Gargantuan": "Gigantisch"
+    })[key] ?? key);
+    assert.equal(view.identity.size, expected);
+  }
 });

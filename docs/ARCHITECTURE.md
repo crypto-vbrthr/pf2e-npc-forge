@@ -1,45 +1,94 @@
 # Architecture
 
-NPC Forge is separated into four public-facing layers:
+PF2E NPC Forge 0.8.4 is organized around a strict separation between content generation, PF2e document materialization, UI, and optional integrations.
 
-1. **NPC Engine**: UI-free generation of a neutral NPC model.
-2. **Content Registry**: built-in and third-party profiles.
-3. **PF2e Document Adapter**: translates neutral models into PF2e Actor sources/documents.
-4. **Editor UI**: standalone or embedded client of the public API.
+## 1. Neutral NPC Engine
 
-## 0.2.0 statistics layer
+`NpcEngine` consumes a normalized generation request plus `ContentRegistry` data and returns a plain serializable NPC model.
 
-Core statistics are generated from dedicated GM Core benchmark tables for levels -1 through 24. Class profiles express benchmark tiers rather than hard-coded final numbers. Professions can bias abilities and skills; roles can apply narrow numeric adjustments. This keeps content definitions reusable while centralizing PF2e benchmark math.
+The engine owns:
 
-`statistics-builder.js` owns ability modifiers, perception, AC, HP, saves, and speed. `skill-builder.js` owns relevant standard skills and profession Lore. Neither builder creates Foundry documents.
+- deterministic seeded selection;
+- class, profession, role, ancestry, identity, appearance, and personality resolution;
+- GM Core-style statistics and strike benchmarks;
+- inventory intent and attack definitions;
+- spellcasting intent and semantic spell references;
+- optional integration intent.
 
-## Compendium-backed equipment boundary
+The engine does not create Foundry Actors and does not call Affliction Forge, Item Forge, or Loot Forge.
 
-The NPC Engine never reads Foundry compendia. It emits semantic equipment references such as a PF2e pack id plus item slug. Compendium I/O belongs exclusively to the PF2e Document Adapter. This keeps generation deterministic and UI/Foundry independent while allowing created actors to contain authentic PF2e equipment documents.
+## 2. Content Registry
 
-The adapter uses the resolved weapon as the source of item identity, economic value, weapon group/base item, traits, and descriptive system data. NPC strike modifiers and scaled damage remain part of the neutral NPC model so PC equipment math cannot accidentally replace GM Core NPC benchmarks.
+The registry is the extension boundary for add-on content. Registered definitions are deep-cloned and tagged with `sourceModule`.
 
+### Namespace ownership
 
-## Appearance generation
+0.8.4 enforces ownership of registry IDs:
 
-`appearance-builder.js` is an Engine-only content consumer. It reads registered appearance packs, filters traits against generation context, applies weighted preferences, and writes semantic appearance data into the neutral model. The Foundry UI and PF2e adapter only present/materialize that result; neither owns appearance-selection rules.
+- NPC Forge core content is registered by `pf2e-npc-forge` and owns `core.*`.
+- An external module `my-module` owns `my-module.*`.
+- A module may reference another provider's IDs through fields such as `parentId`, but the ID of the definition it creates must remain in its own namespace.
 
+This prevents silent namespace capture and makes provider provenance reliable.
 
-## External integration boundary
+## 3. PF2e Document Adapter
 
-0.8.0 keeps optional specialist modules outside the neutral engine:
+`Pf2eDocumentAdapter` turns the neutral model into a PF2e NPC Actor source.
 
-```text
-Generation Request
-      ↓
-NPC Engine (deterministic integration intent only)
-      ↓
-Neutral NPC Model
-      ↓
-PF2e Document Adapter
-      ├─ Affliction Forge reference materialization
-      ├─ Item Forge personal-treasure materialization
-      └─ PF2e Actor source
-```
+It owns:
 
-The adapter accesses integrations through `IntegrationService` wrappers. Readiness is probed dynamically so load order and optional-module activation do not turn into hard dependencies.
+- PF2e Actor schema mapping;
+- compendium-backed equipment and spell resolution;
+- NPC `melee`, `action`, `spellcastingEntry`, and spell Item creation;
+- public/private notes and Forge provenance flags;
+- optional external Forge materialization.
+
+`toActorSource()` is synchronous and does not perform compendium I/O. `toActorSourceAsync()`, `createActor()`, and `createActors()` use the full materialization path.
+
+### Compendium resolver cache
+
+Each adapter owns a `CompendiumResolver` that caches:
+
+- pack indexes by pack ID;
+- resolved documents by pack + item type + slug;
+- failed slug lookups for the lifetime of the adapter.
+
+This prevents repeated `getIndex()` work when many NPCs are generated in one batch. `clearCompendiumCache()` can invalidate the cache if pack content changes during a session.
+
+## 4. External Forge integrations
+
+External services are wrapped by `IntegrationService`.
+
+A service is `ready` only when:
+
+1. its module is installed;
+2. the module is active;
+3. an API object is available;
+4. the integration is implemented;
+5. all required API paths exist.
+
+Current states:
+
+- Affliction Forge: implemented.
+- Item Forge: implemented.
+- Loot Forge: detection only, integration planned.
+
+The neutral engine records intent. The adapter performs calls. Failures are diagnostics, not fatal NPC-generation errors.
+
+## 5. UI layers
+
+### Standalone application
+
+`NpcForgeApp` is the currently complete user-facing editor shell. It owns form state, generation, preview, integration diagnostics, Actor creation, and UI-state preservation.
+
+### Editor session API
+
+`NpcEditorSession` provides an isolated host/session contract but its mounted renderer remains experimental in 0.8.4. It is intentionally advertised as `experimental-editor-session`, not `embedded-editor`.
+
+0.8.5 is intended to extract a shared editor core so the standalone window and host-mounted editor render the same controls and preview.
+
+## 6. Public API
+
+`NpcForgeApi` is the platform surface exposed through the Foundry module API. Consumers should use capability checks and documented methods rather than importing internal files.
+
+See `API.md` for stability categories.

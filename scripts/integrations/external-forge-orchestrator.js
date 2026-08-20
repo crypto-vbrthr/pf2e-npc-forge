@@ -27,7 +27,10 @@ export function relevantPoisonChance(npc) {
 }
 
 function poisonEligibleAttack(attack) {
-  return ["piercing", "slashing"].includes(attack?.damage?.type);
+  // Injury poisons are applied to actual manufactured weapon attacks by default.
+  // Intrinsic claws/bites have no sourceWeaponId and require an explicit future
+  // content rule rather than being poisoned accidentally.
+  return Boolean(attack?.sourceWeaponId) && ["piercing", "slashing"].includes(attack?.damage?.type);
 }
 
 function poisonLevelWindow(level) {
@@ -171,10 +174,15 @@ export async function applyAfflictionForgeIntegration({ npc, meleeItems, integra
 }
 
 function personalTreasureCategory(npc) {
-  const tags = new Set([...(npc.build?.profession?.tags ?? []), ...(npc.build?.role?.tags ?? [])]);
-  if (tags.has("scholar") || tags.has("academic")) return "treasure.book";
-  if (tags.has("religion") || tags.has("divine")) return "treasure.ceremonial";
-  if (tags.has("merchant") || tags.has("noble") || tags.has("social")) return "treasure.jewelry";
+  const tags = new Set([
+    ...(npc.build?.profession?.tags ?? []),
+    ...(npc.build?.role?.tags ?? []),
+    ...(npc.build?.classProfile?.tags ?? []),
+    ...(npc.build?.classSpecialization?.tags ?? [])
+  ]);
+  if (tags.has("scholarly") || tags.has("knowledge") || tags.has("academic") || tags.has("arcane")) return "treasure.book";
+  if (tags.has("religious") || tags.has("religion") || tags.has("divine")) return "treasure.ceremonial";
+  if (tags.has("mercantile") || tags.has("merchant") || tags.has("noble") || tags.has("social")) return "treasure.jewelry";
   if (tags.has("maritime")) return "treasure.luxury";
   return ["treasure.jewelry", "treasure.art", "treasure.tableware", "treasure.book"][Math.floor(hash01(`${npc.generation.seed}:treasure-category`) * 4) % 4];
 }
@@ -224,6 +232,6 @@ export async function generateItemForgePersonalTreasure({ npc, integrations, dia
   } catch (error) {
     diagnostics?.warnings?.push(`${localized("NPCFORGE.Integrations.ItemForgeFailed", "Item Forge personal item generation failed")}: ${error.message}`);
     diagnostics?.fallbacks?.push("item-forge-generation-failed");
-    return { applied: false, reason: "error", itemSource: null, error };
+    return { applied: false, reason: "error", itemSource: null, error: error?.message ?? String(error) };
   }
 }

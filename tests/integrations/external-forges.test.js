@@ -6,7 +6,7 @@ function baseNpc(overrides = {}) {
   return {
     generation: { seed: "integration-seed" },
     build: { level: 8, classProfile: { id: "core.rogue" }, profession: { id: "core.thief", tags: ["criminal"] }, role: { tags: [] } },
-    attacks: [{ id: "primary-attack", damage: { type: "piercing" } }],
+    attacks: [{ id: "primary-attack", sourceWeaponId: "primary-weapon", damage: { type: "piercing" } }],
     integrations: { afflictionForge: { requested: true, policy: "always" }, itemForge: { requested: true } },
     ...overrides
   };
@@ -88,4 +88,40 @@ test("Affliction Forge widens poison search when preferred level window has no i
   assert.equal(result.widenedSearch, true);
   assert.equal(result.templateUuid, "Compendium.poison.Item.injury");
   assert.equal(searches.length, 2);
+});
+
+
+test("Affliction Forge does not poison intrinsic natural attacks by default", async () => {
+  const api = {
+    libraries: { search: async () => [{ uuid: "P", name: "Venom", level: 8 }] },
+    templates: { read: async () => ({ delivery: { injuryPoison: true } }) },
+    references: {
+      createInjuryPoison: () => ({}),
+      addToSource: (source) => source
+    }
+  };
+  const npc = baseNpc({ attacks: [{ id: "bite", sourceWeaponId: null, damage: { type: "piercing" }, traits: ["unarmed"] }] });
+  const result = await applyAfflictionForgeIntegration({ npc, meleeItems: [{ type: "melee" }], integrations: { afflictions: { ready: true, api } }, diagnostics: { warnings: [], fallbacks: [] } });
+  assert.equal(result.applied, false);
+  assert.equal(result.reason, "no-eligible-attack");
+});
+
+test("Item Forge context recognizes scholarly, religious and class tags", async () => {
+  const categories = [];
+  const api = { generate: async (request) => { categories.push(request.category); return { itemSource: { name: "X", type: "treasure", system: {}, flags: {} } }; } };
+  const diagnostics = { warnings: [], fallbacks: [] };
+  await generateItemForgePersonalTreasure({ npc: baseNpc({ build: { level: 5, profession: { tags: ["scholarly", "knowledge"] }, role: { tags: [] }, classProfile: { tags: [] } } }), integrations: { items: { ready: true, api } }, diagnostics });
+  await generateItemForgePersonalTreasure({ npc: baseNpc({ build: { level: 5, profession: { tags: ["religious"] }, role: { tags: [] }, classProfile: { tags: [] } } }), integrations: { items: { ready: true, api } }, diagnostics });
+  await generateItemForgePersonalTreasure({ npc: baseNpc({ build: { level: 5, profession: { tags: [] }, role: { tags: [] }, classProfile: { tags: ["arcane"] } } }), integrations: { items: { ready: true, api } }, diagnostics });
+  assert.deepEqual(categories, ["treasure.book", "treasure.ceremonial", "treasure.book"]);
+});
+
+test("Item Forge failures return serializable error text instead of Error objects", async () => {
+  const result = await generateItemForgePersonalTreasure({
+    npc: baseNpc(),
+    integrations: { items: { ready: true, api: { generate: async () => { throw new Error("boom"); } } } },
+    diagnostics: { warnings: [], fallbacks: [] }
+  });
+  assert.equal(result.error, "boom");
+  assert.doesNotThrow(() => JSON.stringify(result));
 });

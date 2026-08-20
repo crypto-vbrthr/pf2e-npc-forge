@@ -9,10 +9,11 @@ function apiCapabilities(api) {
 }
 
 export class IntegrationService {
-  constructor(moduleId, { probe = apiCapabilities, required = [] } = {}) {
+  constructor(moduleId, { probe = apiCapabilities, required = [], implemented = true } = {}) {
     this.moduleId = moduleId;
     this.probe = probe;
     this.required = required;
+    this.implemented = implemented;
   }
 
   get module() {
@@ -40,7 +41,7 @@ export class IntegrationService {
   }
 
   get ready() {
-    if (!this.available) return false;
+    if (!this.implemented || !this.active || !this.available) return false;
     return this.required.every((path) => {
       let value = this.api;
       for (const part of path.split(".")) value = value?.[part];
@@ -55,7 +56,9 @@ export class IntegrationService {
       active: this.active,
       available: this.available,
       ready: this.ready,
-      capabilities: this.capabilities
+      capabilities: this.capabilities,
+      implemented: this.implemented,
+      planned: !this.implemented
     };
   }
 }
@@ -69,6 +72,6 @@ export function createExternalIntegrations() {
       probe: (api) => typeof api?.getCapabilities === "function" ? api.getCapabilities() : apiCapabilities(api),
       required: ["generate"]
     }),
-    loot: new IntegrationService("pf2e-loot-forge")
+    loot: new IntegrationService("pf2e-loot-forge", { implemented: false })
   };
 }

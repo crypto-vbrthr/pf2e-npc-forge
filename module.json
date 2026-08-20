@@ -1,8 +1,8 @@
 {
   "id": "pf2e-npc-forge",
   "title": "PF2E NPC Forge",
-  "description": "A modular PF2e NPC generation platform with a public engine, content registry, document adapter, embedded editor API, and quick NPC workflow.",
-  "version": "0.8.3",
+  "description": "A modular PF2e NPC generation platform with a neutral engine, extensible content registry, PF2e document adapter, optional Forge integrations, and an experimental editor-session API.",
+  "version": "0.8.4",
   "authors": [
     {
       "name": "crypto-vbrthr"
@@ -45,5 +45,5 @@
   "readme": "README.md",
   "url": "https://github.com/crypto-vbrthr/pf2e-npc-forge",
   "manifest": "https://raw.githubusercontent.com/crypto-vbrthr/pf2e-npc-forge/main/module.json",
-  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/0.8.3/pf2e-npc-forge.zip"
+  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/0.8.4/pf2e-npc-forge.zip"
 }

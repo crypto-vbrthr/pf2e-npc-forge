@@ -631,5 +631,11 @@
   "NPCFORGE.Notifications.PoisonUnavailable": "Affliction Forge is not ready. No poison was attached.",
   "NPCFORGE.Notifications.PoisonNoEligibleAttack": "No suitable slashing or piercing Strike is available for an injury poison.",
   "NPCFORGE.Notifications.PoisonChanceSkipped": "The automatic poison chance did not select a poison for this NPC.",
-  "NPCFORGE.Notifications.PoisonNoMatch": "Affliction Forge currently exposes no enabled injury poison that can be used."
+  "NPCFORGE.Notifications.PoisonNoMatch": "Affliction Forge currently exposes no enabled injury poison that can be used.",
+  "NPCFORGE.Fields.Role": "Role",
+  "NPCFORGE.Sizes.Tiny": "Tiny",
+  "NPCFORGE.Sizes.Large": "Large",
+  "NPCFORGE.Sizes.Huge": "Huge",
+  "NPCFORGE.Sizes.Gargantuan": "Gargantuan",
+  "NPCFORGE.Integrations.StatusDetectedPlanned": "Detected, integration planned"
 }

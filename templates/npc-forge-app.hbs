@@ -16,6 +16,9 @@
         <label>{{localize "NPCFORGE.Fields.ClassProfile"}}
           <select name="classProfile">{{#each classOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
         </label>
+        <label>{{localize "NPCFORGE.Fields.Role"}}
+          <select name="role">{{#each roleOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
+        </label>
         {{#if hasSpecializations}}
         <label>{{localize "NPCFORGE.Fields.ClassSpecialization"}}
           <select name="classSpecialization">

@@ -1,4 +1,5 @@
 import { deepClone } from "../utils.js";
+import { MODULE_ID } from "../../constants.js";
 
 const TYPES = Object.freeze([
   "ancestries",
@@ -27,6 +28,10 @@ export class ContentRegistry {
     if (!TYPES.includes(type)) throw new Error(`Unknown NPC Forge content type: ${type}`);
     if (!moduleId || typeof moduleId !== "string") throw new Error("moduleId is required");
     if (!definition?.id || typeof definition.id !== "string") throw new Error(`${type} definition requires an id`);
+    const namespace = moduleId === MODULE_ID ? "core" : moduleId;
+    if (!(definition.id === namespace || definition.id.startsWith(`${namespace}.`))) {
+      throw new Error(`${type} id ${definition.id} is outside the namespace owned by ${moduleId} (${namespace}.*)`);
+    }
     const map = this.maps[type];
     if (map.has(definition.id)) throw new Error(`Duplicate ${type} id: ${definition.id}`);
     const stored = { ...deepClone(definition), sourceModule: moduleId };
