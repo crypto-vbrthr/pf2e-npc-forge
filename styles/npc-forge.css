@@ -130,3 +130,11 @@
 .npc-forge-integration-status-row.inactive,
 .npc-forge-integration-status-row.unavailable { opacity: 0.68; }
 .npc-forge-integration-details { margin-top: 0.25rem; font-size: 0.8rem; }
+
+/* 0.8.5 shared standalone/embedded editor core */
+.npc-forge-app-host,
+.npc-forge-editor-host { width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; }
+.npc-forge-editor-host > .npc-forge-shell { width: 100%; height: 100%; }
+.npc-forge-shell-embedded { min-width: 0; min-height: 0; }
+.npc-forge-embedded-actions { gap: 0.5rem; }
+.npc-forge-embedded-actions button:first-child { margin-right: auto; }

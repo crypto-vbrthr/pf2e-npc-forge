@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.5 – Embedded Editor Core & Public UI API
+
+- Replaced the embedded-editor placeholder with the complete NPC Forge controls and preview.
+- Extracted a shared `NpcEditorCore`; the standalone `ApplicationV2` window is now only a shell around the same public editor session used by external hosts.
+- Promoted `api.ui.createEditor()` / `NpcEditorSession` to the public API and now advertise `embedded-editor`, `editor-session-api`, `editor-section-reroll`, `host-action-bar`, and `shared-editor-core`.
+- Added production mount/unmount/remount/destroy lifecycle with isolated per-session state and no global current-NPC state.
+- Added `whenRendered()`, `setNpc()`, host callbacks, Actor-creation defaults, and top-level callback options alongside the existing callback-object form.
+- Added capability-gated Actor creation, section rerolls, and inventory editing.
+- Added `actionBar: "host"` / `"none"` so Encounter Forge, Crowd Forge, and other hosts can own their surrounding action controls.
+- Added deterministic `rerollSection()` support for identity, appearance, personality, skills, abilities, spellcasting, inventory/equipment, attacks, combat, and complete rerolls, with provenance stored in `generation.rerolls`.
+- Preserved the existing controls/preview scroll positions and disclosure-state behavior inside the shared editor core.
+- Updated README/API/architecture/embedded-editor/testing documentation for the production UI contract.
+- Expanded regression coverage to 112 tests.
+
 ## 0.8.4 – Architecture & Contract Hardening
 
 - Enforced content-provider namespace ownership: core content owns `core.*`, while external modules must register definitions under their own module namespace.

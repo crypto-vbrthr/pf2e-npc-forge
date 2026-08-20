@@ -6,6 +6,8 @@
   "NPCFORGE.Controls.Open": "NPC Forge öffnen",
   "NPCFORGE.Controls.Generate": "Generieren",
   "NPCFORGE.Controls.CreateActor": "Actor erstellen",
+  "NPCFORGE.Controls.Commit": "Übernehmen",
+  "NPCFORGE.Controls.Cancel": "Abbrechen",
   "NPCFORGE.Fields.Level": "Stufe",
   "NPCFORGE.Fields.Ancestry": "Abstammung",
   "NPCFORGE.Fields.ClassProfile": "Klassenprofil",

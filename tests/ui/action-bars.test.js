@@ -2,11 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const template = fs.readFileSync(new URL("../../templates/npc-forge-app.hbs", import.meta.url), "utf8");
+const template = fs.readFileSync(new URL("../../templates/npc-editor-core.hbs", import.meta.url), "utf8");
 const css = fs.readFileSync(new URL("../../styles/npc-forge.css", import.meta.url), "utf8");
-const app = fs.readFileSync(new URL("../../scripts/ui/npc-forge-app.js", import.meta.url), "utf8");
+const core = fs.readFileSync(new URL("../../scripts/ui/npc-editor-core.js", import.meta.url), "utf8");
 
-test("controls and preview use dedicated scroll regions with persistent action bars", () => {
+test("shared editor core uses dedicated scroll regions with persistent action bars", () => {
   assert.match(template, /npc-forge-controls-scroll/);
   assert.match(template, /npc-forge-preview-scroll/);
   assert.match(template, /npc-forge-actions npc-forge-action-bar/);
@@ -16,12 +16,11 @@ test("controls and preview use dedicated scroll regions with persistent action b
   assert.doesNotMatch(css, /\.npc-forge-preview-actions\s*\{[^}]*position:\s*sticky/s);
 });
 
-test("preview scroll preservation targets the actual preview scroll container", () => {
-  assert.match(app, /querySelector\?\.\("\.npc-forge-preview-scroll"\)/);
-  assert.match(app, /querySelector\?\.\("\.npc-forge-preview-scroll"\)/);
+test("preview scroll preservation targets the actual shared preview scroll container", () => {
+  assert.match(core, /querySelector\?\.\("\.npc-forge-preview-scroll"\)/);
+  assert.match(core, /previewScrollTop:\s*preview\?\.scrollTop\s*\?\?\s*0/);
 });
 
-
 test("automatic class specialization remains automatic after generation", () => {
-  assert.doesNotMatch(app, /this\.request\.classSpecialization\s*=\s*this\.preview/);
+  assert.doesNotMatch(core, /request\.classSpecialization\s*=\s*.*npc/);
 });

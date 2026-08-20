@@ -47,7 +47,7 @@ export class NpcForgeApi {
     });
 
     this.ui = Object.freeze({
-      createEditor: (options = {}) => new NpcEditorSession({ engine, adapter: documents, ...options }),
+      createEditor: (options = {}) => new NpcEditorSession({ api: this, engine, adapter: documents, ...options }),
       open: (options = {}) => openApplication(options)
     });
   }

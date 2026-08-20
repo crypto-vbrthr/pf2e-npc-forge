@@ -1,6 +1,6 @@
 # Neutral NPC Model
 
-NPC Forge 0.8.4 uses **schema version 10**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
+NPC Forge 0.8.5 uses **schema version 10**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
 
 Representative top-level shape:
 
@@ -100,7 +100,7 @@ Important fields include:
 - damage formula/type and benchmark metadata;
 - traits.
 
-Intrinsic ancestry attacks use `sourceWeaponId: null`. In 0.8.4 this distinction is also used to prevent accidental injury-poison coating of natural attacks.
+Intrinsic ancestry attacks use `sourceWeaponId: null`. In 0.8.5 this distinction is also used to prevent accidental injury-poison coating of natural attacks.
 
 ## `abilities`
 

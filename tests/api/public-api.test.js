@@ -9,10 +9,13 @@ import { NpcForgeApi } from "../../scripts/api/public-api.js";
 test("public API exposes stable baseline capabilities and registrations", () => {
   const registry = new ContentRegistry(); registerCoreContent(registry);
   const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
-  assert.equal(api.apiVersion, "0.8.4");
+  assert.equal(api.apiVersion, "0.8.5");
   assert.equal(api.schemaVersion, 10);
-  assert.equal(api.capabilities.has("embedded-editor"), false, "placeholder session must not advertise a production embedded editor");
-  assert.ok(api.capabilities.has("experimental-editor-session"));
+  assert.equal(api.capabilities.has("embedded-editor"), true);
+  assert.ok(api.capabilities.has("editor-session-api"));
+  assert.ok(api.capabilities.has("editor-section-reroll"));
+  assert.ok(api.capabilities.has("host-action-bar"));
+  assert.equal(api.capabilities.has("experimental-editor-session"), false);
   assert.ok(api.capabilities.has("content-namespace-enforcement"));
   api.content.registerProfession("addon", { id: "addon.scribe", parentId: "core.profession-category.civic", weight: 1 });
   assert.equal(api.content.get("professions", "addon.scribe").sourceModule, "addon");
