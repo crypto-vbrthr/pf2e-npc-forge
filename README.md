@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 0.9.1 – Level-Scaled Equipment & Fundamental Runes**
+**Version 1.0.0 – Final Release**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -39,6 +39,12 @@ The generation engine remains independent from Foundry documents and optional Fo
 
 See `docs/ARCHITECTURE.md`, `docs/NPC_MODEL.md`, and `docs/EMBEDDED_EDITOR.md`.
 
+
+## 1.0.0 final release
+
+1.0.0 promotes the validated release-candidate feature set to the first stable release. No gameplay-generation subsystem or neutral-model migration was added after 0.9.1; the final release keeps the RC architecture, API contracts, deterministic generation coverage, and integration hardening intact.
+
+The neutral NPC schema remains **12**. Consumers should continue to prefer capability checks over version checks.
 
 ## 0.9.1 level-scaled equipment
 
@@ -103,7 +109,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **0.9.1**  
+Public API version: **1.0.0**  
 Neutral model schema: **12**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.

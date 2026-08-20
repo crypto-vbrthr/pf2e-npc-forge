@@ -1,5 +1,5 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "0.9.1";
+export const API_VERSION = "1.0.0";
 export const SCHEMA_VERSION = 12;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",

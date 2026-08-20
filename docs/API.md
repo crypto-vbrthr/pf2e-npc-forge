@@ -10,7 +10,7 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `0.9.1`
+- Public API version: `1.0.0`
 - Neutral NPC schema: `12`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
@@ -213,12 +213,12 @@ Personal treasure generation uses Item Forge in treasure mode and context from p
 
 ### Loot Forge
 
-0.9.0 detects Loot Forge but still does not invoke a Loot Forge generation API. Status remains `planned: true`, `ready: false`.
+The current stable release detects Loot Forge but still does not invoke a Loot Forge generation API. Status remains `planned: true`, `ready: false`.
 
 
 ## Background and relationship content
 
-0.9.0 adds public provider registration for `backgroundPacks` and `relationshipPacks`. Generated relationship records are neutral data with a `typeId`, `reciprocalTypeId`, visibility, attitude, and target descriptor. Unresolved targets use `target.kind = "unresolved-npc"` so a host such as Crowd Forge can later bind the relationship to another neutral NPC or Actor without NPC Forge inventing global state.
+The public API includes provider registration for `backgroundPacks` and `relationshipPacks`. Generated relationship records are neutral data with a `typeId`, `reciprocalTypeId`, visibility, attitude, and target descriptor. Unresolved targets use `target.kind = "unresolved-npc"` so a host such as Crowd Forge can later bind the relationship to another neutral NPC or Actor without NPC Forge inventing global state.
 
 Generation request example:
 

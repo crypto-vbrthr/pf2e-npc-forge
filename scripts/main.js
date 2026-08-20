@@ -1,4 +1,4 @@
-import { MODULE_ID } from "./constants.js";
+import { API_VERSION, MODULE_ID } from "./constants.js";
 import { ContentRegistry } from "./engine/content/content-registry.js";
 import { registerCoreContent } from "./engine/content/core-content.js";
 import { NpcEngine } from "./engine/npc-engine.js";
@@ -31,7 +31,7 @@ function installDirectoryButton(app, html) {
 }
 
 Hooks.once("init", () => {
-  console.log("PF2E NPC Forge | Initializing 0.9.1 Level-Scaled Equipment & Fundamental Runes");
+  console.log(`PF2E NPC Forge | Initializing ${API_VERSION}`);
   const registry = new ContentRegistry();
   registerCoreContent(registry);
   const integrations = createExternalIntegrations();

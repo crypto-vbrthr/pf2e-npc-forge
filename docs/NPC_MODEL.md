@@ -1,6 +1,6 @@
 # Neutral NPC Model
 
-NPC Forge 0.9.1 uses **schema version 12**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
+NPC Forge 1.0.0 uses **schema version 12**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
 
 Representative top-level shape:
 

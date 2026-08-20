@@ -12,7 +12,7 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 0.9.1 release contains **125 passing tests** covering, among other areas:
+The 1.0.0 final release contains **126 passing tests** covering, among other areas:
 
 - level-scaled fundamental rune progression and opt-out behavior;
 - PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
@@ -41,7 +41,9 @@ The 0.9.1 release contains **125 passing tests** covering, among other areas:
 - JSON parseability;
 - DE/EN localization key parity;
 - module/package/API version consistency;
-- core content hierarchy validity.
+- core content hierarchy validity;
+- manifest download/version consistency;
+- README/API/schema release metadata consistency.
 
 `npm run check` runs tests and then all release checks.
 
@@ -59,3 +61,8 @@ Node tests mock Foundry/PF2e document behavior. Releases still require a live Fo
 - mounting the editor in an external host element;
 - embedded default action bar and `actionBar: "host"` mode;
 - mount/unmount/remount and multiple-session isolation.
+
+
+## RC generation matrix
+
+The final release includes a deterministic cross-product smoke test across every core ancestry and class profile at representative levels from -1 through 24. Professions and roles are rotated through the matrix, every generated model is validated and JSON-serialized, and repeated generation with the same request must be byte-for-byte deterministic. This catches interaction failures that isolated feature tests can miss.

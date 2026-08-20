@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0 – Final Release
+
+- Promoted the validated 1.0.0-rc.1 build to the first stable release after successful Foundry live smoke testing.
+- Kept the release-candidate feature set and public contracts unchanged; no neutral-model schema migration is required.
+- Public API version is now 1.0.0; neutral NPC schema remains 12.
+- Updated manifest, documentation, release metadata, and API contract tests for the final version.
+
+## 1.0.0-rc.1 – Release Candidate & Final Integration Review
+
+- Froze the 0.9.1 feature set for final Foundry validation; neutral NPC schema remains 12.
+- Completed a full architecture/API/integration review across Engine, PF2e adapter, shared editor, content registry, spellcasting, equipment/runes, social data, and optional Forge bridges.
+- Added deterministic cross-product generation-matrix regression coverage across all core ancestries and class profiles at representative levels, rotating professions and roles.
+- Added release-contract checks for manifest download/version consistency and README/API/schema metadata consistency.
+- Removed the last hard-coded startup version string; initialization logging now follows the exported API/module version automatically.
+- Refreshed release-candidate documentation and removed stale version-specific wording from integration documentation.
+- No neutral-model schema migration is required from 0.9.1.
+
 ## 0.9.1 – Level-Scaled Equipment & Fundamental Runes
 
 - Added automatic PF2e Remaster fundamental-rune progression for generated weapons and armor based on NPC level.

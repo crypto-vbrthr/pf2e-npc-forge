@@ -45,6 +45,20 @@ if (moduleJson.version !== API_VERSION) failures.push(`module.json version ${mod
 if (packageJson.version !== API_VERSION) failures.push(`package.json version ${packageJson.version} != API_VERSION ${API_VERSION}`);
 if (!Number.isInteger(SCHEMA_VERSION) || SCHEMA_VERSION < 1) failures.push(`Invalid schema version: ${SCHEMA_VERSION}`);
 
+const expectedReleaseSegment = `/releases/download/${API_VERSION}/`;
+if (typeof moduleJson.download !== "string" || !moduleJson.download.includes(expectedReleaseSegment)) {
+  failures.push(`module.json download URL must contain ${expectedReleaseSegment}`);
+}
+
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+const apiDoc = fs.readFileSync(path.join(root, "docs/API.md"), "utf8");
+const modelDoc = fs.readFileSync(path.join(root, "docs/NPC_MODEL.md"), "utf8");
+if (!readme.includes(`Public API version: **${API_VERSION}**`)) failures.push(`README public API version metadata is stale`);
+if (!readme.includes(`Neutral NPC Model (schema ${SCHEMA_VERSION})`)) failures.push(`README schema metadata is stale`);
+if (!apiDoc.includes(`Public API version: \`${API_VERSION}\``)) failures.push(`docs/API.md public API version metadata is stale`);
+if (!apiDoc.includes(`Neutral NPC schema: \`${SCHEMA_VERSION}\``)) failures.push(`docs/API.md schema metadata is stale`);
+if (!modelDoc.includes(`schema version ${SCHEMA_VERSION}`)) failures.push(`docs/NPC_MODEL.md schema metadata is stale`);
+
 try {
   const registry = new ContentRegistry();
   registerCoreContent(registry);
