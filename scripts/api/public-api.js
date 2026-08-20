@@ -37,6 +37,8 @@ export class NpcForgeApi {
       registerNamePack: (moduleId, definition) => registry.register("namePacks", moduleId, definition),
       listNamePacks: (options = {}) => availableNamePacks(registry, options),
       registerPersonalityPack: (moduleId, definition) => registry.register("personalityPacks", moduleId, definition),
+      registerBackgroundPack: (moduleId, definition) => registry.register("backgroundPacks", moduleId, definition),
+      registerRelationshipPack: (moduleId, definition) => registry.register("relationshipPacks", moduleId, definition),
       registerAppearancePack: (moduleId, definition) => registry.register("appearancePacks", moduleId, definition),
       registerEquipmentProfile: (moduleId, definition) => registry.register("equipmentProfiles", moduleId, definition),
       registerSpellcastingProfile: (moduleId, definition) => registry.register("spellcastingProfiles", moduleId, definition),

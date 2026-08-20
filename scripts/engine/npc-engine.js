@@ -13,6 +13,7 @@ import { generateNameData } from "./names/name-generator.js";
 import { buildAppearance } from "./builders/appearance-builder.js";
 import { buildPersonality } from "./builders/personality-builder.js";
 import { buildSpellcasting } from "./builders/spellcasting-builder.js";
+import { buildBackground } from "./builders/background-builder.js";
 
 function resolveLevel(level, random) {
   if (level.mode === "range") {
@@ -68,7 +69,7 @@ export class NpcEngine {
     }
     const statistics = buildStatistics({ level, ancestry, classProfile, profession, professionSpecialization, role });
     const skills = buildSkills({ level, classProfile, profession, professionSpecialization, role });
-    const loadout = buildInventory({ level, profession, specialization: professionSpecialization, classProfile, registry: this.registry, enabled: normalized.inventory.enabled });
+    const loadout = buildInventory({ level, profession, specialization: professionSpecialization, classProfile, registry: this.registry, enabled: normalized.inventory.enabled, scaleRunes: normalized.inventory.scaleFundamentalRunes });
     const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
     const ancestryAttacks = buildAncestryAttacks({ level, ancestry, classProfile });
     const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name: nameData.name, nameParts: nameData.nameParts, resolvedGender });
@@ -99,6 +100,21 @@ export class NpcEngine {
       registry: this.registry
     });
 
+    const professionCategory = profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null;
+    const backgroundResult = buildBackground({
+      request: normalized.background,
+      ancestry,
+      profession,
+      professionSpecialization,
+      professionCategory,
+      classProfile,
+      role,
+      age: identity.age,
+      personality,
+      resolver,
+      registry: this.registry
+    });
+
     const npc = {
       schemaVersion: SCHEMA_VERSION,
       generation: {
@@ -113,10 +129,13 @@ export class NpcEngine {
         classSpecialization,
         profession,
         professionSpecialization,
-        professionCategory: profession?.parentId ? this.registry.get("professionCategories", profession.parentId) : null,
+        professionCategory,
         role
       },
       personality,
+      biography: backgroundResult.biography,
+      relationships: backgroundResult.relationships,
+      socialContext: backgroundResult.socialContext,
       statistics,
       skills,
       abilities,
@@ -135,8 +154,6 @@ export class NpcEngine {
           targetValue: normalized.inventory.personalItemTargetValue ?? null
         }
       },
-      relationships: [],
-      biography: {},
       diagnostics: { warnings: [], fallbacks: [] }
     };
 

@@ -54,6 +54,20 @@ try {
     registry.validateHierarchy("professionSpecializations", { parentType: "professions" })
   ];
   for (const check of checks) if (!check.valid) failures.push(...check.errors.map((error) => `Content: ${error}`));
+
+  const relationshipPacks = registry.list("relationshipPacks");
+  const relationshipIds = new Set(
+    relationshipPacks.flatMap((pack) => (pack.relationships ?? []).map((relationship) => relationship.id))
+  );
+  for (const pack of relationshipPacks) {
+    for (const relationship of pack.relationships ?? []) {
+      if (!relationship.reciprocalTypeId) {
+        failures.push(`Content: relationship ${relationship.id} missing reciprocalTypeId`);
+      } else if (!relationshipIds.has(relationship.reciprocalTypeId)) {
+        failures.push(`Content: relationship ${relationship.id} references missing reciprocal ${relationship.reciprocalTypeId}`);
+      }
+    }
+  }
 } catch (error) {
   failures.push(`Content registration: ${error.stack ?? error.message}`);
 }

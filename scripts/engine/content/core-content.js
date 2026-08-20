@@ -455,6 +455,86 @@ export function registerCoreContent(registry) {
     ]
   });
 
+  registry.register("backgroundPacks", source, {
+    id: "core.background.general",
+    labelKey: "NPCFORGE.Background.Packs.General",
+    weight: 10,
+    entries: [
+      { id:"core.background.origin.local", category:"origin", labelKey:"NPCFORGE.Background.Entries.OriginLocal.Name", descriptionKey:"NPCFORGE.Background.Entries.OriginLocal.Description", weight:12 },
+      { id:"core.background.origin.rural", category:"origin", labelKey:"NPCFORGE.Background.Entries.OriginRural.Name", descriptionKey:"NPCFORGE.Background.Entries.OriginRural.Description", weight:8, preferredTags:["rural","wilderness"] },
+      { id:"core.background.origin.migrant", category:"origin", labelKey:"NPCFORGE.Background.Entries.OriginMigrant.Name", descriptionKey:"NPCFORGE.Background.Entries.OriginMigrant.Description", weight:7, preferredTags:["travel","maritime"] },
+      { id:"core.background.origin.privileged", category:"origin", labelKey:"NPCFORGE.Background.Entries.OriginPrivileged.Name", descriptionKey:"NPCFORGE.Background.Entries.OriginPrivileged.Description", weight:4, preferredTags:["wealth","leader","scholarly"] },
+      { id:"core.background.origin.humble", category:"origin", labelKey:"NPCFORGE.Background.Entries.OriginHumble.Name", descriptionKey:"NPCFORGE.Background.Entries.OriginHumble.Description", weight:9, preferredTags:["labor","artisan","rural"] },
+      { id:"core.background.origin.displaced", category:"origin", labelKey:"NPCFORGE.Background.Entries.OriginDisplaced.Name", descriptionKey:"NPCFORGE.Background.Entries.OriginDisplaced.Description", weight:4, preferredTags:["travel","criminal","veteran"] },
+
+      { id:"core.background.formative.apprenticeship", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeApprenticeship.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeApprenticeship.Description", weight:9, preferredTags:["artisan","craft","mercantile"] },
+      { id:"core.background.formative.service", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeService.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeService.Description", weight:6, preferredTags:["military","martial","security"] },
+      { id:"core.background.formative.family-trade", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeFamilyTrade.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeFamilyTrade.Description", weight:8, preferredTags:["mercantile","artisan","rural"] },
+      { id:"core.background.formative.academy", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeAcademy.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeAcademy.Description", weight:5, preferredTags:["scholarly","knowledge","arcane"] },
+      { id:"core.background.formative.faith", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeFaith.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeFaith.Description", weight:5, preferredTags:["religious","divine"] },
+      { id:"core.background.formative.hard-times", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeHardTimes.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeHardTimes.Description", weight:8, preferredTags:["criminal","labor","outsider"] },
+      { id:"core.background.formative.road", category:"formative", labelKey:"NPCFORGE.Background.Entries.FormativeRoad.Name", descriptionKey:"NPCFORGE.Background.Entries.FormativeRoad.Description", weight:5, preferredTags:["travel","maritime","wilderness"] },
+
+      { id:"core.background.situation.stable", category:"currentSituation", labelKey:"NPCFORGE.Background.Entries.SituationStable.Name", descriptionKey:"NPCFORGE.Background.Entries.SituationStable.Description", weight:12 },
+      { id:"core.background.situation.advancing", category:"currentSituation", labelKey:"NPCFORGE.Background.Entries.SituationAdvancing.Name", descriptionKey:"NPCFORGE.Background.Entries.SituationAdvancing.Description", weight:6, preferredTags:["leader","social","mercantile"] },
+      { id:"core.background.situation.precarious", category:"currentSituation", labelKey:"NPCFORGE.Background.Entries.SituationPrecarious.Name", descriptionKey:"NPCFORGE.Background.Entries.SituationPrecarious.Description", weight:6, preferredTags:["criminal","outsider","travel"] },
+      { id:"core.background.situation.overworked", category:"currentSituation", labelKey:"NPCFORGE.Background.Entries.SituationOverworked.Name", descriptionKey:"NPCFORGE.Background.Entries.SituationOverworked.Description", weight:7, preferredTags:["medical","civic","artisan"] },
+      { id:"core.background.situation.transition", category:"currentSituation", labelKey:"NPCFORGE.Background.Entries.SituationTransition.Name", descriptionKey:"NPCFORGE.Background.Entries.SituationTransition.Description", weight:5, preferredTags:["travel","scholarly","military"] },
+
+      { id:"core.background.problem.debt", category:"currentProblem", labelKey:"NPCFORGE.Background.Entries.ProblemDebt.Name", descriptionKey:"NPCFORGE.Background.Entries.ProblemDebt.Description", weight:8, preferredTags:["mercantile","criminal"] },
+      { id:"core.background.problem.relative", category:"currentProblem", labelKey:"NPCFORGE.Background.Entries.ProblemRelative.Name", descriptionKey:"NPCFORGE.Background.Entries.ProblemRelative.Description", weight:8 },
+      { id:"core.background.problem.rival", category:"currentProblem", labelKey:"NPCFORGE.Background.Entries.ProblemRival.Name", descriptionKey:"NPCFORGE.Background.Entries.ProblemRival.Description", weight:7, preferredTags:["artisan","scholarly","leader","entertainment"] },
+      { id:"core.background.problem.legal", category:"currentProblem", labelKey:"NPCFORGE.Background.Entries.ProblemLegal.Name", descriptionKey:"NPCFORGE.Background.Entries.ProblemLegal.Description", weight:4, preferredTags:["criminal","civic"] },
+      { id:"core.background.problem.missing", category:"currentProblem", labelKey:"NPCFORGE.Background.Entries.ProblemMissing.Name", descriptionKey:"NPCFORGE.Background.Entries.ProblemMissing.Description", weight:4, preferredTags:["travel","maritime","wilderness"] },
+      { id:"core.background.problem.duty", category:"currentProblem", labelKey:"NPCFORGE.Background.Entries.ProblemDuty.Name", descriptionKey:"NPCFORGE.Background.Entries.ProblemDuty.Description", weight:6, preferredTags:["military","religious","civic","leader"] },
+
+      { id:"core.background.private.obligation", category:"privateHook", labelKey:"NPCFORGE.Background.Entries.PrivateObligation.Name", descriptionKey:"NPCFORGE.Background.Entries.PrivateObligation.Description", visibility:"private", weight:8 },
+      { id:"core.background.private.patron", category:"privateHook", labelKey:"NPCFORGE.Background.Entries.PrivatePatron.Name", descriptionKey:"NPCFORGE.Background.Entries.PrivatePatron.Description", visibility:"private", weight:5, preferredTags:["criminal","social","scholarly"] },
+      { id:"core.background.private.past", category:"privateHook", labelKey:"NPCFORGE.Background.Entries.PrivatePast.Name", descriptionKey:"NPCFORGE.Background.Entries.PrivatePast.Description", visibility:"private", weight:6, preferredTags:["criminal","veteran","travel"] },
+      { id:"core.background.private.promise", category:"privateHook", labelKey:"NPCFORGE.Background.Entries.PrivatePromise.Name", descriptionKey:"NPCFORGE.Background.Entries.PrivatePromise.Description", visibility:"private", weight:7, preferredTags:["religious","military","family"] },
+
+      { id:"core.background.standing.respected", category:"standing", labelKey:"NPCFORGE.Background.Entries.StandingRespected.Name", descriptionKey:"NPCFORGE.Background.Entries.StandingRespected.Description", weight:6, preferredTags:["leader","religious","medical","civic"] },
+      { id:"core.background.standing.established", category:"standing", labelKey:"NPCFORGE.Background.Entries.StandingEstablished.Name", descriptionKey:"NPCFORGE.Background.Entries.StandingEstablished.Description", weight:10, preferredTags:["artisan","mercantile","scholarly"] },
+      { id:"core.background.standing.ordinary", category:"standing", labelKey:"NPCFORGE.Background.Entries.StandingOrdinary.Name", descriptionKey:"NPCFORGE.Background.Entries.StandingOrdinary.Description", weight:14 },
+      { id:"core.background.standing.struggling", category:"standing", labelKey:"NPCFORGE.Background.Entries.StandingStruggling.Name", descriptionKey:"NPCFORGE.Background.Entries.StandingStruggling.Description", weight:6, preferredTags:["labor","criminal","travel"] },
+      { id:"core.background.standing.outsider", category:"standing", labelKey:"NPCFORGE.Background.Entries.StandingOutsider.Name", descriptionKey:"NPCFORGE.Background.Entries.StandingOutsider.Description", weight:4, preferredTags:["travel","maritime","criminal"] },
+
+      { id:"core.background.community.connector", category:"communityRole", labelKey:"NPCFORGE.Background.Entries.CommunityConnector.Name", descriptionKey:"NPCFORGE.Background.Entries.CommunityConnector.Description", weight:7, preferredTags:["social","mercantile","entertainment"] },
+      { id:"core.background.community.provider", category:"communityRole", labelKey:"NPCFORGE.Background.Entries.CommunityProvider.Name", descriptionKey:"NPCFORGE.Background.Entries.CommunityProvider.Description", weight:8, preferredTags:["artisan","rural","medical"] },
+      { id:"core.background.community.protector", category:"communityRole", labelKey:"NPCFORGE.Background.Entries.CommunityProtector.Name", descriptionKey:"NPCFORGE.Background.Entries.CommunityProtector.Description", weight:7, preferredTags:["security","military","martial"] },
+      { id:"core.background.community.advisor", category:"communityRole", labelKey:"NPCFORGE.Background.Entries.CommunityAdvisor.Name", descriptionKey:"NPCFORGE.Background.Entries.CommunityAdvisor.Description", weight:6, preferredTags:["scholarly","religious","leader"] },
+      { id:"core.background.community.newcomer", category:"communityRole", labelKey:"NPCFORGE.Background.Entries.CommunityNewcomer.Name", descriptionKey:"NPCFORGE.Background.Entries.CommunityNewcomer.Description", weight:5, preferredTags:["travel","outsider"] },
+
+      { id:"core.background.reputation.reliable", category:"reputation", labelKey:"NPCFORGE.Background.Entries.ReputationReliable.Name", descriptionKey:"NPCFORGE.Background.Entries.ReputationReliable.Description", weight:10, preferredTags:["civic","artisan","medical"] },
+      { id:"core.background.reputation.discreet", category:"reputation", labelKey:"NPCFORGE.Background.Entries.ReputationDiscreet.Name", descriptionKey:"NPCFORGE.Background.Entries.ReputationDiscreet.Description", weight:6, preferredTags:["criminal","scholarly","medical"] },
+      { id:"core.background.reputation.generous", category:"reputation", labelKey:"NPCFORGE.Background.Entries.ReputationGenerous.Name", descriptionKey:"NPCFORGE.Background.Entries.ReputationGenerous.Description", weight:6, preferredTags:["religious","mercantile","support"] },
+      { id:"core.background.reputation.intimidating", category:"reputation", labelKey:"NPCFORGE.Background.Entries.ReputationIntimidating.Name", descriptionKey:"NPCFORGE.Background.Entries.ReputationIntimidating.Description", weight:5, preferredTags:["martial","criminal","military"] },
+      { id:"core.background.reputation.eccentric", category:"reputation", labelKey:"NPCFORGE.Background.Entries.ReputationEccentric.Name", descriptionKey:"NPCFORGE.Background.Entries.ReputationEccentric.Description", weight:5, preferredTags:["scholarly","occult","entertainment"] },
+      { id:"core.background.reputation.ambitious", category:"reputation", labelKey:"NPCFORGE.Background.Entries.ReputationAmbitious.Name", descriptionKey:"NPCFORGE.Background.Entries.ReputationAmbitious.Description", weight:5, preferredTags:["leader","mercantile","social"] }
+    ]
+  });
+
+  registry.register("relationshipPacks", source, {
+    id: "core.relationships.general",
+    labelKey: "NPCFORGE.Relationships.Packs.General",
+    weight: 10,
+    relationships: [
+      { id:"core.relationship.sibling", category:"family", labelKey:"NPCFORGE.Relationships.Types.Sibling.Name", descriptionKey:"NPCFORGE.Relationships.Types.Sibling.Description", reciprocalTypeId:"core.relationship.sibling", attitude:"warm", weight:8 },
+      { id:"core.relationship.parent", category:"family", labelKey:"NPCFORGE.Relationships.Types.Parent.Name", descriptionKey:"NPCFORGE.Relationships.Types.Parent.Description", reciprocalTypeId:"core.relationship.child", attitude:"warm", weight:5, ageCategories:["youngAdult","adult","middleAged"] },
+      { id:"core.relationship.child", category:"family", labelKey:"NPCFORGE.Relationships.Types.Child.Name", descriptionKey:"NPCFORGE.Relationships.Types.Child.Description", reciprocalTypeId:"core.relationship.parent", attitude:"protective", weight:6, ageCategories:["adult","middleAged","elder"] },
+      { id:"core.relationship.friend", category:"friendship", labelKey:"NPCFORGE.Relationships.Types.Friend.Name", descriptionKey:"NPCFORGE.Relationships.Types.Friend.Description", reciprocalTypeId:"core.relationship.friend", attitude:"warm", weight:10 },
+      { id:"core.relationship.mentor", category:"professional", labelKey:"NPCFORGE.Relationships.Types.Mentor.Name", descriptionKey:"NPCFORGE.Relationships.Types.Mentor.Description", reciprocalTypeId:"core.relationship.student", attitude:"respectful", weight:5, preferredTags:["artisan","scholarly","religious","military"] },
+      { id:"core.relationship.student", category:"professional", labelKey:"NPCFORGE.Relationships.Types.Student.Name", descriptionKey:"NPCFORGE.Relationships.Types.Student.Description", reciprocalTypeId:"core.relationship.mentor", attitude:"protective", weight:5, preferredTags:["artisan","scholarly","religious","leader"] },
+      { id:"core.relationship.colleague", category:"professional", labelKey:"NPCFORGE.Relationships.Types.Colleague.Name", descriptionKey:"NPCFORGE.Relationships.Types.Colleague.Description", reciprocalTypeId:"core.relationship.colleague", attitude:"neutral", weight:9 },
+      { id:"core.relationship.rival", category:"rivalry", labelKey:"NPCFORGE.Relationships.Types.Rival.Name", descriptionKey:"NPCFORGE.Relationships.Types.Rival.Description", reciprocalTypeId:"core.relationship.rival", attitude:"tense", weight:7, preferredTags:["artisan","scholarly","leader","entertainment","criminal"] },
+      { id:"core.relationship.contact", category:"contact", labelKey:"NPCFORGE.Relationships.Types.Contact.Name", descriptionKey:"NPCFORGE.Relationships.Types.Contact.Description", reciprocalTypeId:"core.relationship.contact", attitude:"pragmatic", weight:9, preferredTags:["social","criminal","mercantile"] },
+      { id:"core.relationship.employer", category:"professional", labelKey:"NPCFORGE.Relationships.Types.Employer.Name", descriptionKey:"NPCFORGE.Relationships.Types.Employer.Description", reciprocalTypeId:"core.relationship.employee", attitude:"respectful", weight:5, preferredTags:["labor","artisan","military","civic"] },
+      { id:"core.relationship.employee", category:"professional", labelKey:"NPCFORGE.Relationships.Types.Employee.Name", descriptionKey:"NPCFORGE.Relationships.Types.Employee.Description", reciprocalTypeId:"core.relationship.employer", attitude:"responsible", weight:4, preferredTags:["leader","mercantile"] },
+      { id:"core.relationship.debtor", category:"obligation", labelKey:"NPCFORGE.Relationships.Types.Debtor.Name", descriptionKey:"NPCFORGE.Relationships.Types.Debtor.Description", reciprocalTypeId:"core.relationship.creditor", attitude:"uneasy", visibility:"private", weight:3, preferredTags:["mercantile","criminal"] },
+      { id:"core.relationship.creditor", category:"obligation", labelKey:"NPCFORGE.Relationships.Types.Creditor.Name", descriptionKey:"NPCFORGE.Relationships.Types.Creditor.Description", reciprocalTypeId:"core.relationship.debtor", attitude:"uneasy", visibility:"private", weight:3, preferredTags:["mercantile","criminal"] }
+    ]
+  });
+
   registry.register("appearancePacks", source, {
     id: "core.appearance.general",
     labelKey: "NPCFORGE.Appearance.Packs.General",

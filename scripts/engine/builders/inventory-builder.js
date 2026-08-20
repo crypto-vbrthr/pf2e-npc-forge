@@ -1,4 +1,5 @@
 import { ruleValue, ATTACK_BONUS, weaponScaledDamageFormula, weakerDamageTier } from "../rules/gm-core-tables.js";
+import { scaleFundamentalRunes } from "../rules/equipment-progression.js";
 
 const PACK = "pf2e.equipment-srd";
 
@@ -105,7 +106,7 @@ function profileEntries(registry, ids = []) {
   return ids.flatMap((id) => registry.get("equipmentProfiles", id)?.items ?? []);
 }
 
-export function buildInventory({ level, profession, specialization, classProfile, registry, enabled = true } = {}) {
+export function buildInventory({ level, profession, specialization, classProfile, registry, enabled = true, scaleRunes = true } = {}) {
   if (!enabled) return { inventory: [], attacks: [] };
 
   const { weapon, attack } = buildBaselineWeapon(level, profession, classProfile);
@@ -127,7 +128,7 @@ export function buildInventory({ level, profession, specialization, classProfile
     inventory.push(itemFromProfileEntry(entry, entry.origin ?? "profession"));
   }
 
-  return { inventory, attacks: [attack] };
+  return { inventory: scaleFundamentalRunes(inventory, { level, enabled: scaleRunes }), attacks: [attack] };
 }
 
 

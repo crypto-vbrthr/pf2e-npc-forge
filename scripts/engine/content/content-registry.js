@@ -12,6 +12,8 @@ const TYPES = Object.freeze([
   "roles",
   "namePacks",
   "personalityPacks",
+  "backgroundPacks",
+  "relationshipPacks",
   "appearancePacks",
   "equipmentProfiles",
   "spellcastingProfiles",
@@ -31,6 +33,13 @@ export class ContentRegistry {
     const namespace = moduleId === MODULE_ID ? "core" : moduleId;
     if (!(definition.id === namespace || definition.id.startsWith(`${namespace}.`))) {
       throw new Error(`${type} id ${definition.id} is outside the namespace owned by ${moduleId} (${namespace}.*)`);
+    }
+    const nestedField = ({ personalityPacks: "traits", appearancePacks: "traits", backgroundPacks: "entries", relationshipPacks: "relationships" })[type];
+    for (const nested of nestedField ? (definition[nestedField] ?? []) : []) {
+      if (!nested?.id || typeof nested.id !== "string") throw new Error(`${type}.${nestedField} entries require an id`);
+      if (!(nested.id === namespace || nested.id.startsWith(`${namespace}.`))) {
+        throw new Error(`${type} nested id ${nested.id} is outside the namespace owned by ${moduleId} (${namespace}.*)`);
+      }
     }
     const map = this.maps[type];
     if (map.has(definition.id)) throw new Error(`Duplicate ${type} id: ${definition.id}`);

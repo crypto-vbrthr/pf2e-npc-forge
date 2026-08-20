@@ -1,12 +1,12 @@
 # Architecture
 
-PF2E NPC Forge 0.8.5 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
+PF2E NPC Forge 0.9.1 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
 
 ## 1. Neutral NPC Engine
 
 `NpcEngine` consumes a normalized generation request plus `ContentRegistry` data and returns a plain serializable NPC model.
 
-The engine owns deterministic selection; class/profession/role/ancestry resolution; identity, appearance, personality, statistics, skills, abilities, inventory intent, attacks, spellcasting intent, and optional integration intent.
+The engine owns deterministic selection; class/profession/role/ancestry resolution; identity, appearance, personality, structured biography, relationships, social context, statistics, skills, abilities, inventory intent, attacks, spellcasting intent, and optional integration intent.
 
 It does not create Foundry Actors and does not call Affliction Forge, Item Forge, or Loot Forge.
 
@@ -20,7 +20,12 @@ Namespace ownership is enforced:
 - An external module `my-module` owns `my-module.*`.
 - Add-ons may reference another provider's IDs, such as a core parent, but definitions they register must remain in their own namespace.
 
-## 3. PF2e Document Adapter
+
+## 3. Narrative social graph data
+
+Background generation stays in the neutral Engine. `biography` and `socialContext` are semantic/localizable records; `relationships` are structured edges rather than prose. Each relationship carries a reciprocal type and either an unresolved target descriptor or a future resolved NPC/Actor reference. NPC Forge does not own a global graph. Crowd Forge or another orchestrator can resolve those edges while continuing to use the same neutral model and Document Adapter.
+
+## 4. PF2e Document Adapter
 
 `Pf2eDocumentAdapter` converts the neutral model into PF2e NPC Actor sources and embedded Items.
 
@@ -32,7 +37,7 @@ It owns PF2e schema mapping, compendium-backed equipment/spells, NPC attacks/act
 
 Each adapter owns a resolver cache for pack indexes, successful document resolutions, and failed slug lookups. This avoids repeated pack-index work during batch/Crowd creation.
 
-## 4. External Forge integrations
+## 5. External Forge integrations
 
 External modules are wrapped by `IntegrationService`. A service is ready only when the module is installed, active, exposes an API, the bridge is implemented, and required API paths exist.
 
@@ -42,9 +47,9 @@ External modules are wrapped by `IntegrationService`. A service is ready only wh
 
 The engine records intent; the adapter performs calls. Integration failures become diagnostics rather than generation failures.
 
-## 5. Shared editor architecture
+## 6. Shared editor architecture
 
-0.8.5 removes the previous split between a complete standalone editor and a placeholder embedded renderer.
+The shared editor architecture removes the previous split between a complete standalone editor and a placeholder embedded renderer.
 
 ```text
 NpcForgeApp (ApplicationV2 shell)
@@ -95,14 +100,19 @@ External modules should not import `NpcEditorCore` directly. They should create 
 
 An embedded host may use `actionBar: "host"` to hide editor footers and drive `generate()`, `commit()`, `cancel()`, or `createActor()` from its own controls.
 
-## 6. Section rerolls
+## 7. Section rerolls
 
 `NpcEditorSession.rerollSection()` generates a candidate with a derived deterministic seed and merges only the requested domain. Partial rerolls freeze the current resolved build axes so rerolling personality does not unexpectedly resolve a different profession/class specialization.
 
 Reroll provenance is stored under `npc.generation.rerolls`.
 
-## 7. Public API
+## 8. Public API
 
 `NpcForgeApi` is the platform surface exposed through the Foundry module API. Consumers should use capability checks and documented methods instead of importing internal implementation files.
 
 See `API.md` and `EMBEDDED_EDITOR.md`.
+
+
+## Level-scaled equipment contract
+
+Fundamental rune selection is an Engine rule and is stored as neutral `inventory[].fundamentalRunes` metadata. PF2e schema mutation (`system.runes`) belongs exclusively to the Document Adapter. NPC `melee` items remain independent creature-benchmark attacks and do not inherit striking dice or potency bonuses from the inventory Item.

@@ -12,11 +12,14 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 0.8.5 release contains **112 passing tests** covering, among other areas:
+The 0.9.1 release contains **125 passing tests** covering, among other areas:
+
+- level-scaled fundamental rune progression and opt-out behavior;
+- PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
 
 - deterministic generation and weighted resolution;
 - PF2e GM Core statistics/combat benchmarks;
-- ancestry, identity, names, appearance, and personality;
+- ancestry, identity, names, appearance, personality, background, social context, and structured relationships;
 - professions, equipment, abilities, and spellcasting;
 - PF2e Actor-source and compendium materialization;
 - prepared/spontaneous spell slot references;
@@ -26,7 +29,7 @@ The 0.8.5 release contains **112 passing tests** covering, among other areas:
 - compendium caching;
 - standalone/embedded shared-editor architecture;
 - editor-session isolation and lifecycle;
-- section reroll behavior and host capability restrictions;
+- section reroll behavior, including background/relationship/social rerolls, and host capability restrictions;
 - controls/preview scroll and disclosure-state preservation;
 - DE/EN localization and preview contracts.
 

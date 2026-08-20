@@ -3,6 +3,7 @@ import { MODULE_ID, SCHEMA_VERSION } from "../constants.js";
 import { deepClone, slugify } from "../engine/utils.js";
 import { applyAfflictionForgeIntegration, generateItemForgePersonalTreasure } from "../integrations/external-forge-orchestrator.js";
 import { CompendiumResolver } from "./compendium-resolver.js";
+import { applyFundamentalRunesToSource } from "../engine/rules/equipment-progression.js";
 
 const STANDARD_SKILLS = new Set([
   "acrobatics", "arcana", "athletics", "crafting", "deception", "diplomacy", "intimidation", "medicine", "nature", "occultism", "performance", "religion", "society", "stealth", "survival", "thievery"
@@ -87,7 +88,7 @@ function physicalItemFromInventory(item) {
       quantity: item.quantity ?? 1,
       traits: { value: [...(item.traits ?? [])], rarity: "common" }
     },
-    flags: { [MODULE_ID]: { generated: true, inventoryId: item.id, purpose: item.purpose ?? null, origin: item.origin ?? null } }
+    flags: { [MODULE_ID]: { generated: true, inventoryId: item.id, purpose: item.purpose ?? null, origin: item.origin ?? null, fundamentalRunes: item.fundamentalRunes ? deepClone(item.fundamentalRunes) : null } }
   };
   if (item.type === "weapon") {
     base.system = {
@@ -113,7 +114,7 @@ async function physicalItemFromInventoryAsync(item, resolver) {
     resolvedReference = resolved.reference;
   }
   if (!document) {
-    const source = physicalItemFromInventory(item);
+    const source = applyFundamentalRunesToSource(physicalItemFromInventory(item), item);
     return { source, facts: item.type === "weapon" ? weaponFactsFromSource(source) : null, compendiumBacked: false };
   }
   const source = cleanEmbeddedItemSource(document.toObject());
@@ -124,6 +125,7 @@ async function physicalItemFromInventoryAsync(item, resolver) {
     source.system.equipped.carryType = "held";
     source.system.equipped.handsHeld = item.handsHeld ?? 1;
   }
+  applyFundamentalRunesToSource(source, item);
   source.flags ??= {};
   source.flags[MODULE_ID] = {
     ...(source.flags[MODULE_ID] ?? {}),
@@ -134,7 +136,8 @@ async function physicalItemFromInventoryAsync(item, resolver) {
     compendiumBacked: true,
     sourcePack: resolvedReference?.packId ?? null,
     sourceSlug: resolvedReference?.slug ?? null,
-    sourceUuid: document.uuid ?? null
+    sourceUuid: document.uuid ?? null,
+    fundamentalRunes: item.fundamentalRunes ? deepClone(item.fundamentalRunes) : null
   };
   return { source, facts: source.type === "weapon" ? weaponFactsFromSource(source) : null, compendiumBacked: true };
 }
@@ -285,17 +288,37 @@ export class Pf2eDocumentAdapter {
       npc.personality.flaw ? `<strong>${localized("NPCFORGE.Personality.UnderPressure", "Under pressure")}:</strong> ${personalityDescription(npc.personality.flaw)}` : "",
       npc.personality.motivation ? `<strong>${localized("NPCFORGE.Personality.DrivingGoal", "Driving goal")}:</strong> ${personalityDescription(npc.personality.motivation)}` : ""
     ].filter(Boolean) : [];
+    const narrativeLabel = (entry) => entry?.labelKey ? localized(entry.labelKey, entry.label ?? entry.id) : (entry?.label ?? entry?.id ?? "");
+    const narrativeDescription = (entry) => entry?.descriptionKey ? localized(entry.descriptionKey, entry.description ?? "") : (entry?.description ?? "");
+    const backgroundBits = npc.biography?.generated ? [
+      npc.biography.origin ? `<strong>${localized("NPCFORGE.Background.Category.Origin", "Origin")}:</strong> ${narrativeLabel(npc.biography.origin)}. ${narrativeDescription(npc.biography.origin)}` : "",
+      npc.biography.formative ? `<strong>${localized("NPCFORGE.Background.Category.Formative", "Formative experience")}:</strong> ${narrativeLabel(npc.biography.formative)}. ${narrativeDescription(npc.biography.formative)}` : "",
+      npc.biography.currentSituation ? `<strong>${localized("NPCFORGE.Background.Category.CurrentSituation", "Current situation")}:</strong> ${narrativeLabel(npc.biography.currentSituation)}. ${narrativeDescription(npc.biography.currentSituation)}` : "",
+      npc.biography.currentProblem ? `<strong>${localized("NPCFORGE.Background.Category.CurrentProblem", "Current problem")}:</strong> ${narrativeLabel(npc.biography.currentProblem)}. ${narrativeDescription(npc.biography.currentProblem)}` : ""
+    ].filter(Boolean) : [];
+    const socialBits = npc.socialContext?.generated ? [
+      npc.socialContext.standing ? `${localized("NPCFORGE.Background.Category.Standing", "Standing")}: ${narrativeLabel(npc.socialContext.standing)}` : "",
+      npc.socialContext.communityRole ? `${localized("NPCFORGE.Background.Category.CommunityRole", "Community role")}: ${narrativeLabel(npc.socialContext.communityRole)}` : "",
+      npc.socialContext.reputation ? `${localized("NPCFORGE.Background.Category.Reputation", "Reputation")}: ${narrativeLabel(npc.socialContext.reputation)}` : ""
+    ].filter(Boolean) : [];
+    const publicRelationships = (npc.relationships ?? []).filter((entry) => entry.visibility !== "private").map((entry) => `<strong>${narrativeLabel(entry)}:</strong> ${narrativeDescription(entry)}`);
+    const privateRelationships = (npc.relationships ?? []).filter((entry) => entry.visibility === "private").map((entry) => `<strong>${narrativeLabel(entry)}:</strong> ${narrativeDescription(entry)}`);
     const publicNotes = [
       `<p><strong>${identityBits}</strong></p>`,
       `<p>${localized("NPCFORGE.Fields.Age", "Age")}: ${npc.identity.age?.years ?? "–"} · ${localized("NPCFORGE.Fields.Gender", "Gender")}: ${localized(`NPCFORGE.Identity.Gender${String(npc.identity.gender ?? "").replace(/^./, c => c.toUpperCase())}`, npc.identity.gender ?? "–")}</p>`,
       appearance ? `<p><strong>${localized("NPCFORGE.Fields.Appearance", "Appearance")}:</strong> ${appearance}</p>` : "",
       personalityBits.length ? `<p><strong>${localized("NPCFORGE.Sections.Personality", "Personality & Roleplaying")}:</strong> ${personalityBits.join(" · ")}</p>` : "",
       roleplayingBits.length ? `<p>${roleplayingBits.join("<br>")}</p>` : "",
+      backgroundBits.length ? `<p><strong>${localized("NPCFORGE.Sections.Background", "Background & Relationships")}:</strong><br>${backgroundBits.join("<br>")}</p>` : "",
+      socialBits.length ? `<p><strong>${localized("NPCFORGE.Background.SocialContext", "Social context")}:</strong> ${socialBits.join(" · ")}</p>` : "",
+      publicRelationships.length ? `<p><strong>${localized("NPCFORGE.Background.Relationships", "Relationships")}:</strong><br>${publicRelationships.join("<br>")}</p>` : "",
       lore.length ? `<p><strong>${localized("NPCFORGE.Fields.Lore", "Lore")}:</strong> ${lore.join(", ")}</p>` : ""
     ].filter(Boolean).join("");
-    const privateNotes = npc.personality?.secret
-      ? `<p><strong>${localized("NPCFORGE.Personality.Category.Secret", "Secret")}:</strong> ${personalityLabel(npc.personality.secret)}. ${personalityDescription(npc.personality.secret)}</p>`
-      : "";
+    const privateNotes = [
+      npc.personality?.secret ? `<p><strong>${localized("NPCFORGE.Personality.Category.Secret", "Secret")}:</strong> ${personalityLabel(npc.personality.secret)}. ${personalityDescription(npc.personality.secret)}</p>` : "",
+      npc.biography?.privateHook ? `<p><strong>${localized("NPCFORGE.Background.Category.PrivateHook", "GM hook")}:</strong> ${narrativeLabel(npc.biography.privateHook)}. ${narrativeDescription(npc.biography.privateHook)}</p>` : "",
+      privateRelationships.length ? `<p><strong>${localized("NPCFORGE.Background.Relationships", "Relationships")}:</strong><br>${privateRelationships.join("<br>")}</p>` : ""
+    ].filter(Boolean).join("");
 
     return {
       name: npc.identity?.nameParts ? renderGeneratedName(npc.identity.nameParts, (key) => localized(key, key)) : npc.identity.name,
@@ -337,6 +360,19 @@ export class Pf2eDocumentAdapter {
             quirkId: npc.personality.quirk?.id ?? null,
             secretId: npc.personality.secret?.id ?? null
           } : null,
+          background: npc.biography?.generated ? {
+            originId: npc.biography.origin?.id ?? null,
+            formativeId: npc.biography.formative?.id ?? null,
+            currentSituationId: npc.biography.currentSituation?.id ?? null,
+            currentProblemId: npc.biography.currentProblem?.id ?? null,
+            privateHookId: npc.biography.privateHook?.id ?? null
+          } : null,
+          socialContext: npc.socialContext?.generated ? {
+            standingId: npc.socialContext.standing?.id ?? null,
+            communityRoleId: npc.socialContext.communityRole?.id ?? null,
+            reputationId: npc.socialContext.reputation?.id ?? null
+          } : null,
+          relationships: deepClone(npc.relationships ?? []),
           classProfileId: npc.build.classProfile?.id ?? null,
           classSpecializationId: npc.build.classSpecialization?.id ?? null,
           professionId: npc.build.profession?.id ?? null,

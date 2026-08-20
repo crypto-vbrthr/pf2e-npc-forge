@@ -4,7 +4,9 @@ import { NpcEditorCore } from "./npc-editor-core.js";
 
 const REROLL_ALIASES = Object.freeze({
   equipment: "inventory",
-  spells: "spellcasting"
+  spells: "spellcasting",
+  biography: "background",
+  social: "socialContext"
 });
 
 export const SUPPORTED_REROLL_SECTIONS = Object.freeze([
@@ -12,6 +14,9 @@ export const SUPPORTED_REROLL_SECTIONS = Object.freeze([
   "identity",
   "appearance",
   "personality",
+  "background",
+  "relationships",
+  "socialContext",
   "skills",
   "abilities",
   "spellcasting",
@@ -55,6 +60,13 @@ function mergeRerolledSection(current, candidate, section) {
   if (section === "identity") next.identity = deepClone(candidate.identity);
   if (section === "appearance") next.identity.appearance = deepClone(candidate.identity?.appearance ?? null);
   if (section === "personality") next.personality = deepClone(candidate.personality);
+  if (section === "background") {
+    next.biography = deepClone(candidate.biography);
+    next.relationships = deepClone(candidate.relationships);
+    next.socialContext = deepClone(candidate.socialContext);
+  }
+  if (section === "relationships") next.relationships = deepClone(candidate.relationships);
+  if (section === "socialContext") next.socialContext = deepClone(candidate.socialContext);
   if (section === "skills") next.skills = deepClone(candidate.skills);
   if (section === "abilities") next.abilities = deepClone(candidate.abilities);
   if (section === "spellcasting") next.spellcasting = deepClone(candidate.spellcasting);

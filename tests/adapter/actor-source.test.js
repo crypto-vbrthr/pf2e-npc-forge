@@ -238,3 +238,52 @@ test("async adapter caches compendium indexes and document resolutions across ac
     globalThis.game = previousGame;
   }
 });
+
+test("adapter writes public social background to public notes and GM hooks to private notes", () => {
+  const previousGame = globalThis.game;
+  globalThis.game = { i18n: { localize: (key) => key }, packs: new Map() };
+  try {
+    const registry = new ContentRegistry(); registerCoreContent(registry);
+    const npc = new NpcEngine({ registry }).generate({ seed: "background-adapter", background: { enabled: true, allowPrivateHooks: true, relationshipCount: 4 } });
+    const source = new Pf2eDocumentAdapter().toActorSource(npc);
+    const flags = source.flags["pf2e-npc-forge"];
+    assert.ok(flags.background?.originId);
+    assert.ok(flags.socialContext?.standingId);
+    assert.deepEqual(flags.relationships, npc.relationships);
+    assert.match(source.system.details.publicNotes, /NPCFORGE\.Sections\.Background|Background|Hintergrund/);
+    assert.ok(source.system.details.privateNotes.length > 0);
+    assert.ok(!source.system.details.publicNotes.includes(npc.biography.privateHook?.id ?? "__none__"));
+  } finally {
+    globalThis.game = previousGame;
+  }
+});
+
+test("async adapter applies generated fundamental runes to compendium-backed weapons armor and shields", async () => {
+  const previousGame = globalThis.game;
+  const docs = {
+    spear: { uuid:"Compendium.pf2e.equipment-srd.Item.spear", toObject:()=>({ _id:"spear", name:"Spear", type:"weapon", system:{ slug:"spear", damage:{dice:1,die:"d6",damageType:"piercing"}, traits:{value:[],rarity:"common"}, runes:{potency:0,striking:0,property:[]}, quantity:1 } }) },
+    "chain-shirt": { uuid:"Compendium.pf2e.equipment-srd.Item.chain", toObject:()=>({ _id:"chain", name:"Chain Shirt", type:"armor", system:{ slug:"chain-shirt", traits:{value:[],rarity:"common"}, runes:{potency:0,resilient:0,property:[]}, quantity:1 } }) },
+    "steel-shield": { uuid:"Compendium.pf2e.equipment-srd.Item.shield", toObject:()=>({ _id:"shield", name:"Steel Shield", type:"shield", system:{ slug:"steel-shield", traits:{value:[],rarity:"common"}, runes:{reinforcing:0}, quantity:1 } }) },
+    "hooded-lantern": { uuid:"Compendium.pf2e.equipment-srd.Item.lantern", toObject:()=>({ _id:"lantern", name:"Hooded Lantern", type:"equipment", system:{ slug:"hooded-lantern", traits:{value:[],rarity:"common"}, quantity:1 } }) }
+  };
+  const index = Object.entries(docs).map(([slug,doc])=>({_id:slug,type:doc.toObject().type,system:{slug}}));
+  globalThis.game = { packs:new Map([["pf2e.equipment-srd", { getIndex:async()=>index, getDocument:async(id)=>docs[id] ?? null }]]), i18n:{ localize:(key)=>key } };
+  try {
+    const registry = new ContentRegistry(); registerCoreContent(registry);
+    const npc = new NpcEngine({ registry }).generate({ seed:"rune-adapter", level:12, profession:"core.guard", classProfile:"core.fighter" });
+    const source = await new Pf2eDocumentAdapter().toActorSourceAsync(npc);
+    const weapon = source.items.find((item)=>item.type === "weapon");
+    const armor = source.items.find((item)=>item.type === "armor");
+    const shield = source.items.find((item)=>item.type === "shield");
+    const strike = source.items.find((item)=>item.type === "melee");
+    assert.equal(weapon.system.runes.potency, 2);
+    assert.equal(weapon.system.runes.striking, 2);
+    assert.equal(armor.system.runes.potency, 2);
+    assert.equal(armor.system.runes.resilient, 1);
+    assert.equal(shield.system.runes.reinforcing, 3);
+    assert.equal(weapon.flags["pf2e-npc-forge"].fundamentalRunes.profileId, "potency-2-greater-striking");
+    assert.equal(strike.system.damageRolls.primary.damage, npc.attacks[0].damage.formula, "PF2e item runes must not alter the separately generated NPC melee item");
+  } finally {
+    globalThis.game = previousGame;
+  }
+});

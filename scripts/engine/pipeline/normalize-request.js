@@ -51,8 +51,17 @@ export function normalizeRequest(request = {}) {
       intensity: ["low", "medium", "high"].includes(request.personality?.intensity) ? request.personality.intensity : "medium",
       allowSecrets: request.personality?.allowSecrets !== false
     },
+    background: {
+      enabled: request.background?.enabled !== false,
+      intensity: ["low", "medium", "high"].includes(request.background?.intensity) ? request.background.intensity : "medium",
+      allowPrivateHooks: request.background?.allowPrivateHooks !== false,
+      generateRelationships: request.background?.generateRelationships !== false,
+      generateSocialContext: request.background?.generateSocialContext !== false,
+      relationshipCount: Number.isInteger(request.background?.relationshipCount) ? Math.max(0, Math.min(6, request.background.relationshipCount)) : null
+    },
     inventory: {
       enabled: request.inventory?.enabled !== false,
+      scaleFundamentalRunes: request.inventory?.scaleFundamentalRunes !== false,
       personalItems: request.inventory?.personalItems === true,
       allowPoisonedWeapons: request.inventory?.allowPoisonedWeapons === true,
       poisonPolicy: ["automatic", "always"].includes(request.inventory?.poisonPolicy) ? request.inventory.poisonPolicy : "automatic",

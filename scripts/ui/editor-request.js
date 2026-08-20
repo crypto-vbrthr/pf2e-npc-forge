@@ -28,8 +28,17 @@ export const DEFAULT_EDITOR_REQUEST = Object.freeze({
     intensity: "medium",
     allowSecrets: true
   },
+  background: {
+    enabled: true,
+    intensity: "medium",
+    allowPrivateHooks: true,
+    generateRelationships: true,
+    generateSocialContext: true,
+    relationshipCount: null
+  },
   inventory: {
     enabled: true,
+    scaleFundamentalRunes: true,
     personalItems: false,
     allowPoisonedWeapons: false,
     poisonPolicy: "automatic"
@@ -48,6 +57,7 @@ export function createEditorRequest(initialRequest = {}, { registry = null } = {
     identity: mergeNested(DEFAULT_EDITOR_REQUEST.identity, initial.identity),
     appearance: mergeNested(DEFAULT_EDITOR_REQUEST.appearance, initial.appearance),
     personality: mergeNested(DEFAULT_EDITOR_REQUEST.personality, initial.personality),
+    background: mergeNested(DEFAULT_EDITOR_REQUEST.background, initial.background),
     inventory: mergeNested(DEFAULT_EDITOR_REQUEST.inventory, initial.inventory)
   };
 

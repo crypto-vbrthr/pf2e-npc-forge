@@ -79,6 +79,22 @@
       </div>
     </details>
 
+    <details class="npc-forge-section" data-section-id="background">
+      <summary>{{localize "NPCFORGE.Sections.Background"}}</summary>
+      <div class="npc-forge-section-body npc-forge-form-grid">
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Background.Generate"}}</span><input type="checkbox" name="backgroundEnabled" {{#if backgroundEnabled}}checked{{/if}}></label>
+        <label>{{localize "NPCFORGE.Background.Intensity"}}
+          <select name="backgroundIntensity">{{#each backgroundIntensityOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize labelKey}}</option>{{/each}}</select>
+        </label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Background.GenerateSocialContext"}}</span><input type="checkbox" name="backgroundGenerateSocialContext" {{#if backgroundGenerateSocialContext}}checked{{/if}}></label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Background.GenerateRelationships"}}</span><input type="checkbox" name="backgroundGenerateRelationships" {{#if backgroundGenerateRelationships}}checked{{/if}}></label>
+        <label>{{localize "NPCFORGE.Background.RelationshipCount"}}
+          <select name="backgroundRelationshipCount">{{#each relationshipCountOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}</select>
+        </label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Background.AllowPrivateHooks"}}</span><input type="checkbox" name="backgroundAllowPrivateHooks" {{#if backgroundAllowPrivateHooks}}checked{{/if}}></label>
+      </div>
+    </details>
+
     <details class="npc-forge-section" data-section-id="appearance">
       <summary>{{localize "NPCFORGE.Sections.Appearance"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
@@ -97,6 +113,7 @@
       <summary>{{localize "NPCFORGE.Sections.Equipment"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.GenerateEquipment"}}</span><input type="checkbox" name="inventoryEnabled" {{#if inventoryEnabled}}checked{{/if}}></label>
+        <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.EquipmentProgression.ScaleFundamentalRunes"}}</span><input type="checkbox" name="scaleFundamentalRunes" {{#if scaleFundamentalRunesEnabled}}checked{{/if}}></label>
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.PersonalItems"}}</span><input type="checkbox" name="personalItems" {{#if personalItemsEnabled}}checked{{/if}}></label>
         <label class="npc-forge-checkbox-row"><span>{{localize "NPCFORGE.Integrations.PoisonedWeapons"}}</span><input type="checkbox" name="allowPoisonedWeapons" {{#if poisonedWeaponsEnabled}}checked{{/if}}></label>
         <label class="npc-forge-form-grid-wide">{{localize "NPCFORGE.Integrations.PoisonPolicy"}}
@@ -180,6 +197,42 @@
       </section>
       {{/if}}
 
+      {{#if view.background}}
+      <section class="npc-forge-sheet-section npc-forge-background-section">
+        <h2>{{localize "NPCFORGE.Sections.Background"}}</h2>
+        {{#if view.background.biography}}
+        <div class="npc-forge-personality-grid npc-forge-background-grid">
+          {{#if view.background.biography.origin}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Origin"}}</span><strong>{{view.background.biography.origin.displayName}}</strong><p>{{view.background.biography.origin.displayDescription}}</p></article>{{/if}}
+          {{#if view.background.biography.formative}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Formative"}}</span><strong>{{view.background.biography.formative.displayName}}</strong><p>{{view.background.biography.formative.displayDescription}}</p></article>{{/if}}
+          {{#if view.background.biography.currentSituation}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.CurrentSituation"}}</span><strong>{{view.background.biography.currentSituation.displayName}}</strong><p>{{view.background.biography.currentSituation.displayDescription}}</p></article>{{/if}}
+          {{#if view.background.biography.currentProblem}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.CurrentProblem"}}</span><strong>{{view.background.biography.currentProblem.displayName}}</strong><p>{{view.background.biography.currentProblem.displayDescription}}</p></article>{{/if}}
+          {{#if view.background.biography.privateHook}}<article class="npc-forge-personality-tile npc-forge-personality-secret"><span>{{localize "NPCFORGE.Background.Category.PrivateHook"}} · {{localize "NPCFORGE.Background.GMOnly"}}</span><strong>{{view.background.biography.privateHook.displayName}}</strong><p>{{view.background.biography.privateHook.displayDescription}}</p></article>{{/if}}
+        </div>
+        {{/if}}
+
+        {{#if view.background.socialContext}}
+        <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.SocialContext"}}</h3>
+        <div class="npc-forge-personality-grid npc-forge-social-grid">
+          {{#if view.background.socialContext.standing}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Standing"}}</span><strong>{{view.background.socialContext.standing.displayName}}</strong><p>{{view.background.socialContext.standing.displayDescription}}</p></article>{{/if}}
+          {{#if view.background.socialContext.communityRole}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.CommunityRole"}}</span><strong>{{view.background.socialContext.communityRole.displayName}}</strong><p>{{view.background.socialContext.communityRole.displayDescription}}</p></article>{{/if}}
+          {{#if view.background.socialContext.reputation}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Reputation"}}</span><strong>{{view.background.socialContext.reputation.displayName}}</strong><p>{{view.background.socialContext.reputation.displayDescription}}</p></article>{{/if}}
+        </div>
+        {{/if}}
+
+        {{#if view.background.relationships.length}}
+        <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.Relationships"}}</h3>
+        <div class="npc-forge-sheet-list npc-forge-relationship-list">
+          {{#each view.background.relationships}}
+          <article class="npc-forge-sheet-entry npc-forge-relationship{{#if private}} npc-forge-private-entry{{/if}}">
+            <header><strong>{{displayName}}</strong><span class="npc-forge-ability-action">{{displayCategory}}{{#if private}} · {{localize "NPCFORGE.Background.GMOnly"}}{{/if}}</span></header>
+            <p>{{displayDescription}}</p>
+          </article>
+          {{/each}}
+        </div>
+        {{/if}}
+      </section>
+      {{/if}}
+
       <section class="npc-forge-sheet-section">
         <h2>{{localize "NPCFORGE.Sections.Attributes"}}</h2>
         <div class="npc-forge-stat-grid npc-forge-stat-grid-attributes">
@@ -249,7 +302,7 @@
         <h2>{{localize "NPCFORGE.Sections.Equipment"}}</h2>
         <div class="npc-forge-sheet-list npc-forge-inventory-list">
           {{#each view.inventory}}
-            <div class="npc-forge-sheet-list-row"><span>{{displayName}}</span><span class="npc-forge-muted">{{displayType}}{{#if quantity}} · ×{{quantity}}{{/if}}</span></div>
+            <div class="npc-forge-sheet-list-row"><span>{{displayName}}</span><span class="npc-forge-muted">{{displayType}}{{#if displayRunes}} · {{displayRunes}}{{/if}}{{#if quantity}} · ×{{quantity}}{{/if}}</span></div>
           {{/each}}
           {{#unless view.inventory.length}}<div class="npc-forge-muted">{{localize "NPCFORGE.App.NoEquipment"}}</div>{{/unless}}
         </div>

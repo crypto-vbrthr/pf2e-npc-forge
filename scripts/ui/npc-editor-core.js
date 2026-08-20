@@ -213,7 +213,21 @@ export class NpcEditorCore {
       ],
       personalityEnabled: request.personality?.enabled !== false,
       personalityAllowSecrets: request.personality?.allowSecrets !== false,
+      backgroundEnabled: request.background?.enabled !== false,
+      backgroundAllowPrivateHooks: request.background?.allowPrivateHooks !== false,
+      backgroundGenerateRelationships: request.background?.generateRelationships !== false,
+      backgroundGenerateSocialContext: request.background?.generateSocialContext !== false,
+      backgroundIntensityOptions: [
+        { value: "low", labelKey: "NPCFORGE.Background.IntensityLow", selected: (request.background?.intensity ?? "medium") === "low" },
+        { value: "medium", labelKey: "NPCFORGE.Background.IntensityMedium", selected: (request.background?.intensity ?? "medium") === "medium" },
+        { value: "high", labelKey: "NPCFORGE.Background.IntensityHigh", selected: (request.background?.intensity ?? "medium") === "high" }
+      ],
+      relationshipCountOptions: [
+        { value: "", labelKey: "NPCFORGE.Fields.Automatic", selected: request.background?.relationshipCount == null },
+        ...[0,1,2,3,4,5,6].map((value) => ({ value: String(value), label: String(value), selected: request.background?.relationshipCount === value }))
+      ],
       inventoryEnabled: request.inventory?.enabled !== false,
+      scaleFundamentalRunesEnabled: request.inventory?.scaleFundamentalRunes !== false,
       personalItemsEnabled: request.inventory?.personalItems === true,
       poisonedWeaponsEnabled: request.inventory?.allowPoisonedWeapons === true,
       poisonPolicyOptions: [
@@ -310,9 +324,19 @@ export class NpcEditorCore {
         intensity: String(data.get("personalityIntensity") ?? "medium"),
         allowSecrets: data.get("personalityAllowSecrets") === "on"
       },
+      background: {
+        ...(current.background ?? {}),
+        enabled: data.get("backgroundEnabled") === "on",
+        intensity: String(data.get("backgroundIntensity") ?? "medium"),
+        allowPrivateHooks: data.get("backgroundAllowPrivateHooks") === "on",
+        generateRelationships: data.get("backgroundGenerateRelationships") === "on",
+        generateSocialContext: data.get("backgroundGenerateSocialContext") === "on",
+        relationshipCount: String(data.get("backgroundRelationshipCount") ?? "") === "" ? null : Number(data.get("backgroundRelationshipCount"))
+      },
       inventory: this.session.capabilities.editInventory ? {
         ...(current.inventory ?? {}),
         enabled: data.get("inventoryEnabled") === "on",
+        scaleFundamentalRunes: data.get("scaleFundamentalRunes") === "on",
         personalItems: data.get("personalItems") === "on",
         allowPoisonedWeapons: data.get("allowPoisonedWeapons") === "on",
         poisonPolicy: String(data.get("poisonPolicy") ?? "automatic") === "always" ? "always" : "automatic"

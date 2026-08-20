@@ -25,3 +25,20 @@ test("shared editor exposes narrative role selection", () => {
   assert.match(template, /name="role"/);
   assert.match(template, /NPCFORGE\.Fields\.Role/);
 });
+
+test("shared editor exposes background, social context and relationship controls", () => {
+  assert.match(template, /data-section-id="background"/);
+  assert.match(template, /name="backgroundEnabled"/);
+  assert.match(template, /name="backgroundGenerateSocialContext"/);
+  assert.match(template, /name="backgroundGenerateRelationships"/);
+  assert.match(template, /name="backgroundRelationshipCount"/);
+  assert.match(template, /view\.background\.relationships/);
+  assert.match(template, /NPCFORGE\.Background\.GMOnly/);
+});
+
+
+test("equipment controls expose level-scaled fundamental rune generation", () => {
+  assert.match(template, /name="scaleFundamentalRunes"/);
+  assert.match(template, /NPCFORGE\.EquipmentProgression\.ScaleFundamentalRunes/);
+  assert.match(template, /displayRunes/);
+});

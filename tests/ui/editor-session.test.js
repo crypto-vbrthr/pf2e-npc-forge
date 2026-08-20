@@ -101,3 +101,25 @@ test("createActor merges session defaults with per-call options and reports the 
   assert.deepEqual(received, { folder: "folder-a", renderSheet: true });
   assert.equal(callbackActor, actor);
 });
+
+test("background section reroll keeps combat and identity intact while replacing social narrative", async () => {
+  const baseNpc = {
+    generation: { seed: "social-base" },
+    identity: { name: "Nara", ancestry: { id: "core.human" }, gender: "female", age: { category: "adult", years: 31 }, appearance: {} },
+    build: { level: 4, classProfile: { id: "core.fighter" }, classSpecialization: null, professionCategory: { id: "core.profession-category.civic" }, profession: { id: "core.guard" }, professionSpecialization: null, role: { id: "core.ordinary" } },
+    personality: {}, biography: { marker: "old-bio" }, relationships: [{ marker: "old-rel" }], socialContext: { marker: "old-social" },
+    statistics: { hp: 44 }, skills: [{ slug: "athletics", modifier: 10 }], abilities: [], spellcasting: [], inventory: [], attacks: [], integrations: {}
+  };
+  const engine = {
+    generate: (request) => ({ ...structuredClone(baseNpc), generation: { seed: request.seed }, biography: { marker: "new-bio" }, relationships: [{ marker: "new-rel" }], socialContext: { marker: "new-social" }, statistics: { hp: 999 } }),
+    validate: () => ({ valid: true, errors: [] })
+  };
+  const session = new NpcEditorSession({ engine, adapter: {}, initialNpc: baseNpc, initialRequest: { seed: "social-base", level: 4 } });
+  const result = await session.rerollSection("background");
+  assert.equal(result.biography.marker, "new-bio");
+  assert.equal(result.relationships[0].marker, "new-rel");
+  assert.equal(result.socialContext.marker, "new-social");
+  assert.equal(result.statistics.hp, 44);
+  assert.equal(result.identity.name, "Nara");
+  assert.equal(result.generation.rerolls.background.count, 1);
+});

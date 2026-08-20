@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 0.8.5 – Embedded Editor Core & Public UI API**
+**Version 0.9.1 – Level-Scaled Equipment & Fundamental Runes**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -12,8 +12,11 @@ PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, de
 - Hierarchical professions and profession specializations with equipment profiles.
 - Ancestry-aware, locale-aware semantic name generation.
 - Structured appearance, personality, secrets, and a roleplaying kit.
+- Structured biography, social standing, reputation, community role, current problems, GM hooks, and NPC relationships.
+- Relationship records include reciprocal type metadata and unresolved target constraints for future Crowd/Encounter graph resolution.
 - Prepared and spontaneous spellcasting with compendium-backed spells and Wizard spellbooks.
-- Compendium-backed PF2e equipment with NPC-owned strike scaling.
+- Compendium-backed PF2e equipment with level-scaled fundamental weapon/armor runes and reinforcing shield runes.
+- NPC melee statistics remain creature-benchmark owned, so equipment runes never double-scale generated Strike damage.
 - Optional Affliction Forge injury-poison and Item Forge personal-treasure integration.
 - DE/EN UI and generated presentation.
 - Production-ready embeddable editor sessions for Encounter Forge, Crowd Forge, and other hosts.
@@ -25,30 +28,48 @@ Generation Request
       ↓
 Neutral NPC Engine
       ↓
-Neutral NPC Model (schema 10)
+Neutral NPC Model (schema 12)
       ↓
 PF2e Document Adapter
       ↓
 Foundry NPC Actor + embedded Items
 ```
 
-The generation engine remains independent from Foundry documents and optional Forge modules. The UI is also layered: both the standalone application and external hosts mount the same shared `NpcEditorCore` through a public `NpcEditorSession`.
+The generation engine remains independent from Foundry documents and optional Forge modules. Both the standalone application and external hosts mount the same shared `NpcEditorCore` through a public `NpcEditorSession`.
 
 See `docs/ARCHITECTURE.md`, `docs/NPC_MODEL.md`, and `docs/EMBEDDED_EDITOR.md`.
 
-## 0.8.5 shared editor core
 
-0.8.5 replaces the old embedded-editor placeholder with the complete NPC Forge editor:
+## 0.9.1 level-scaled equipment
 
-- The standalone `ApplicationV2` window is now only a shell around `api.ui.createEditor()`.
-- Embedded hosts get the same controls, preview, integration diagnostics, scroll preservation, and disclosure-state handling.
-- Sessions support `mount`, `unmount`, `destroy`, `getRequest`, `getNpc`, `setRequest`, `setNpc`, `generate`, `rerollSection`, `createActor`, `commit`, and `cancel`.
-- Host capabilities can disable Actor creation, section rerolls, or inventory editing.
-- `actionBar: "host"` lets a surrounding application own Save/Cancel controls without duplicating the editor UI.
-- Multiple mounted or unmounted sessions remain isolated; no global current-NPC state exists.
-- Partial section rerolls preserve resolved build axes and record deterministic reroll metadata.
+0.9.1 keeps high-level NPC inventories mechanically appropriate instead of leaving a level 12 veteran with completely mundane gear. With **Level-scaled fundamental runes** enabled (the default), generated physical equipment receives the highest fundamental profile available at or below the NPC level:
 
-The public API now advertises `embedded-editor`, `editor-session-api`, `editor-section-reroll`, `host-action-bar`, and `shared-editor-core`.
+- weapons: potency and striking progression;
+- armor: potency and resilient progression;
+- shields: reinforcing rune progression.
+
+This data is stored semantically in `inventory[].fundamentalRunes` and applied to the real PF2e compendium item only during document materialization. Generated NPC `melee` items continue to use GM Core creature-building attack and damage benchmarks, so striking runes do not add a second layer of damage scaling. The editor can disable this progression when a deliberately mundane loadout is desired.
+
+## 0.9.0 narrative social layer
+
+0.9.0 adds a structured social layer instead of storing background as free text:
+
+- origin and formative experience;
+- current life situation and current problem;
+- optional GM-only background hook;
+- social standing, community role, and reputation;
+- configurable relationships with public/private visibility;
+- reciprocal relationship type IDs such as mentor/student or creditor/debtor;
+- unresolved target descriptors that Crowd Forge can later resolve into other generated NPCs or Actors;
+- new `backgroundPacks` and `relationshipPacks` provider types;
+- dedicated editor controls and preview sections;
+- public background information materialized to PF2e public notes and private hooks/relationships to private GM notes.
+
+## Shared editor core
+
+The standalone `ApplicationV2` window is a shell around `api.ui.createEditor()`. Embedded hosts receive the same controls, preview, integration diagnostics, scroll preservation, disclosure-state handling, and the new background/social controls.
+
+Sessions support `mount`, `unmount`, `destroy`, `getRequest`, `getNpc`, `setRequest`, `setNpc`, `generate`, `rerollSection`, `createActor`, `commit`, and `cancel`. Background, relationships, and social context can be rerolled independently.
 
 ## External integrations
 
@@ -71,27 +92,19 @@ const npc = api.engine.generate({
   ancestry: "core.human",
   classProfile: "core.fighter",
   profession: "core.guard",
-  role: "core.veteran"
+  role: "core.veteran",
+  background: {
+    intensity: "medium",
+    generateRelationships: true,
+    generateSocialContext: true
+  }
 });
 
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **0.8.5**  
-Neutral model schema: **10**
-
-Embedded use:
-
-```js
-const session = api.ui.createEditor({
-  mode: "embedded",
-  capabilities: { createActor: false },
-  actionBar: "host",
-  onCommit: ({ npc }) => saveNpc(npc)
-});
-
-session.mount(container);
-```
+Public API version: **0.9.1**  
+Neutral model schema: **12**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.
 

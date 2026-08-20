@@ -10,8 +10,8 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `0.8.5`
-- Neutral NPC schema: `10`
+- Public API version: `0.9.1`
+- Neutral NPC schema: `12`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
 
@@ -52,7 +52,7 @@ if (api.capabilities.has("embedded-editor")) {
 }
 ```
 
-0.8.5 advertises the production UI capabilities:
+The production UI capabilities include:
 
 - `embedded-editor`
 - `editor-session-api`
@@ -61,6 +61,14 @@ if (api.capabilities.has("embedded-editor")) {
 - `shared-editor-core`
 
 The former `experimental-editor-session` marker is no longer advertised.
+
+Equipment-related capabilities include:
+
+- `level-scaled-fundamental-runes`
+- `shield-reinforcing-runes`
+
+`inventory.scaleFundamentalRunes` defaults to `true`. Rune metadata remains neutral engine data until the PF2e adapter materializes the physical Item. It does not modify the engine-owned NPC Strike benchmark.
+
 
 ## Generation
 
@@ -76,6 +84,7 @@ const npc = api.engine.generate({
   role: "core.veteran",
   inventory: {
     enabled: true,
+    scaleFundamentalRunes: true,
     personalItems: true,
     allowPoisonedWeapons: true,
     poisonPolicy: "automatic"
@@ -134,6 +143,8 @@ api.content.registerProfessionSpecialization(moduleId, definition);
 api.content.registerRole(moduleId, definition);
 api.content.registerNamePack(moduleId, definition);
 api.content.registerPersonalityPack(moduleId, definition);
+api.content.registerBackgroundPack(moduleId, definition);
+api.content.registerRelationshipPack(moduleId, definition);
 api.content.registerAppearancePack(moduleId, definition);
 api.content.registerEquipmentProfile(moduleId, definition);
 api.content.registerSpellcastingProfile(moduleId, definition);
@@ -202,4 +213,27 @@ Personal treasure generation uses Item Forge in treasure mode and context from p
 
 ### Loot Forge
 
-0.8.5 detects Loot Forge but still does not invoke a Loot Forge generation API. Status remains `planned: true`, `ready: false`.
+0.9.0 detects Loot Forge but still does not invoke a Loot Forge generation API. Status remains `planned: true`, `ready: false`.
+
+
+## Background and relationship content
+
+0.9.0 adds public provider registration for `backgroundPacks` and `relationshipPacks`. Generated relationship records are neutral data with a `typeId`, `reciprocalTypeId`, visibility, attitude, and target descriptor. Unresolved targets use `target.kind = "unresolved-npc"` so a host such as Crowd Forge can later bind the relationship to another neutral NPC or Actor without NPC Forge inventing global state.
+
+Generation request example:
+
+```js
+const npc = api.engine.generate({
+  seed: "social-npc-01",
+  background: {
+    enabled: true,
+    intensity: "high",
+    allowPrivateHooks: true,
+    generateRelationships: true,
+    generateSocialContext: true,
+    relationshipCount: 3
+  }
+});
+```
+
+Editor section rerolls accept `background`, `relationships`, and `socialContext` in addition to the earlier domains.

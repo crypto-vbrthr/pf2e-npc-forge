@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.9.1 – Level-Scaled Equipment & Fundamental Runes
+
+- Added automatic PF2e Remaster fundamental-rune progression for generated weapons and armor based on NPC level.
+- Added reinforcing-rune progression for generated shields.
+- Stored rune selection as neutral `inventory[].fundamentalRunes` metadata and materialized it through the PF2e Document Adapter onto real compendium-backed Items.
+- Added an Equipment editor toggle to disable level-scaled fundamental runes for intentionally mundane loadouts.
+- Added compact rune summaries to the equipment preview.
+- Kept NPC Strike attack/damage formulas fully creature-benchmark owned so potency/striking runes never double-scale generated NPC attacks.
+- Added `level-scaled-fundamental-runes` and `shield-reinforcing-runes` public capabilities.
+- Bumped the public API to 0.9.1 and neutral NPC schema to 12.
+- Expanded regression coverage to 125 tests.
+
+## 0.9.0 – Background, Relationships & Social Context
+
+- Added structured biography generation with origin, formative experience, current situation, current problem, and optional GM-only hooks.
+- Added structured social context with standing, community role, and reputation.
+- Added deterministic NPC relationships with visibility, attitude, reciprocal relationship type IDs, and unresolved target constraints for future Crowd/Encounter graph resolution.
+- Added public `registerBackgroundPack()` and `registerRelationshipPack()` provider APIs and enforced namespace ownership for nested narrative-pack entries.
+- Added editor controls for narrative detail, social context, relationships, relationship count, and private hooks.
+- Added Creature-Forge-aligned background/social/relationship preview sections with explicit GM-only presentation.
+- Added `background`, `relationships`, and `socialContext` section rerolls to the public editor session API.
+- Materialized public narrative data to PF2e public notes and private hooks/relationships to GM private notes while retaining structured semantic data in Actor flags.
+- Bumped the neutral NPC schema to 11 and public API to 0.9.0.
+- Updated README, API, architecture, content-provider, model, embedded-editor, and testing documentation.
+- Expanded regression coverage to 120 tests.
+
 ## 0.8.5 – Embedded Editor Core & Public UI API
 
 - Replaced the embedded-editor placeholder with the complete NPC Forge controls and preview.

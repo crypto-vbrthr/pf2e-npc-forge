@@ -1,6 +1,6 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "0.8.5";
-export const SCHEMA_VERSION = 10;
+export const API_VERSION = "0.9.1";
+export const SCHEMA_VERSION = 12;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",
   "actor-source-generation",
@@ -41,6 +41,13 @@ export const CAPABILITIES = Object.freeze([
   "personality-pack-registration",
   "personality-generation",
   "roleplaying-kit",
+  "background-pack-registration",
+  "relationship-pack-registration",
+  "background-generation",
+  "social-context-generation",
+  "structured-relationships",
+  "relationship-reciprocity",
+  "private-background-hooks",
   "level-scaled-strike-damage",
   "gm-core-combat-benchmarks",
   "spellcasting-profile-registration",
@@ -57,5 +64,7 @@ export const CAPABILITIES = Object.freeze([
   "compendium-resolution-cache",
   "role-selection-ui",
   "contract-hardening",
-  "shared-editor-core"
+  "shared-editor-core",
+  "level-scaled-fundamental-runes",
+  "shield-reinforcing-runes"
 ]);

@@ -10,7 +10,9 @@ const dictionary = {
   "NPCFORGE.Skills.Athletics": "Athletik",
   "NPCFORGE.Lore.Legal": "Rechtskunde",
   "NPCFORGE.Weapons.Spear": "Speer",
-  "NPCFORGE.Damage.Piercing": "Stichschaden"
+  "NPCFORGE.Damage.Piercing": "Stichschaden",
+  "NPCFORGE.EquipmentProgression.Potency": "Potenz",
+  "NPCFORGE.EquipmentProgression.Striking": "Schlagend"
 };
 const localize = (key) => dictionary[key] ?? key;
 
@@ -19,7 +21,7 @@ const npc = {
   build: { level: 3, profession: { id: "core.guard", labelKey: "NPCFORGE.Content.Profession.Guard" }, classProfile: { id: "core.fighter", labelKey: "NPCFORGE.Content.ClassProfile.Fighter" }, role: { id: "core.ordinary", labelKey: "NPCFORGE.Content.Role.Ordinary" } },
   statistics: { ac: 19, hp: 45, perception: 9, speed: 25, saves: { fortitude: 12, reflex: 9, will: 6 }, attributes: { str: 4, dex: 3, con: 4, int: 1, wis: 3, cha: 1 } },
   skills: [{ slug: "athletics", modifier: 10 }, { slug: "legal-lore", type: "lore", modifier: 9 }],
-  inventory: [{ id: "primary-weapon", name: "Spear", type: "weapon" }],
+  inventory: [{ id: "primary-weapon", name: "Spear", type: "weapon", fundamentalRunes: { potency: 1, striking: 1 } }],
   attacks: [{ sourceWeaponId: "primary-weapon", label: "Spear", modifier: 12, damage: { formula: "1d6+3", type: "piercing" } }]
 };
 
@@ -44,6 +46,7 @@ test("presentation localizes die notation and exposes localized inventory names"
   const view = presentNpc(npc, (key) => localizedDictionary[key] ?? key);
   assert.equal(view.attacks[0].displayDamage, "1W6+3");
   assert.equal(view.inventory[0].displayName, "Speer");
+  assert.equal(view.inventory[0].displayRunes, "Potenz +1 · Schlagend 1");
 });
 
 

@@ -58,6 +58,7 @@ function normalizeTrait(trait) {
     label: trait.label ?? trait.id,
     descriptionKey: trait.descriptionKey ?? null,
     description: trait.description ?? null,
+    tags: [...(trait.tags ?? [])],
     source: { moduleId: trait.sourceModule ?? null, packId: trait.sourcePackId ?? null }
   };
 }

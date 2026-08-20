@@ -90,6 +90,18 @@ function localizeDamageFormula(formula, localize) {
 }
 
 
+
+function presentFundamentalRunes(item, localize) {
+  const runes = item?.fundamentalRunes;
+  if (!runes) return "";
+  const parts = [];
+  if (Number(runes.potency ?? 0) > 0) parts.push(`${localize("NPCFORGE.EquipmentProgression.Potency")} +${Number(runes.potency)}`);
+  if (Number(runes.striking ?? 0) > 0) parts.push(`${localize("NPCFORGE.EquipmentProgression.Striking")} ${Number(runes.striking)}`);
+  if (Number(runes.resilient ?? 0) > 0) parts.push(`${localize("NPCFORGE.EquipmentProgression.Resilient")} ${Number(runes.resilient)}`);
+  if (Number(runes.reinforcing ?? 0) > 0) parts.push(`${localize("NPCFORGE.EquipmentProgression.Reinforcing")} ${Number(runes.reinforcing)}`);
+  return parts.join(" · ");
+}
+
 function presentAppearance(appearance, localize) {
   if (!appearance?.generated) return null;
   return {
@@ -128,6 +140,48 @@ function presentPersonality(personality, localize) {
   };
 }
 
+function presentNarrativeEntry(entry, localize) {
+  if (!entry) return null;
+  return {
+    ...entry,
+    displayCategory: entry.categoryKey ? localize(entry.categoryKey) : entry.category,
+    displayName: entry.labelKey ? localize(entry.labelKey) : (entry.label ?? entry.id),
+    displayDescription: entry.descriptionKey ? localize(entry.descriptionKey) : (entry.description ?? ""),
+    private: entry.visibility === "private"
+  };
+}
+
+function presentBackground(biography, socialContext, relationships, localize) {
+  if (!biography?.generated && !socialContext?.generated && !(relationships ?? []).length) return null;
+  const relationshipCategory = (category) => {
+    const key = `NPCFORGE.Relationships.Category.${String(category ?? "contact").replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase()).replace(/-/g, "")}`;
+    const value = localize(key);
+    return value === key ? category : value;
+  };
+  return {
+    biography: biography?.generated ? {
+      origin: presentNarrativeEntry(biography.origin, localize),
+      formative: presentNarrativeEntry(biography.formative, localize),
+      currentSituation: presentNarrativeEntry(biography.currentSituation, localize),
+      currentProblem: presentNarrativeEntry(biography.currentProblem, localize),
+      privateHook: presentNarrativeEntry(biography.privateHook, localize)
+    } : null,
+    socialContext: socialContext?.generated ? {
+      standing: presentNarrativeEntry(socialContext.standing, localize),
+      communityRole: presentNarrativeEntry(socialContext.communityRole, localize),
+      reputation: presentNarrativeEntry(socialContext.reputation, localize)
+    } : null,
+    relationships: (relationships ?? []).map((relationship) => ({
+      ...relationship,
+      displayCategory: relationshipCategory(relationship.category),
+      displayName: relationship.labelKey ? localize(relationship.labelKey) : (relationship.label ?? relationship.typeId),
+      displayDescription: relationship.descriptionKey ? localize(relationship.descriptionKey) : (relationship.description ?? ""),
+      displayAttitude: localize(`NPCFORGE.Relationships.Attitude.${String(relationship.attitude ?? "neutral").replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase()).replace(/-/g, "")}`),
+      private: relationship.visibility === "private"
+    }))
+  };
+}
+
 export function presentNpc(npc, localize = (key) => key) {
   if (!npc) return null;
   const profession = localizeDefinition(npc.build?.profession, localize);
@@ -161,6 +215,7 @@ export function presentNpc(npc, localize = (key) => key) {
     ...item,
     displayName: item.type === "weapon" ? localizeWeapon(item, localize) : (item.labelKey ? localize(item.labelKey) : (item.name ?? item.id)),
     displayType: localize(`NPCFORGE.InventoryTypes.${item.type === "unarmed" ? "Unarmed" : item.type === "weapon" ? "Weapon" : item.type === "armor" ? "Armor" : item.type === "shield" ? "Shield" : item.type === "consumable" ? "Consumable" : "Equipment"}`),
+    displayRunes: presentFundamentalRunes(item, localize),
     quantity: Number(item.quantity ?? 1)
   }));
 
@@ -230,7 +285,8 @@ export function presentNpc(npc, localize = (key) => key) {
     attacks,
     abilities,
     spellcasting,
-    personality: presentPersonality(npc.personality, localize)
+    personality: presentPersonality(npc.personality, localize),
+    background: presentBackground(npc.biography, npc.socialContext, npc.relationships, localize)
   };
 }
 

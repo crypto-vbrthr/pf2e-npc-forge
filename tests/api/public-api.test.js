@@ -9,14 +9,16 @@ import { NpcForgeApi } from "../../scripts/api/public-api.js";
 test("public API exposes stable baseline capabilities and registrations", () => {
   const registry = new ContentRegistry(); registerCoreContent(registry);
   const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
-  assert.equal(api.apiVersion, "0.8.5");
-  assert.equal(api.schemaVersion, 10);
+  assert.equal(api.apiVersion, "0.9.1");
+  assert.equal(api.schemaVersion, 12);
   assert.equal(api.capabilities.has("embedded-editor"), true);
   assert.ok(api.capabilities.has("editor-session-api"));
   assert.ok(api.capabilities.has("editor-section-reroll"));
   assert.ok(api.capabilities.has("host-action-bar"));
   assert.equal(api.capabilities.has("experimental-editor-session"), false);
   assert.ok(api.capabilities.has("content-namespace-enforcement"));
+  assert.ok(api.capabilities.has("level-scaled-fundamental-runes"));
+  assert.ok(api.capabilities.has("shield-reinforcing-runes"));
   api.content.registerProfession("addon", { id: "addon.scribe", parentId: "core.profession-category.civic", weight: 1 });
   assert.equal(api.content.get("professions", "addon.scribe").sourceModule, "addon");
 });
@@ -71,4 +73,17 @@ test("public API exposes synchronous integration status and async diagnostics", 
   const details = await api.integrations.inspect({ level: 5 });
   assert.equal(details.afflictionForge.ready, false);
   assert.equal(details.itemForge.ready, false);
+});
+
+
+test("public API exposes background and relationship pack registration", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  api.content.registerBackgroundPack("social-addon", { id: "social-addon.backgrounds", entries: [{ id: "social-addon.origin.test", category: "origin", label: "Elsewhere" }] });
+  api.content.registerRelationshipPack("social-addon", { id: "social-addon.relationships", relationships: [{ id: "social-addon.relationship.friend", category: "friendship", label: "Friend", reciprocalTypeId: "social-addon.relationship.friend" }] });
+  assert.equal(api.content.get("backgroundPacks", "social-addon.backgrounds").sourceModule, "social-addon");
+  assert.equal(api.content.get("relationshipPacks", "social-addon.relationships").sourceModule, "social-addon");
+  assert.ok(api.capabilities.has("background-pack-registration"));
+  assert.ok(api.capabilities.has("relationship-pack-registration"));
+  assert.ok(api.capabilities.has("structured-relationships"));
 });

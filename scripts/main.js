@@ -31,7 +31,7 @@ function installDirectoryButton(app, html) {
 }
 
 Hooks.once("init", () => {
-  console.log("PF2E NPC Forge | Initializing 0.8.5 Embedded Editor Core & Public UI API");
+  console.log("PF2E NPC Forge | Initializing 0.9.1 Level-Scaled Equipment & Fundamental Runes");
   const registry = new ContentRegistry();
   registerCoreContent(registry);
   const integrations = createExternalIntegrations();

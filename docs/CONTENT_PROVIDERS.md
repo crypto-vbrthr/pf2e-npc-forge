@@ -158,3 +158,41 @@ Personality categories are `demeanor`, `trait`, `motivation`, `flaw`, `quirk`, a
 ## Spellcasting profiles and spell themes
 
 Use `registerSpellcastingProfile()` and `registerSpellTheme()` to contribute neutral spellcasting behavior and semantic PF2e spell pools. The Document Adapter remains responsible for Foundry/PF2e Item materialization.
+
+
+## Background packs
+
+Background packs contribute semantic entries in the categories `origin`, `formative`, `currentSituation`, `currentProblem`, `privateHook`, `standing`, `communityRole`, and `reputation`. Entries support the same context fields used by other narrative packs, including `preferredTags`, `requiresTags`, `excludesTags`, profession/class filters, role filters, and age categories. `privateHook` entries should use `visibility: "private"`.
+
+```js
+api.content.registerBackgroundPack("my-module", {
+  id: "my-module.backgrounds",
+  entries: [{
+    id: "my-module.origin.frontier",
+    category: "origin",
+    labelKey: "MYMODULE.Background.Frontier.Name",
+    descriptionKey: "MYMODULE.Background.Frontier.Description",
+    preferredTags: ["wilderness"]
+  }]
+});
+```
+
+## Relationship packs
+
+Relationship definitions describe graph edge types. Include a `reciprocalTypeId` whenever possible. Symmetric relationships point to themselves; asymmetric examples can pair mentor/student or creditor/debtor. Targets remain unresolved during single-NPC generation. Optional `targetPreferredTags`, `targetAvoidedTags`, `targetProfessionCategoryIds`, and `targetRoleIds` become constraints for an external graph resolver such as Crowd Forge.
+
+```js
+api.content.registerRelationshipPack("my-module", {
+  id: "my-module.relationships",
+  relationships: [{
+    id: "my-module.relationship.shipmate",
+    category: "friendship",
+    labelKey: "MYMODULE.Relationship.Shipmate.Name",
+    descriptionKey: "MYMODULE.Relationship.Shipmate.Description",
+    reciprocalTypeId: "my-module.relationship.shipmate",
+    preferredTags: ["maritime"]
+  }]
+});
+```
+
+Nested entry IDs are subject to the same namespace ownership rule as their parent packs.

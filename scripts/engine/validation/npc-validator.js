@@ -39,5 +39,22 @@ export function validateNpcModel(npc) {
     if (!Number.isFinite(entry.dc) || !Number.isFinite(entry.attack)) errors.push("Spellcasting entry requires DC and attack modifier");
     if ((entry.spells ?? []).some((spell) => !spell.slug || !Number.isInteger(spell.rank))) errors.push("Spellcasting spells require slug and integer rank");
   }
+
+  if (npc?.biography != null) {
+    if (typeof npc.biography !== "object") errors.push("NPC biography must be an object or null");
+    for (const key of ["origin", "formative", "currentSituation", "currentProblem", "privateHook"]) {
+      const entry = npc.biography?.[key];
+      if (entry != null && (!entry.id || !entry.category)) errors.push(`NPC biography.${key} requires id and category`);
+    }
+  }
+  if (!Array.isArray(npc?.relationships)) errors.push("NPC relationships must be an array");
+  for (const relationship of npc?.relationships ?? []) {
+    if (!relationship.id || !relationship.typeId) errors.push("Each NPC relationship requires id and typeId");
+    if (!relationship.reciprocalTypeId) warnings.push(`NPC relationship ${relationship.id ?? "unknown"} has no reciprocalTypeId`);
+    if (relationship.target?.kind !== "unresolved-npc" && !relationship.target?.actorUuid && !relationship.target?.npcId) {
+      errors.push(`NPC relationship ${relationship.id ?? "unknown"} requires an unresolved or linked target`);
+    }
+  }
+  if (npc?.socialContext != null && typeof npc.socialContext !== "object") errors.push("NPC socialContext must be an object or null");
   return { valid: errors.length === 0, errors, warnings };
 }

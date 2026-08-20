@@ -1,6 +1,6 @@
 # Embedded Editor API
 
-**Status in 0.8.5: Public production API.**
+**Status in 0.9.1: Public production API.**
 
 NPC Forge now exposes the same complete editor core used by the standalone NPC Forge window. Encounter Forge, Crowd Forge, or another host can mount it inside any suitable HTML element without opening a second Foundry window.
 
