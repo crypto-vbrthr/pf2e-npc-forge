@@ -24,7 +24,7 @@ When reporting a bug, please include as much relevant information as possible, s
 
 Suggestions and feature requests are equally welcome. Even small ideas can lead to useful improvements.
 
-**Open an issue here:** https://github.com/crypto-vbrthr/pf2e-weather-forge/issues
+**Open an issue here:** https://github.com/crypto-vbrthr/pf2e-npc-forge/issues
 
 
 ## Current feature set
