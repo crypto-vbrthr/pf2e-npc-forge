@@ -140,13 +140,20 @@ Name culture definitions are setting-neutral metadata owned by content providers
 api.content.registerNameCulture("my-module", {
   id: "my-module.varisian",
   labelKey: "MYMODULE.Culture.Varisian",
-  ancestryIds: ["core.human"],
+  ancestryIds: ["core.human", "core.tengu"],
+  automaticAncestryIds: ["core.human"],
   supportedLocales: ["en", "de"],
   weight: 10
 });
 ```
 
-`ancestryIds` and `supportedLocales` are optional filters. `weight` is used when the culture itself is resolved automatically.
+`ancestryIds` and `supportedLocales` are optional filters. `weight` is used when the culture itself is resolved automatically. `automaticAncestryIds` is optional and must be a subset of `ancestryIds` when the latter is present. It controls which compatible ancestries may acquire that culture automatically:
+
+- omitted: all compatible `ancestryIds` are automatic, preserving the 1.1.0 provider contract;
+- `[]`: the culture is selectable but never automatic;
+- a subset such as `["core.human"]`: automatic only for those ancestries, while other compatible ancestries can still select it explicitly.
+
+This is useful for regional variants. A Kyonin elf pack, for example, can remain explicitly selectable without making every automatically generated elf Kyonin by default.
 
 Name packs remain ancestry- and locale-aware. Add `cultureIds` when a pack belongs to one or more registered cultures. Packs without `cultureIds` are universal ancestry fallbacks and remain fully backward compatible with NPC Forge 1.0.0.
 
@@ -193,7 +200,7 @@ For an explicitly or automatically resolved culture, NPC Forge tries:
 2. a universal pack for the same ancestry;
 3. another compatible pack for the same ancestry as a last resort.
 
-The engine never selects a pack for another ancestry merely because the requested culture has no matching content.
+If no culture resolves at all, NPC Forge prefers universal packs for the ancestry before considering regional same-ancestry packs. The engine never selects a pack for another ancestry merely because the requested culture has no matching content.
 
 ## Appearance packs
 

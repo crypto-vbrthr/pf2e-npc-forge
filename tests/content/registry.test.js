@@ -39,3 +39,22 @@ test("name cultures obey provider namespace ownership", () => {
   assert.equal(registry.get("nameCultures", "names-addon.varisian").sourceModule, "names-addon");
   assert.throws(() => registry.register("nameCultures", "names-addon", { id: "core.varisian" }), /outside the namespace/);
 });
+
+
+test("name culture automaticAncestryIds must be an ancestry subset", () => {
+  const registry = new ContentRegistry();
+  registry.register("nameCultures", "names-addon", {
+    id: "names-addon.explicit-only",
+    ancestryIds: ["core.elf"],
+    automaticAncestryIds: []
+  });
+  assert.equal(registry.get("nameCultures", "names-addon.explicit-only").automaticAncestryIds.length, 0);
+  assert.throws(
+    () => registry.register("nameCultures", "names-addon", {
+      id: "names-addon.invalid-auto",
+      ancestryIds: ["core.elf"],
+      automaticAncestryIds: ["core.human"]
+    }),
+    /subset of ancestryIds/
+  );
+});

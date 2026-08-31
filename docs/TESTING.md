@@ -12,14 +12,14 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 1.1.0 release contains **134 passing tests** covering, among other areas:
+The 1.1.2 release contains **142 passing tests** covering, among other areas:
 
 - level-scaled fundamental rune progression and opt-out behavior;
 - PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
 
 - deterministic generation and weighted resolution;
 - PF2e GM Core statistics/combat benchmarks;
-- ancestry, identity, cultural/locale-aware names, compositional name generation, appearance, personality, background, social context, and structured relationships;
+- ancestry, identity, cultural/locale-aware names, ancestry-scoped automatic culture resolution, universal-name-pack preservation, compositional name generation, appearance, personality, background, social context, and structured relationships;
 - professions, equipment, abilities, and spellcasting;
 - PF2e Actor-source and compendium materialization;
 - prepared/spontaneous spell slot references;

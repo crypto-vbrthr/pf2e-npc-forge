@@ -6,15 +6,40 @@ function normalizeEntry(entry) {
   return { ...entry };
 }
 
+function stableEntryKey(entry) {
+  if (!entry) return null;
+  if (entry.literal != null) return `literal:${String(entry.literal)}`;
+  if (entry.labelKey) return `labelKey:${entry.labelKey}`;
+  if (entry.id) return `id:${entry.id}`;
+  if (entry.fallback != null) return `fallback:${String(entry.fallback)}`;
+
+  const ordered = Object.fromEntries(Object.entries(entry).sort(([a], [b]) => a.localeCompare(b)));
+  return `json:${JSON.stringify(ordered)}`;
+}
+
+function uniqueNameEntries(entries = []) {
+  const seen = new Set();
+  const unique = [];
+  for (const raw of entries) {
+    const entry = normalizeEntry(raw);
+    if (!entry) continue;
+    const key = stableEntryKey(entry);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(entry);
+  }
+  return unique;
+}
+
 function givenPool(pack, gender) {
-  if (Array.isArray(pack?.given)) return pack.given.map(normalizeEntry).filter(Boolean);
+  if (Array.isArray(pack?.given)) return uniqueNameEntries(pack.given);
   const given = pack?.given ?? {};
   const preferred = Array.isArray(given[gender]) ? given[gender] : [];
   const neutral = Array.isArray(given.neutral) ? given.neutral : [];
   const any = Array.isArray(given.any) ? given.any : [];
-  const combined = [...preferred, ...neutral, ...any].map(normalizeEntry).filter(Boolean);
+  const combined = uniqueNameEntries([...preferred, ...neutral, ...any]);
   if (combined.length) return combined;
-  return Object.values(given).flatMap((entries) => Array.isArray(entries) ? entries : []).map(normalizeEntry).filter(Boolean);
+  return uniqueNameEntries(Object.values(given).flatMap((entries) => Array.isArray(entries) ? entries : []));
 }
 
 function supportedForLocale(definition, locale) {
@@ -26,8 +51,26 @@ function ancestryMatches(definition, ancestryId) {
   return !definition?.ancestryIds?.length || definition.ancestryIds.includes(ancestryId);
 }
 
-export function availableNameCultures(registry, { ancestryId = null, locale = "en", allowUntranslated = false } = {}) {
+function automaticAncestryMatches(definition, ancestryId) {
+  const automatic = definition?.automaticAncestryIds;
+
+  // Backward compatibility: providers written for 1.1.0 did not have an
+  // automaticAncestryIds field. In that case every ancestry accepted by the
+  // culture remains eligible for automatic resolution. An explicit empty
+  // array means "selectable, but never automatic".
+  if (!Array.isArray(automatic)) return ancestryMatches(definition, ancestryId);
+  if (automatic.length === 0) return false;
+  return !ancestryId || automatic.includes(ancestryId);
+}
+
+export function availableNameCultures(registry, {
+  ancestryId = null,
+  locale = "en",
+  allowUntranslated = false,
+  automaticOnly = false
+} = {}) {
   return registry.list("nameCultures").filter((culture) => ancestryMatches(culture, ancestryId)
+    && (!automaticOnly || automaticAncestryMatches(culture, ancestryId))
     && (allowUntranslated || supportedForLocale(culture, locale)));
 }
 
@@ -61,7 +104,12 @@ function resolveCulture({ registry, resolver, ancestryId, locale, allowUntransla
     return cultures.length ? resolver.resolve(cultures) : null;
   }
 
-  const cultures = availableNameCultures(registry, { ancestryId, locale, allowUntranslated });
+  const cultures = availableNameCultures(registry, {
+    ancestryId,
+    locale,
+    allowUntranslated,
+    automaticOnly: true
+  });
   return cultures.length ? resolver.resolve(cultures) : null;
 }
 
@@ -116,8 +164,16 @@ function selectPack({ registry, resolver, ancestryId, culture, locale, allowUntr
     return { pack: null, fallback: "no-compatible-name-pack" };
   }
 
+  // No culture was resolved. Prefer universal ancestry packs so merely
+  // installing a regional provider cannot silently turn every member of an
+  // ancestry into one of its regional variants. Cultural packs remain a
+  // same-ancestry last resort for custom providers that supplied no universal
+  // fallback at all.
   const candidates = availableNamePacks(registry, { ancestryId, locale, allowUntranslated });
-  return { pack: candidates.length ? resolver.resolve(candidates) : null, fallback: candidates.length ? null : "no-compatible-name-pack" };
+  const universal = candidates.filter((pack) => !Array.isArray(pack.cultureIds) || pack.cultureIds.length === 0);
+  if (universal.length) return { pack: resolver.resolve(universal), fallback: null };
+  if (candidates.length) return { pack: resolver.resolve(candidates), fallback: "other-culture-same-ancestry" };
+  return { pack: null, fallback: "no-compatible-name-pack" };
 }
 
 export function generateNameData({ registry, resolver, ancestry, random, gender = "nonbinary", request = {} }) {

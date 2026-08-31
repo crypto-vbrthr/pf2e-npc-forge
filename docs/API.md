@@ -10,7 +10,7 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `1.1.0`
+- Public API version: `1.1.2`
 - Neutral NPC schema: `13`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
@@ -168,13 +168,14 @@ External modules may reference core parents but may not claim `core.*` or anothe
 
 ## Names
 
-NPC Forge 1.1.0 exposes a setting-neutral culture layer for name-provider add-ons. A provider can register a culture and then associate one or more name packs with it.
+NPC Forge 1.1.2 exposes a setting-neutral culture layer for name-provider add-ons. A provider can register a culture and then associate one or more name packs with it.
 
 ```js
 api.content.registerNameCulture("names-addon", {
   id: "names-addon.varisian",
   labelKey: "NAMESADDON.Culture.Varisian",
-  ancestryIds: ["core.human"],
+  ancestryIds: ["core.human", "core.tengu"],
+  automaticAncestryIds: ["core.human"],
   supportedLocales: ["en", "de"],
   weight: 10
 });
@@ -196,6 +197,12 @@ Discover compatible cultures and packs:
 const cultures = api.content.listNameCultures({
   ancestryId: "core.human",
   locale: "de"
+});
+
+const automaticCultures = api.content.listNameCultures({
+  ancestryId: "core.human",
+  locale: "de",
+  automaticOnly: true
 });
 
 const packs = api.content.listNamePacks({
@@ -220,7 +227,9 @@ const npc = api.engine.generate({
 });
 ```
 
-When `nameCulture` is automatic, NPC Forge resolves a compatible culture deterministically using provider weights. If the chosen culture has no compatible pack, generation first falls back to a universal pack for the same ancestry, then to another same-ancestry pack as a last resort. It never crosses ancestry boundaries merely to find a name. A fixed `namePack` remains authoritative for backward compatibility.
+`ancestryIds` defines where a culture can be selected. The optional `automaticAncestryIds` defines the subset that may resolve automatically. If `automaticAncestryIds` is omitted, all compatible `ancestryIds` remain automatic for backward compatibility with 1.1.0 providers. An explicit empty array makes the culture manual/host-selected only.
+
+When `nameCulture` is automatic, NPC Forge resolves only automatically eligible cultures deterministically using provider weights. If no culture resolves, universal packs for the ancestry are preferred before any regional same-ancestry pack. If a culture is resolved but has no compatible pack, generation first falls back to a universal pack for the same ancestry, then to another same-ancestry pack as a last resort. It never crosses ancestry boundaries merely to find a name. A fixed `namePack` remains authoritative for backward compatibility.
 
 Existing packs without `cultureIds` are universal and require no migration. Generated identities expose the resolved `identity.nameCulture` plus semantic `identity.nameParts`, including `cultureId`, `packId`, and fallback provenance.
 

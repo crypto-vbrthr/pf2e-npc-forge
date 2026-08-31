@@ -35,6 +35,21 @@ export class ContentRegistry {
     if (!(definition.id === namespace || definition.id.startsWith(`${namespace}.`))) {
       throw new Error(`${type} id ${definition.id} is outside the namespace owned by ${moduleId} (${namespace}.*)`);
     }
+    if (type === "nameCultures" && Object.hasOwn(definition, "automaticAncestryIds")) {
+      if (!Array.isArray(definition.automaticAncestryIds)) {
+        throw new Error("nameCultures automaticAncestryIds must be an array when provided");
+      }
+      if (definition.automaticAncestryIds.some((id) => typeof id !== "string" || !id)) {
+        throw new Error("nameCultures automaticAncestryIds entries must be non-empty strings");
+      }
+      if (Array.isArray(definition.ancestryIds) && definition.ancestryIds.length) {
+        const outside = definition.automaticAncestryIds.filter((id) => !definition.ancestryIds.includes(id));
+        if (outside.length) {
+          throw new Error(`nameCultures automaticAncestryIds must be a subset of ancestryIds: ${outside.join(", ")}`);
+        }
+      }
+    }
+
     const nestedField = ({ personalityPacks: "traits", appearancePacks: "traits", backgroundPacks: "entries", relationshipPacks: "relationships" })[type];
     for (const nested of nestedField ? (definition[nestedField] ?? []) : []) {
       if (!nested?.id || typeof nested.id !== "string") throw new Error(`${type}.${nestedField} entries require an id`);

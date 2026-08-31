@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 1.1.0 – Cultural Name Provider Support**
+**Version 1.1.2 – Name Pool Deduplication Fix**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -62,6 +62,22 @@ The generation engine remains independent from Foundry documents and optional Fo
 
 See `docs/ARCHITECTURE.md`, `docs/NPC_MODEL.md`, and `docs/EMBEDDED_EDITOR.md`.
 
+
+
+## 1.1.2 name pool deduplication fix
+
+1.1.2 removes duplicate weighting when the same given name appears in more than one eligible pool. A name listed both as gender-specific and neutral/any is now represented only once in the final selection pool. Fallback aggregation across gender-specific pools is deduplicated as well. Provider data remains unchanged and no schema migration is required.
+
+## 1.1.1 cultural resolution fix
+
+1.1.1 separates **selectable** name cultures from cultures that should participate in automatic ancestry-based resolution. This prevents installing a regional name add-on from silently making every elf, dwarf, or orc belong to the first registered regional culture.
+
+- Name cultures may define `automaticAncestryIds` as a subset of their broader `ancestryIds`.
+- `automaticAncestryIds: []` keeps a culture visible and explicitly selectable while excluding it from automatic resolution.
+- Omitting `automaticAncestryIds` preserves the 1.1.0 behavior for existing providers.
+- When no culture is automatically resolved, universal ancestry packs are chosen before regional packs.
+- Hosts can query `listNameCultures({ automaticOnly: true })` when they need only automatic candidates.
+- The neutral NPC schema remains **13**; no migration is required.
 
 ## 1.1.0 cultural name provider support
 
@@ -145,7 +161,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.1.0**  
+Public API version: **1.1.2**  
 Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.

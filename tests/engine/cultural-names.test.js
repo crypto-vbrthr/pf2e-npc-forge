@@ -144,3 +144,128 @@ test("component generators create seed-stable semantic names that can localize t
   assert.equal(presentNpc(npc, localizer("en")).name, "Ironhand");
   assert.equal(presentNpc(npc, localizer("de")).name, "Eisenhand");
 });
+
+
+test("explicit-only cultures remain selectable but are ignored by automatic resolution", () => {
+  const { registry, engine } = setup();
+  registry.register("nameCultures", "names-addon", {
+    id: "names-addon.kyonin",
+    labelKey: "NAMESADDON.Culture.Kyonin",
+    ancestryIds: ["core.elf"],
+    automaticAncestryIds: [],
+    supportedLocales: ["en", "de"],
+    weight: 1000
+  });
+  registry.register("namePacks", "names-addon", {
+    id: "names-addon.kyonin-elf",
+    ancestryIds: ["core.elf"],
+    cultureIds: ["names-addon.kyonin"],
+    supportedLocales: ["en", "de"],
+    given: ["KyoninName"],
+    family: [],
+    weight: 1000
+  });
+
+  const automatic = engine.generate({
+    seed: "explicit-only-auto",
+    ancestry: "core.elf",
+    identity: { nameLocale: "en" }
+  });
+  assert.equal(automatic.identity.nameCulture, null);
+  assert.equal(automatic.identity.nameParts.packId, "core.generic-elf");
+
+  const fixed = engine.generate({
+    seed: "explicit-only-fixed",
+    ancestry: "core.elf",
+    identity: { nameCulture: "names-addon.kyonin", nameLocale: "en" }
+  });
+  assert.equal(fixed.identity.nameCulture.id, "names-addon.kyonin");
+  assert.equal(fixed.identity.nameParts.packId, "names-addon.kyonin-elf");
+});
+
+test("automaticAncestryIds can allow automatic culture resolution for one ancestry but not another", () => {
+  const { registry, engine } = setup();
+  registry.register("nameCultures", "names-addon", {
+    id: "names-addon.taldan",
+    labelKey: "NAMESADDON.Culture.Taldan",
+    ancestryIds: ["core.human", "core.tengu"],
+    automaticAncestryIds: ["core.human"],
+    supportedLocales: ["en", "de"],
+    weight: 1000
+  });
+  registry.register("namePacks", "names-addon", {
+    id: "names-addon.taldan-human",
+    ancestryIds: ["core.human"],
+    cultureIds: ["names-addon.taldan"],
+    supportedLocales: ["en", "de"],
+    given: ["TaldanHuman"], family: [], weight: 1000
+  });
+  registry.register("namePacks", "names-addon", {
+    id: "names-addon.taldan-tengu",
+    ancestryIds: ["core.tengu"],
+    cultureIds: ["names-addon.taldan"],
+    supportedLocales: ["en", "de"],
+    given: ["TaldanTengu"], family: [], weight: 1000
+  });
+
+  const human = engine.generate({ seed: "taldan-human-auto", ancestry: "core.human", identity: { nameLocale: "en" } });
+  assert.equal(human.identity.nameCulture.id, "names-addon.taldan");
+  assert.equal(human.identity.nameParts.packId, "names-addon.taldan-human");
+
+  const tengu = engine.generate({ seed: "taldan-tengu-auto", ancestry: "core.tengu", identity: { nameLocale: "en" } });
+  assert.equal(tengu.identity.nameCulture, null);
+  assert.equal(tengu.identity.nameParts.packId, "core.generic-tengu");
+
+  const fixedTengu = engine.generate({
+    seed: "taldan-tengu-fixed",
+    ancestry: "core.tengu",
+    identity: { nameCulture: "names-addon.taldan", nameLocale: "en" }
+  });
+  assert.equal(fixedTengu.identity.nameCulture.id, "names-addon.taldan");
+  assert.equal(fixedTengu.identity.nameParts.packId, "names-addon.taldan-tengu");
+});
+
+test("1.1.0 cultures without automaticAncestryIds remain automatically eligible", () => {
+  const { registry, engine } = setup();
+  registry.register("nameCultures", "legacy-names", {
+    id: "legacy-names.human-culture",
+    ancestryIds: ["core.human"],
+    supportedLocales: ["en"],
+    weight: 1000
+  });
+  registry.register("namePacks", "legacy-names", {
+    id: "legacy-names.human-pack",
+    ancestryIds: ["core.human"],
+    cultureIds: ["legacy-names.human-culture"],
+    supportedLocales: ["en"],
+    given: ["Legacy"], family: [], weight: 1000
+  });
+
+  const npc = engine.generate({ seed: "legacy-auto-culture", ancestry: "core.human", identity: { nameLocale: "en" } });
+  assert.equal(npc.identity.nameCulture.id, "legacy-names.human-culture");
+  assert.equal(npc.identity.nameParts.packId, "legacy-names.human-pack");
+});
+
+test("when no culture resolves, universal packs outrank regional packs", () => {
+  const { registry, engine } = setup();
+  registry.register("nameCultures", "names-addon", {
+    id: "names-addon.belkzen",
+    ancestryIds: ["core.orc"],
+    automaticAncestryIds: [],
+    supportedLocales: ["en"],
+    weight: 1000
+  });
+  registry.register("namePacks", "names-addon", {
+    id: "names-addon.belkzen-orc",
+    ancestryIds: ["core.orc"],
+    cultureIds: ["names-addon.belkzen"],
+    supportedLocales: ["en"],
+    given: ["Belkzen"], family: [], weight: 100000
+  });
+
+  for (let i = 0; i < 20; i += 1) {
+    const npc = engine.generate({ seed: `universal-preservation-${i}`, ancestry: "core.orc", identity: { nameLocale: "en" } });
+    assert.equal(npc.identity.nameCulture, null);
+    assert.equal(npc.identity.nameParts.packId, "core.generic-orc");
+  }
+});

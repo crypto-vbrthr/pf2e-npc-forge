@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.1.2 – Name Pool Deduplication Fix
+
+- Deduplicated the final eligible given-name pool before random selection.
+- A name present in both a gender-specific pool and `neutral`/`any` no longer receives accidental extra weight.
+- Deduplicated fallback aggregation across gender-specific pools as well.
+- Preserved first-occurrence ordering so seeded selection remains deterministic for the normalized pool.
+- Added the `deduplicated-name-pools` capability.
+- Added regression coverage for preferred/neutral/any overlap and fallback gender-pool overlap.
+- Kept the Neutral NPC Model at schema 13; no migration is required.
+
+## 1.1.1 – Cultural Resolution Fix
+
+- Added optional `automaticAncestryIds` to name-culture definitions so providers can separate cultures that are selectable from cultures eligible for automatic resolution.
+- Preserved 1.1.0 provider compatibility: omitting `automaticAncestryIds` keeps all compatible `ancestryIds` eligible for automatic selection.
+- An explicit empty `automaticAncestryIds: []` now marks a culture as manual/host-selected only.
+- Automatic culture resolution now filters by the selected ancestry's automatic eligibility instead of treating every registered regional culture as mandatory.
+- When no culture resolves, universal ancestry name packs are preferred before any regional same-ancestry pack.
+- Added `automaticOnly` filtering to `listNameCultures()` for hosts that need to inspect automatic candidates separately from selectable cultures.
+- Added registry validation requiring `automaticAncestryIds` to be an array and, when `ancestryIds` is constrained, a subset of those ancestries.
+- Added the `scoped-name-culture-automation` capability.
+- Neutral NPC schema remains 13; no model migration is required.
+- Added regression coverage for explicit-only regional cultures, ancestry-scoped automatic cultures, legacy 1.1.0 providers, universal-pack preservation, and the public discovery contract; 140 tests now pass.
+
 ## 1.1.0 – Cultural Name Provider Support
 
 - Added the `nameCultures` content-registry type with provider namespace enforcement.

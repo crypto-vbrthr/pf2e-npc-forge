@@ -9,7 +9,7 @@ import { NpcForgeApi } from "../../scripts/api/public-api.js";
 test("public API exposes stable baseline capabilities and registrations", () => {
   const registry = new ContentRegistry(); registerCoreContent(registry);
   const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
-  assert.equal(api.apiVersion, "1.1.0");
+  assert.equal(api.apiVersion, "1.1.2");
   assert.equal(api.schemaVersion, 13);
   assert.equal(api.capabilities.has("embedded-editor"), true);
   assert.ok(api.capabilities.has("editor-session-api"));
@@ -43,6 +43,7 @@ test("public API exposes localized name pack registration and discovery", () => 
   assert.ok(api.capabilities.has("name-pack-registration"));
   assert.ok(api.capabilities.has("name-culture-registration"));
   assert.ok(api.capabilities.has("cultural-name-generation"));
+  assert.ok(api.capabilities.has("scoped-name-culture-automation"));
   assert.ok(api.capabilities.has("compositional-name-generation"));
   assert.ok(api.capabilities.has("localized-name-generation"));
 });
@@ -102,4 +103,21 @@ test("public API exposes background and relationship pack registration", () => {
   assert.ok(api.capabilities.has("background-pack-registration"));
   assert.ok(api.capabilities.has("relationship-pack-registration"));
   assert.ok(api.capabilities.has("structured-relationships"));
+});
+
+
+test("public API can distinguish selectable cultures from automatic culture candidates", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  api.content.registerNameCulture("names-addon", {
+    id: "names-addon.kyonin",
+    ancestryIds: ["core.elf"],
+    automaticAncestryIds: [],
+    supportedLocales: ["en", "de"],
+    weight: 10
+  });
+  const selectable = api.content.listNameCultures({ ancestryId: "core.elf", locale: "en" });
+  const automatic = api.content.listNameCultures({ ancestryId: "core.elf", locale: "en", automaticOnly: true });
+  assert.ok(selectable.some((culture) => culture.id === "names-addon.kyonin"));
+  assert.ok(!automatic.some((culture) => culture.id === "names-addon.kyonin"));
 });
