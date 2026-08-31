@@ -12,14 +12,14 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 1.0.0 final release contains **126 passing tests** covering, among other areas:
+The 1.1.0 release contains **134 passing tests** covering, among other areas:
 
 - level-scaled fundamental rune progression and opt-out behavior;
 - PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
 
 - deterministic generation and weighted resolution;
 - PF2e GM Core statistics/combat benchmarks;
-- ancestry, identity, names, appearance, personality, background, social context, and structured relationships;
+- ancestry, identity, cultural/locale-aware names, compositional name generation, appearance, personality, background, social context, and structured relationships;
 - professions, equipment, abilities, and spellcasting;
 - PF2e Actor-source and compendium materialization;
 - prepared/spontaneous spell slot references;
@@ -56,7 +56,7 @@ Node tests mock Foundry/PF2e document behavior. Releases still require a live Fo
 - compendium-backed equipment;
 - Affliction Forge poison runtime behavior;
 - Item Forge treasure generation;
-- DE/EN UI behavior;
+- DE/EN UI behavior, including optional name-culture controls;
 - editor scroll/disclosure preservation;
 - mounting the editor in an external host element;
 - embedded default action bar and `actionBar: "host"` mode;

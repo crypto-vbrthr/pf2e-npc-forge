@@ -1,12 +1,12 @@
 # Architecture
 
-PF2E NPC Forge 1.0.0 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
+PF2E NPC Forge 1.1.0 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
 
 ## 1. Neutral NPC Engine
 
 `NpcEngine` consumes a normalized generation request plus `ContentRegistry` data and returns a plain serializable NPC model.
 
-The engine owns deterministic selection; class/profession/role/ancestry resolution; identity, appearance, personality, structured biography, relationships, social context, statistics, skills, abilities, inventory intent, attacks, spellcasting intent, and optional integration intent.
+The engine owns deterministic selection; class/profession/role/ancestry resolution; identity, appearance, personality, structured biography, relationships, social context, statistics, skills, abilities, inventory intent, attacks, spellcasting intent, and optional integration intent. Name cultures are provider data resolved by the same deterministic engine; the core itself remains setting-neutral.
 
 It does not create Foundry Actors and does not call Affliction Forge, Item Forge, or Loot Forge.
 

@@ -9,8 +9,8 @@ import { NpcForgeApi } from "../../scripts/api/public-api.js";
 test("public API exposes stable baseline capabilities and registrations", () => {
   const registry = new ContentRegistry(); registerCoreContent(registry);
   const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
-  assert.equal(api.apiVersion, "1.0.0");
-  assert.equal(api.schemaVersion, 12);
+  assert.equal(api.apiVersion, "1.1.0");
+  assert.equal(api.schemaVersion, 13);
   assert.equal(api.capabilities.has("embedded-editor"), true);
   assert.ok(api.capabilities.has("editor-session-api"));
   assert.ok(api.capabilities.has("editor-section-reroll"));
@@ -41,9 +41,25 @@ test("public API exposes localized name pack registration and discovery", () => 
   assert.ok(german.some((pack) => pack.id === "names-addon.de"));
   assert.ok(!english.some((pack) => pack.id === "names-addon.de"));
   assert.ok(api.capabilities.has("name-pack-registration"));
+  assert.ok(api.capabilities.has("name-culture-registration"));
+  assert.ok(api.capabilities.has("cultural-name-generation"));
+  assert.ok(api.capabilities.has("compositional-name-generation"));
   assert.ok(api.capabilities.has("localized-name-generation"));
 });
 
+
+
+
+test("public API exposes name culture registration and culture-aware pack discovery", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
+  api.content.registerNameCulture("names-addon", { id: "names-addon.varisian", label: "Varisian", ancestryIds: ["core.human"], supportedLocales: ["en", "de"], weight: 10 });
+  api.content.registerNamePack("names-addon", { id: "names-addon.varisian-human", ancestryIds: ["core.human"], cultureIds: ["names-addon.varisian"], supportedLocales: ["en", "de"], given: ["Luka"], family: [], weight: 10 });
+  const cultures = api.content.listNameCultures({ ancestryId: "core.human", locale: "de" });
+  const packs = api.content.listNamePacks({ ancestryId: "core.human", cultureId: "names-addon.varisian", locale: "de", includeUniversal: false });
+  assert.ok(cultures.some((culture) => culture.id === "names-addon.varisian"));
+  assert.deepEqual(packs.map((pack) => pack.id), ["names-addon.varisian-human"]);
+});
 
 test("public API exposes appearance pack registration", () => {
   const registry = new ContentRegistry(); registerCoreContent(registry);

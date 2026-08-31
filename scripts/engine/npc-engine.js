@@ -72,7 +72,7 @@ export class NpcEngine {
     const loadout = buildInventory({ level, profession, specialization: professionSpecialization, classProfile, registry: this.registry, enabled: normalized.inventory.enabled, scaleRunes: normalized.inventory.scaleFundamentalRunes });
     const abilities = buildAbilities({ level, classProfile, specialization: classSpecialization, registry: this.registry });
     const ancestryAttacks = buildAncestryAttacks({ level, ancestry, classProfile });
-    const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name: nameData.name, nameParts: nameData.nameParts, resolvedGender });
+    const identity = buildIdentity({ normalizedIdentity: normalized.identity, ancestry, random, name: nameData.name, nameParts: nameData.nameParts, nameCulture: nameData.culture, resolvedGender });
     identity.appearance = buildAppearance({
       request: normalized.appearance,
       ancestry,
@@ -119,7 +119,7 @@ export class NpcEngine {
       schemaVersion: SCHEMA_VERSION,
       generation: {
         seed,
-        sources: [ancestry?.sourceModule, classProfile?.sourceModule, profession?.sourceModule, role?.sourceModule].filter(Boolean),
+        sources: [...new Set([ancestry?.sourceModule, classProfile?.sourceModule, profession?.sourceModule, role?.sourceModule, nameData.pack?.sourceModule, nameData.culture?.sourceModule].filter(Boolean))],
         benchmark: "PF2e GM Core creature-building guidance"
       },
       identity,

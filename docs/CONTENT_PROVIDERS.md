@@ -132,20 +132,68 @@ An ancestry provider may contribute size, Speed, traits, languages, senses, age 
 
 Intrinsic attacks should remain attack definitions rather than fake inventory weapons. NPC Forge will not automatically treat such natural attacks as poison-coated manufactured weapons.
 
-## Name packs
+## Name cultures and name packs
 
-Name packs may be ancestry- and locale-aware. Proper names can be literal strings; speaking family names/titles should use semantic IDs and localization keys.
+Name culture definitions are setting-neutral metadata owned by content providers. NPC Forge does not hard-code Golarion regions; an add-on such as Names of the Inner Sea can register them.
 
 ```js
-api.content.registerNamePack("my-module", {
-  id: "my-module.dwarf-names",
-  ancestryIds: ["core.dwarf"],
+api.content.registerNameCulture("my-module", {
+  id: "my-module.varisian",
+  labelKey: "MYMODULE.Culture.Varisian",
+  ancestryIds: ["core.human"],
   supportedLocales: ["en", "de"],
-  given: { female: ["Dagna"], male: ["Hargun"], neutral: ["Dori"] },
-  family: [{ id: "ironhand", labelKey: "MYMODULE.Names.Ironhand", fallback: "Ironhand" }],
   weight: 10
 });
 ```
+
+`ancestryIds` and `supportedLocales` are optional filters. `weight` is used when the culture itself is resolved automatically.
+
+Name packs remain ancestry- and locale-aware. Add `cultureIds` when a pack belongs to one or more registered cultures. Packs without `cultureIds` are universal ancestry fallbacks and remain fully backward compatible with NPC Forge 1.0.0.
+
+```js
+api.content.registerNamePack("my-module", {
+  id: "my-module.varisian-human-names",
+  ancestryIds: ["core.human"],
+  cultureIds: ["my-module.varisian"],
+  supportedLocales: ["en", "de"],
+  given: { female: ["Mirela"], male: ["Luka"], neutral: ["Sasha"] },
+  family: [{ id: "speaker", labelKey: "MYMODULE.Names.Speaker", fallback: "Speaker" }],
+  weight: 10
+});
+```
+
+Proper names can be literal strings. Speaking family names, epithets, and generated components should use semantic IDs plus localization keys and fallbacks.
+
+### Large combinatorial pools
+
+A pack may optionally construct `given`, `family`, or `epithet` parts from components:
+
+```js
+generators: {
+  family: {
+    type: "components",
+    patterns: [["prefix", "root"], ["root", "suffix"]],
+    separator: "",
+    components: {
+      prefix: ["Stone", "Iron"],
+      root: ["helm", "hand"],
+      suffix: ["born", "heart"]
+    }
+  }
+}
+```
+
+`generator` is a shorthand for `generators.given`. Each component entry may be a literal string or a semantic object with `id`, `labelKey`, and `fallback`. Keep patterns curated: combinatorial generation is intended to expand a coherent naming grammar, not to multiply incompatible syllables blindly.
+
+### Fallback contract
+
+For an explicitly or automatically resolved culture, NPC Forge tries:
+
+1. a compatible pack whose `cultureIds` contains the resolved culture;
+2. a universal pack for the same ancestry;
+3. another compatible pack for the same ancestry as a last resort.
+
+The engine never selects a pack for another ancestry merely because the requested culture has no matching content.
 
 ## Appearance packs
 

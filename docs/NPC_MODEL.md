@@ -1,12 +1,12 @@
 # Neutral NPC Model
 
-NPC Forge 1.0.0 uses **schema version 12**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
+NPC Forge 1.1.0 uses **schema version 13**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
 
 Representative top-level shape:
 
 ```js
 {
-  schemaVersion: 12,
+  schemaVersion: 13,
   generation: { seed, benchmark, ... },
   identity: { ... },
   build: { ... },
@@ -26,7 +26,29 @@ Representative top-level shape:
 
 ## `identity` and `build`
 
-`identity` contains semantic name data, ancestry, gender, age, size, languages, senses, traits, and generated appearance. `build` contains resolved level, class profile/specialization, profession category/profession/specialization, and role.
+`identity` contains semantic name data, the resolved optional name culture, ancestry, gender, age, size, languages, senses, traits, and generated appearance. `build` contains resolved level, class profile/specialization, profession category/profession/specialization, and role.
+
+
+### Cultural name metadata
+
+When a cultural name provider participates, identity data can include:
+
+```js
+identity: {
+  name: "...",
+  nameCulture: { id, labelKey, sourceModule, ... },
+  nameParts: {
+    cultureId: "names-addon.varisian",
+    packId: "names-addon.varisian-human",
+    fallback: null,
+    given: { ... },
+    family: { ... },
+    epithet: null
+  }
+}
+```
+
+`nameCulture` is `null` for universal/fixed legacy packs with no culture. Component-generated parts are stored semantically as `{ composite: true, separator, parts: [...] }`, preserving deterministic seed data and allowing presentation to localize individual speaking-name components.
 
 ## `personality`
 
@@ -126,4 +148,4 @@ Spellcasting entries contain tradition, prepared/spontaneous mode, casting abili
 
 ## `integrations`
 
-Schema 12 continues to store **integration intent**, not external module results. The async adapter invokes optional external APIs and stores runtime diagnostics/results in Foundry Actor flags.
+Schema 13 continues to store **integration intent**, not external module results. The async adapter invokes optional external APIs and stores runtime diagnostics/results in Foundry Actor flags.

@@ -266,6 +266,7 @@ export function presentNpc(npc, localize = (key) => key) {
       size: SIZE_KEYS[npc.identity?.size] ? localize(SIZE_KEYS[npc.identity.size]) : (npc.identity?.size ?? ""),
       languages: (npc.identity?.languages ?? []).map((language) => LANGUAGE_KEYS[language] ? localize(LANGUAGE_KEYS[language]) : language),
       senses: (npc.identity?.senses ?? []).map((sense) => SENSE_KEYS[sense] ? localize(SENSE_KEYS[sense]) : sense),
+      nameCulture: localizeDefinition(npc.identity?.nameCulture, localize),
       appearance: presentAppearance(npc.identity?.appearance, localize)
     },
     statistics: {

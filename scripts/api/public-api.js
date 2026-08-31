@@ -1,6 +1,6 @@
 import { API_VERSION, CAPABILITIES, SCHEMA_VERSION } from "../constants.js";
 import { NpcEditorSession } from "../ui/npc-editor-session.js";
-import { availableNamePacks } from "../engine/names/name-generator.js";
+import { availableNameCultures, availableNamePacks } from "../engine/names/name-generator.js";
 import { inspectExternalIntegrations } from "../integrations/external-forge-orchestrator.js";
 
 export class NpcForgeApi {
@@ -34,6 +34,8 @@ export class NpcForgeApi {
       registerProfession: (moduleId, definition) => registry.register("professions", moduleId, definition),
       registerProfessionSpecialization: (moduleId, definition) => registry.register("professionSpecializations", moduleId, definition),
       registerRole: (moduleId, definition) => registry.register("roles", moduleId, definition),
+      registerNameCulture: (moduleId, definition) => registry.register("nameCultures", moduleId, definition),
+      listNameCultures: (options = {}) => availableNameCultures(registry, options),
       registerNamePack: (moduleId, definition) => registry.register("namePacks", moduleId, definition),
       listNamePacks: (options = {}) => availableNamePacks(registry, options),
       registerPersonalityPack: (moduleId, definition) => registry.register("personalityPacks", moduleId, definition),

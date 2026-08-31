@@ -53,6 +53,14 @@
       <summary>{{localize "NPCFORGE.Sections.Identity"}}</summary>
       <div class="npc-forge-section-body npc-forge-form-grid">
         <label>{{localize "NPCFORGE.Fields.Name"}}<input type="text" name="identityName" value="{{request.identity.name}}" placeholder="{{localize "NPCFORGE.Fields.Automatic"}}"></label>
+        {{#if showNameCulture}}
+        <label>{{localize "NPCFORGE.Fields.NameCulture"}}
+          <select name="identityNameCulture">
+            <option value="">{{localize "NPCFORGE.Fields.Automatic"}}</option>
+            {{#each nameCultureOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select>
+        </label>
+        {{/if}}
         <label>{{localize "NPCFORGE.Fields.NamePack"}}
           <select name="identityNamePack">
             <option value="">{{localize "NPCFORGE.Fields.Automatic"}}</option>
@@ -160,6 +168,7 @@
           <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.Gender"}}</span><strong>{{view.identity.gender}}</strong></div>
           <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.Age"}}</span><strong>{{view.identity.ageYears}} · {{view.identity.ageCategory}}</strong></div>
           <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.Size"}}</span><strong>{{view.identity.size}}</strong></div>
+          {{#if view.identity.nameCulture}}<div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Fields.NameCulture"}}</span><strong>{{view.identity.nameCulture}}</strong></div>{{/if}}
           <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Fields.Languages"}}</span><strong>{{#each view.identity.languages}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong></div>
           {{#if view.identity.senses.length}}<div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Fields.Senses"}}</span><strong>{{#each view.identity.senses}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong></div>{{/if}}
         </div>

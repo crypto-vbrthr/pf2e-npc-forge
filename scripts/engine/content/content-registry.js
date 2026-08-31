@@ -10,6 +10,7 @@ const TYPES = Object.freeze([
   "professions",
   "professionSpecializations",
   "roles",
+  "nameCultures",
   "namePacks",
   "personalityPacks",
   "backgroundPacks",

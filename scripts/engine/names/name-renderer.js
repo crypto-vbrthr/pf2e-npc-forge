@@ -1,6 +1,10 @@
 function resolvePart(part, localize = (key) => key) {
   if (!part) return "";
   if (typeof part === "string") return part;
+  if (part.composite && Array.isArray(part.parts)) {
+    const separator = typeof part.separator === "string" ? part.separator : "";
+    return part.parts.map((entry) => resolvePart(entry, localize)).filter(Boolean).join(separator);
+  }
   if (part.labelKey) {
     const localized = localize(part.labelKey);
     if (localized && localized !== part.labelKey) return localized;

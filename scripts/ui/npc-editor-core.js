@@ -151,7 +151,8 @@ export class NpcEditorCore {
     const professionSpecializations = request.profession
       ? this.api.registry.children("professionSpecializations", request.profession)
       : [];
-    const namePacks = this.api.content.listNamePacks({ ancestryId: request.ancestry, locale: game.i18n.lang ?? "en" });
+    const nameCultures = this.api.content.listNameCultures({ ancestryId: request.ancestry, locale: game.i18n.lang ?? "en" });
+    const namePacks = this.api.content.listNamePacks({ ancestryId: request.ancestry, cultureId: request.identity?.nameCulture ?? null, locale: game.i18n.lang ?? "en" });
     const integrationStatus = await this._inspectIntegrations();
     const afflictionStatus = integrationStatus.afflictionForge;
     let afflictionDetails = null;
@@ -194,6 +195,8 @@ export class NpcEditorCore {
       professionOptions: definitionOptions(professions, request.profession),
       professionSpecializationOptions: definitionOptions(professionSpecializations, request.professionSpecialization),
       hasProfessionSpecializations: professionSpecializations.length > 0,
+      showNameCulture: nameCultures.length > 0,
+      nameCultureOptions: definitionOptions(nameCultures, request.identity?.nameCulture ?? null),
       namePackOptions: definitionOptions(namePacks, request.identity?.namePack ?? null),
       genderOptions: [
         { value: "random", labelKey: "NPCFORGE.Fields.Automatic", selected: (request.identity?.gender ?? "random") === "random" },
@@ -286,6 +289,8 @@ export class NpcEditorCore {
     const classChanged = nextClass !== current.classProfile;
     const nextAncestry = String(data.get("ancestry") ?? "core.human");
     const ancestryChanged = nextAncestry !== current.ancestry;
+    const nextCulture = ancestryChanged ? null : (String(data.get("identityNameCulture") ?? "") || null);
+    const cultureChanged = nextCulture !== (current.identity?.nameCulture ?? null);
     const nextCategory = String(data.get("professionCategory") ?? "") || null;
     const categoryChanged = nextCategory !== current.professionCategory;
     const nextProfession = categoryChanged ? null : (String(data.get("profession") ?? "") || null);
@@ -306,7 +311,8 @@ export class NpcEditorCore {
         generateName: !String(data.get("identityName") ?? "").trim(),
         gender: String(data.get("identityGender") ?? "random"),
         ageCategory: String(data.get("identityAgeCategory") ?? "random"),
-        namePack: ancestryChanged ? null : (String(data.get("identityNamePack") ?? "") || null),
+        nameCulture: nextCulture,
+        namePack: (ancestryChanged || cultureChanged) ? null : (String(data.get("identityNamePack") ?? "") || null),
         nameLocale: game.i18n.lang ?? "en"
       },
       appearance: {
@@ -343,7 +349,7 @@ export class NpcEditorCore {
       } : { ...(current.inventory ?? {}) }
     };
     this.session.setRequest(nextRequest, { render: false, notify: true });
-    if (classChanged || categoryChanged || professionChanged || ancestryChanged) {
+    if (classChanged || categoryChanged || professionChanged || ancestryChanged || cultureChanged) {
       this.captureUiState();
       this.render({ preserveUiState: false });
     }

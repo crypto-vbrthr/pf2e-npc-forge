@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0 – Cultural Name Provider Support
+
+- Added the `nameCultures` content-registry type with provider namespace enforcement.
+- Added public `registerNameCulture()` and `listNameCultures()` APIs.
+- Added optional `cultureIds` on name packs and culture-aware pack discovery.
+- Added `identity.nameCulture` generation input and resolved culture metadata in the neutral NPC model.
+- Added deterministic weighted automatic culture selection and explicit fixed-culture requests for external hosts.
+- Added safe fallback order from a requested culture to universal ancestry packs and then other same-ancestry packs without crossing ancestry boundaries.
+- Added an optional Name Culture selector to the shared standalone/embedded editor; it appears only when compatible cultures are registered.
+- Added resolved culture display in the Identity preview and culture/name-pack provenance in Actor flags.
+- Added optional semantic component-based name generators for large combinatorial name pools, including localized name components.
+- Existing name packs remain backward-compatible universal fallbacks.
+- Added `name-culture-registration`, `cultural-name-generation`, and `compositional-name-generation` capabilities.
+- Bumped the public API to 1.1.0 and neutral NPC schema to 13.
+- Expanded regression coverage to 134 tests.
+
 ## 1.0.0 – Final Release
 
 - Promoted the validated 1.0.0-rc.1 build to the first stable release after successful Foundry live smoke testing.

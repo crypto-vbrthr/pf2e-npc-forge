@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 1.0.0 – Final Release**
+**Version 1.1.0 – Cultural Name Provider Support**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -33,7 +33,7 @@ Suggestions and feature requests are equally welcome. Even small ideas can lead 
 - 16 remastered core class profiles with NPC-facing specializations and signature abilities.
 - 16 Player Core / Player Core 2 ancestry profiles with size, Speed, languages, senses, age, and selected intrinsic attacks.
 - Hierarchical professions and profession specializations with equipment profiles.
-- Ancestry-aware, locale-aware semantic name generation.
+- Ancestry-aware, locale-aware semantic name generation with optional cultural name providers and compositional name packs.
 - Structured appearance, personality, secrets, and a roleplaying kit.
 - Structured biography, social standing, reputation, community role, current problems, GM hooks, and NPC relationships.
 - Relationship records include reciprocal type metadata and unresolved target constraints for future Crowd/Encounter graph resolution.
@@ -51,7 +51,7 @@ Generation Request
       ↓
 Neutral NPC Engine
       ↓
-Neutral NPC Model (schema 12)
+Neutral NPC Model (schema 13)
       ↓
 PF2e Document Adapter
       ↓
@@ -62,6 +62,19 @@ The generation engine remains independent from Foundry documents and optional Fo
 
 See `docs/ARCHITECTURE.md`, `docs/NPC_MODEL.md`, and `docs/EMBEDDED_EDITOR.md`.
 
+
+## 1.1.0 cultural name provider support
+
+1.1.0 adds a setting-neutral cultural layer to NPC Forge's name system so dedicated content add-ons such as **Names of the Inner Sea** can provide regional and cultural naming traditions without patching the NPC Forge core.
+
+- Add-ons can register `nameCultures` and associate one or more `cultureIds` with a name pack.
+- The Identity editor displays **Name culture** only when a compatible provider has registered cultures for the selected ancestry/locale.
+- Automatic culture selection remains deterministic and weighted; hosts such as Crowd Forge or City Forge can explicitly request a culture.
+- Culture-specific generation falls back to universal ancestry packs before considering any other same-ancestry pack, and never crosses into another ancestry just to find a name.
+- Name packs may optionally use semantic component generators for very large combinatorial pools while retaining localization of individual components.
+- Existing 1.0.0 name packs remain valid and act as universal ancestry fallbacks.
+
+The neutral NPC schema is now **13**, adding resolved `identity.nameCulture` metadata and culture provenance in `identity.nameParts`.
 
 ## 1.0.0 final release
 
@@ -132,8 +145,8 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.0.0**  
-Neutral model schema: **12**
+Public API version: **1.1.0**  
+Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.
 

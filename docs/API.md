@@ -10,8 +10,8 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `1.0.0`
-- Neutral NPC schema: `12`
+- Public API version: `1.1.0`
+- Neutral NPC schema: `13`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
 
@@ -141,6 +141,7 @@ api.content.registerProfessionCategory(moduleId, definition);
 api.content.registerProfession(moduleId, definition);
 api.content.registerProfessionSpecialization(moduleId, definition);
 api.content.registerRole(moduleId, definition);
+api.content.registerNameCulture(moduleId, definition);
 api.content.registerNamePack(moduleId, definition);
 api.content.registerPersonalityPack(moduleId, definition);
 api.content.registerBackgroundPack(moduleId, definition);
@@ -167,15 +168,88 @@ External modules may reference core parents but may not claim `core.*` or anothe
 
 ## Names
 
+NPC Forge 1.1.0 exposes a setting-neutral culture layer for name-provider add-ons. A provider can register a culture and then associate one or more name packs with it.
+
 ```js
-const packs = api.content.listNamePacks({
-  ancestryId: "core.dwarf",
-  locale: "de",
-  allowUntranslated: false
+api.content.registerNameCulture("names-addon", {
+  id: "names-addon.varisian",
+  labelKey: "NAMESADDON.Culture.Varisian",
+  ancestryIds: ["core.human"],
+  supportedLocales: ["en", "de"],
+  weight: 10
+});
+
+api.content.registerNamePack("names-addon", {
+  id: "names-addon.varisian-human",
+  ancestryIds: ["core.human"],
+  cultureIds: ["names-addon.varisian"],
+  supportedLocales: ["en", "de"],
+  given: { female: ["Mirela"], male: ["Luka"], neutral: ["Sasha"] },
+  family: ["Vasilev"],
+  weight: 10
 });
 ```
 
-Generated identities expose semantic `identity.nameParts`, allowing localized speaking surnames/titles without changing the generation seed.
+Discover compatible cultures and packs:
+
+```js
+const cultures = api.content.listNameCultures({
+  ancestryId: "core.human",
+  locale: "de"
+});
+
+const packs = api.content.listNamePacks({
+  ancestryId: "core.human",
+  cultureId: "names-addon.varisian",
+  locale: "de",
+  includeUniversal: true
+});
+```
+
+Generation can request a fixed culture while leaving the pack automatic:
+
+```js
+const npc = api.engine.generate({
+  seed: "dock-family-01",
+  ancestry: "core.human",
+  identity: {
+    nameCulture: "names-addon.varisian",
+    namePack: null,
+    nameLocale: "de"
+  }
+});
+```
+
+When `nameCulture` is automatic, NPC Forge resolves a compatible culture deterministically using provider weights. If the chosen culture has no compatible pack, generation first falls back to a universal pack for the same ancestry, then to another same-ancestry pack as a last resort. It never crosses ancestry boundaries merely to find a name. A fixed `namePack` remains authoritative for backward compatibility.
+
+Existing packs without `cultureIds` are universal and require no migration. Generated identities expose the resolved `identity.nameCulture` plus semantic `identity.nameParts`, including `cultureId`, `packId`, and fallback provenance.
+
+### Component-based name generation
+
+Large name add-ons may generate semantic name parts from components rather than storing every complete name:
+
+```js
+api.content.registerNamePack("names-addon", {
+  id: "names-addon.dwarf-clans",
+  ancestryIds: ["core.dwarf"],
+  supportedLocales: ["en", "de"],
+  generators: {
+    family: {
+      type: "components",
+      patterns: [["root", "suffix"]],
+      separator: "",
+      components: {
+        root: [{ id: "iron", labelKey: "NAMESADDON.Component.Iron", fallback: "Iron" }],
+        suffix: [{ id: "hand", labelKey: "NAMESADDON.Component.Hand", fallback: "hand" }]
+      }
+    }
+  },
+  given: { male: ["Hargun"], female: ["Dagna"], neutral: ["Dori"] },
+  weight: 10
+});
+```
+
+`generators.given`, `generators.family`, and `generators.epithet` are supported. `generator` is accepted as a shorthand for a component generator targeting the given name. Component entries use the same literal/`labelKey`/fallback semantics as ordinary name parts, so speaking names remain localizable without changing the generation seed.
 
 ## Spellcasting
 

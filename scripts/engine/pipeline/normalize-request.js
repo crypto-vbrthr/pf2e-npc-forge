@@ -34,6 +34,7 @@ export function normalizeRequest(request = {}) {
       ageCategory: request.identity?.ageCategory ?? "random",
       ageYears: Number.isFinite(request.identity?.ageYears) ? Math.max(0, Math.trunc(request.identity.ageYears)) : null,
       nameLocale: request.identity?.nameLocale ?? "en",
+      nameCulture: fixed(request.identity?.nameCulture, null),
       namePack: fixed(request.identity?.namePack, null),
       allowUntranslatedNamePacks: request.identity?.allowUntranslatedNamePacks === true
     },

@@ -42,3 +42,10 @@ test("equipment controls expose level-scaled fundamental rune generation", () =>
   assert.match(template, /NPCFORGE\.EquipmentProgression\.ScaleFundamentalRunes/);
   assert.match(template, /displayRunes/);
 });
+
+
+test("identity controls expose optional cultural name-provider selection", () => {
+  assert.match(template, /showNameCulture/);
+  assert.match(template, /name="identityNameCulture"/);
+  assert.match(template, /NPCFORGE\.Fields\.NameCulture/);
+});

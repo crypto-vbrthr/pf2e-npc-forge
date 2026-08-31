@@ -348,6 +348,8 @@ export class Pf2eDocumentAdapter {
           generated: true,
           seed: npc.generation.seed,
           ancestryId: npc.identity.ancestry?.id ?? null,
+          nameCultureId: npc.identity.nameCulture?.id ?? null,
+          namePackId: npc.identity.nameParts?.packId ?? null,
           gender: npc.identity.gender ?? null,
           ageCategory: npc.identity.age?.category ?? null,
           ageYears: npc.identity.age?.years ?? null,

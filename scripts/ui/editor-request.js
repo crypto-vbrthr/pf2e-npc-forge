@@ -13,7 +13,9 @@ export const DEFAULT_EDITOR_REQUEST = Object.freeze({
     name: null,
     generateName: true,
     gender: "random",
-    ageCategory: "random"
+    ageCategory: "random",
+    nameCulture: null,
+    namePack: null
   },
   appearance: {
     enabled: true,

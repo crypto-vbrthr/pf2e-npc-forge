@@ -22,10 +22,11 @@ function resolveAge(identity, ancestry, random) {
   return { category, years: random.int(Number(range.min ?? 18), Number(range.max ?? range.min ?? 60)) };
 }
 
-export function buildIdentity({ normalizedIdentity, ancestry, random, name, nameParts = null, resolvedGender = null }) {
+export function buildIdentity({ normalizedIdentity, ancestry, random, name, nameParts = null, nameCulture = null, resolvedGender = null }) {
   return {
     name,
     nameParts,
+    nameCulture,
     ancestry,
     gender: resolvedGender ?? resolveGender(normalizedIdentity, random),
     age: resolveAge(normalizedIdentity, ancestry, random),

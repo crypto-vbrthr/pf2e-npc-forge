@@ -31,3 +31,11 @@ test("external modules cannot claim another add-on namespace", () => {
     /outside the namespace owned by addon-a/
   );
 });
+
+
+test("name cultures obey provider namespace ownership", () => {
+  const registry = new ContentRegistry();
+  registry.register("nameCultures", "names-addon", { id: "names-addon.varisian", label: "Varisian" });
+  assert.equal(registry.get("nameCultures", "names-addon.varisian").sourceModule, "names-addon");
+  assert.throws(() => registry.register("nameCultures", "names-addon", { id: "core.varisian" }), /outside the namespace/);
+});

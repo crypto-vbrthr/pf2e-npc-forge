@@ -9,5 +9,5 @@ test("preview scroll remains part of centralized shared editor UI state preserva
   assert.match(source, /_restoreUiState\(\)/);
   assert.match(source, /previewScrollTop:\s*preview\?\.scrollTop\s*\?\?\s*0/);
   assert.match(source, /if \(preview\) preview\.scrollTop = state\.previewScrollTop/);
-  assert.match(source, /if \(classChanged \|\| categoryChanged \|\| professionChanged \|\| ancestryChanged\) \{[\s\S]*?captureUiState\(\);[\s\S]*?render\(/);
+  assert.match(source, /if \(classChanged \|\| categoryChanged \|\| professionChanged \|\| ancestryChanged \|\| cultureChanged\) \{[\s\S]*?captureUiState\(\);[\s\S]*?render\(/);
 });
