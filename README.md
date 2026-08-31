@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 1.1.2 – Name Pool Deduplication Fix**
+**Version 1.1.3 – PF2e Passive Ability Materialization Fix**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -63,6 +63,10 @@ The generation engine remains independent from Foundry documents and optional Fo
 See `docs/ARCHITECTURE.md`, `docs/NPC_MODEL.md`, and `docs/EMBEDDED_EDITOR.md`.
 
 
+
+## 1.1.3 PF2e passive ability materialization fix
+
+1.1.3 fixes PF2e Actor materialization for generated passive NPC abilities. PF2e stores `passive` in an ability's action type; the separate action-category field is nullable and does not accept `passive`. NPC Forge now writes passive ability Items with `actionType.value = "passive"` and `category = null`, preventing Foundry/PF2e validation errors during Actor creation. The neutral NPC schema remains **13** and no migration is required.
 
 ## 1.1.2 name pool deduplication fix
 
@@ -161,7 +165,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.1.2**  
+Public API version: **1.1.3**  
 Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.

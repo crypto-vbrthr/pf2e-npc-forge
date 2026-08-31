@@ -20,6 +20,19 @@ test("adapter creates a serializable PF2e NPC actor source with stats, skills, w
   assert.doesNotThrow(() => JSON.stringify(source));
 });
 
+test("adapter materializes passive PF2e abilities with passive actionType and a nullable category", () => {
+  const registry = new ContentRegistry(); registerCoreContent(registry);
+  const npc = new NpcEngine({ registry }).generate({ seed: "passive-ability-category", level: 3, profession: "core.guard", classProfile: "core.fighter", role: "core.ordinary" });
+  const source = new Pf2eDocumentAdapter().toActorSource(npc);
+  const abilityItems = source.items.filter((item) => item.type === "action");
+  const passive = abilityItems.filter((item) => item.system.actionType.value === "passive");
+  const active = abilityItems.filter((item) => item.system.actionType.value !== "passive");
+
+  assert.ok(passive.length > 0, "fixture should include at least one passive ability");
+  assert.ok(passive.every((item) => item.system.category === null), "PF2e passive abilities must not use 'passive' as the category");
+  assert.ok(active.every((item) => item.system.category === "offensive"), "active generated abilities keep the NPC offensive category default");
+});
+
 test("adapter localizes generated weapon and melee names for active Foundry locale", () => {
   const previousGame = globalThis.game;
   globalThis.game = { i18n: { localize: (key) => ({

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.3 – PF2e Passive Ability Materialization Fix
+
+- Fixed generated passive NPC abilities using `system.category: "passive"`, which is invalid for current PF2e `AbilityItemPF2e` documents.
+- Passive abilities now correctly use `system.actionType.value: "passive"` with the nullable `system.category` set to `null`.
+- Active/reaction/free generated abilities retain the existing `offensive` NPC action-category default.
+- Prevents Foundry/PF2e validation errors during Actor creation while preserving the generated ability Items on the NPC.
+- Added adapter regression coverage for passive and active ability materialization.
+- Neutral NPC schema remains 13; no migration is required.
+
 ## 1.1.2 – Name Pool Deduplication Fix
 
 - Deduplicated the final eligible given-name pool before random selection.

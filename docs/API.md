@@ -10,7 +10,7 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `1.1.2`
+- Public API version: `1.1.3`
 - Neutral NPC schema: `13`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
@@ -168,7 +168,7 @@ External modules may reference core parents but may not claim `core.*` or anothe
 
 ## Names
 
-NPC Forge 1.1.2 exposes a setting-neutral culture layer for name-provider add-ons. A provider can register a culture and then associate one or more name packs with it.
+NPC Forge 1.1.3 exposes a setting-neutral culture layer for name-provider add-ons. A provider can register a culture and then associate one or more name packs with it.
 
 ```js
 api.content.registerNameCulture("names-addon", {

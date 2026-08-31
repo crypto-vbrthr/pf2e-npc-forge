@@ -71,7 +71,9 @@ function actionItemFromAbility(ability) {
     system: {
       actionType: { value: actionType },
       actions: { value: ability.actions ?? null },
-      category: ability.actionType === "passive" ? "passive" : "offensive",
+      // PF2e treats "passive" as an action type, not an action category.
+      // Passive abilities therefore use the schema's nullable category field.
+      category: actionType === "passive" ? null : "offensive",
       description: { value: description },
       traits: { value: [...(ability.traits ?? [])] }
     },

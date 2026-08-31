@@ -12,7 +12,7 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 1.1.2 release contains **142 passing tests** covering, among other areas:
+The 1.1.3 release contains **143 passing tests** covering, among other areas:
 
 - level-scaled fundamental rune progression and opt-out behavior;
 - PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
