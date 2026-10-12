@@ -10,7 +10,7 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `1.1.3`
+- Public API version: `1.2.0`
 - Neutral NPC schema: `13`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
@@ -320,3 +320,33 @@ const npc = api.engine.generate({
 ```
 
 Editor section rerolls accept `background`, `relationships`, and `socialContext` in addition to the earlier domains.
+
+
+## GM-defined world name library (1.2.0)
+
+NPC Forge now exposes `api.customNames` for world-scoped homebrew content:
+
+```js
+const { cultures, packs } = api.customNames.list();
+const unsubscribe = api.customNames.subscribe((library) => console.log(library));
+// Only GMs may write:
+await api.customNames.saveCulture({
+  id: "harborfolk", title: "Harborfolk", ancestryIds: ["core.human"], automatic: false
+});
+await api.customNames.savePack({
+  id: "harborfolk-sailors", title: "Sailors", cultureId: "harborfolk",
+  ancestryIds: ["core.human"],
+  given: { male: ["Orin"], female: ["Kira"], neutral: ["Selen"] },
+  family: ["Sailcrest"], epithets: [],
+  composites: {
+    male: { prefix: ["Al"], suffix: ["ric"] },
+    female: { prefix: ["El"], suffix: ["ara"] },
+    neutral: { prefix: [], suffix: [] },
+    family: { prefix: ["Salt"], suffix: ["wind"] }
+  }
+});
+```
+
+Other methods: `load()`, `replace(library)`, `saveCulture`, `deleteCulture`, `savePack`, `deletePack`, `subscribe(listener)`, `ancestryOptions()`. `replace` accepts a version-1 object with `cultures` and `packs`; it validates data and replaces the complete world library, not addon-provided entries. `deleteCulture` deletes associated user-created packs. Each culture or pack has a stable user ID; NPC Forge internally registers IDs under `pf2e-npc-forge.user.culture.*` and `pf2e-npc-forge.user.pack.*` to preserve namespace isolation.
+
+Custom cultures default to **explicit selection only** (`automatic: false`); they do not silently displace universal names. This API requires a running Foundry world and GM permission to write. Editor-created packs use plain literals rather than locale-specific translation keys. The neutral NPC schema stays at `13`.

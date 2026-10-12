@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 – Custom Name Cultures & Homebrew Name Parts
+
+- Added a GM-only **Custom Names** tab in the standalone NPC Forge window for homebrew cultures and gender-aware name packs.
+- Added persistent world-level storage, validation, ancestry assignment, automatic/manual culture selection, CRUD management and JSON export/import.
+- Added male/female/neutral given-name pools, optional composed given-name prefixes/suffixes per gender, composed family names, regular surnames and epithets.
+- Registered custom world entries under the reserved `pf2e-npc-forge.user.*` namespace without mutating other content providers.
+- Updated live Culture/Name Pack selectors automatically when the world library changes.
+- Added GM permission checks and real NPC-engine regression tests for deterministic custom names, gendered composition, persistence and deletion.
+- Schema remains **13**; existing packs remain fully supported.
+
 ## 1.1.3 – PF2e Passive Ability Materialization Fix
 
 - Fixed generated passive NPC abilities using `system.category: "passive"`, which is invalid for current PF2e `AbilityItemPF2e` documents.

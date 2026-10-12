@@ -1,4 +1,5 @@
 import { MODULE_ID } from "../constants.js";
+import { CustomNamesManager } from "./custom-names-manager.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const HandlebarsApplication = HandlebarsApplicationMixin(ApplicationV2);
@@ -19,6 +20,9 @@ export class NpcForgeApp extends HandlebarsApplication {
     this.api = api;
     this.targetFolderId = targetFolderId;
     this.editorSession = null;
+    this.customManager = null;
+    this.activeTab = "generate";
+    this.unsubscribeCustomNames = null;
   }
 
   async _onRender(context, options) {
@@ -39,6 +43,38 @@ export class NpcForgeApp extends HandlebarsApplication {
     }
     this.editorSession.mount(host);
     await this.editorSession.whenRendered();
+    this.customManager?.destroy();
+    if (game.user.isGM) {
+      this.customManager = new CustomNamesManager({ api: this.api });
+      this.customManager.mount(this.element.querySelector("[data-npc-forge-custom-host]"));
+    } else {
+      this.customManager = null;
+      this.element.querySelector('[data-npc-forge-tab="custom"]')?.remove();
+    }
+    this.element.querySelectorAll("[data-npc-forge-tab]").forEach((tab) => tab.addEventListener("click", () => this._switchTab(tab.dataset.npcForgeTab)));
+    this._switchTab(this.activeTab);
+    this.unsubscribeCustomNames?.();
+    this.unsubscribeCustomNames = this.api.customNames?.subscribe?.(() => {
+      const request = this.editorSession?.getRequest();
+      if (request) {
+        const culture = request.identity?.nameCulture;
+        const pack = request.identity?.namePack;
+        if (culture && !this.api.registry.get("nameCultures", culture)) request.identity.nameCulture = null;
+        if (pack && !this.api.registry.get("namePacks", pack)) request.identity.namePack = null;
+        this.editorSession.setRequest(request, { render: true });
+      }
+      void this.customManager?.render();
+    });
+  }
+
+  _switchTab(value) {
+    this.activeTab = value === "custom" ? "custom" : "generate";
+    for (const panel of this.element.querySelectorAll("[data-npc-forge-panel]")) panel.hidden = panel.dataset.npcForgePanel !== this.activeTab;
+    for (const tab of this.element.querySelectorAll("[data-npc-forge-tab]")) {
+      const selected = tab.dataset.npcForgeTab === this.activeTab;
+      tab.classList.toggle("active", selected);
+      tab.setAttribute("aria-selected", String(selected));
+    }
   }
 
   _onActorCreated(actor) {
@@ -67,6 +103,10 @@ export class NpcForgeApp extends HandlebarsApplication {
   }
 
   async close(options = {}) {
+    this.unsubscribeCustomNames?.();
+    this.unsubscribeCustomNames = null;
+    this.customManager?.destroy();
+    this.customManager = null;
     this.editorSession?.destroy();
     this.editorSession = null;
     return super.close(options);

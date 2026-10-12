@@ -1,5 +1,5 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "1.1.3";
+export const API_VERSION = "1.2.0";
 export const SCHEMA_VERSION = 13;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",
@@ -37,6 +37,9 @@ export const CAPABILITIES = Object.freeze([
   "cultural-name-generation",
   "scoped-name-culture-automation",
   "deduplicated-name-pools",
+  "world-custom-name-library",
+  "custom-name-cultures-ui",
+  "gendered-name-components",
   "compositional-name-generation",
   "localized-name-generation",
   "semantic-name-parts",

@@ -1,6 +1,6 @@
 # Architecture
 
-PF2E NPC Forge 1.1.3 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
+PF2E NPC Forge 1.2.0 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
 
 ## 1. Neutral NPC Engine
 
@@ -116,3 +116,5 @@ See `API.md` and `EMBEDDED_EDITOR.md`.
 ## Level-scaled equipment contract
 
 Fundamental rune selection is an Engine rule and is stored as neutral `inventory[].fundamentalRunes` metadata. PF2e schema mutation (`system.runes`) belongs exclusively to the Document Adapter. NPC `melee` items remain independent creature-benchmark attacks and do not inherit striking dice or potency bonuses from the inventory Item.
+
+World-managed name cultures and packs are saved using a hidden Foundry world setting, validated by `CustomNameLibrary`, and registered under a dedicated `pf2e-npc-forge.user` namespace. Existing provider data is immutable and external modules retain their independent namespaces.

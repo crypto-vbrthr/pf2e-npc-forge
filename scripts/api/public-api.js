@@ -4,7 +4,7 @@ import { availableNameCultures, availableNamePacks } from "../engine/names/name-
 import { inspectExternalIntegrations } from "../integrations/external-forge-orchestrator.js";
 
 export class NpcForgeApi {
-  constructor({ engine, registry, documents, integrations, openApplication } = {}) {
+  constructor({ engine, registry, documents, integrations, openApplication, customNames } = {}) {
     this.version = API_VERSION;
     this.apiVersion = API_VERSION;
     this.schemaVersion = SCHEMA_VERSION;
@@ -24,6 +24,7 @@ export class NpcForgeApi {
     });
     this.openApplication = openApplication;
     this.registry = registry;
+    this.customNames = customNames;
 
     this.content = Object.freeze({
       registerAncestry: (moduleId, definition) => registry.register("ancestries", moduleId, definition),

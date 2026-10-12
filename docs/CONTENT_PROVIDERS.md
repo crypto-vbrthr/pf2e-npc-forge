@@ -251,3 +251,8 @@ api.content.registerRelationshipPack("my-module", {
 ```
 
 Nested entry IDs are subject to the same namespace ownership rule as their parent packs.
+
+
+## GM homebrew libraries (1.2.0)
+
+The standalone **Custom Names** tab creates world-scoped name cultures and packs that are registered into the same content registry as provider add-ons. Provider IDs and data are never modified by the GM editor. World entries are namespaced `pf2e-npc-forge.user.*` and include optional gender-specific composite generators (`generators.givenByGender`). See `docs/API.md` for the world-library contract. Legacy provider `given` arrays and `generator` definitions continue working unchanged.

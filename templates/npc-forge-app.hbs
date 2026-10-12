@@ -1,1 +1,12 @@
-<div class="npc-forge-app-host" data-npc-forge-editor-host></div>
+<div class="npc-forge-standalone">
+  <nav class="npc-forge-standalone-tabs" aria-label="{{localize 'NPCFORGE.CustomNames.Tabs'}}">
+    <button type="button" data-npc-forge-tab="generate" class="active"><i class="fa-solid fa-user-gear"></i> {{localize "NPCFORGE.App.CreateHeading"}}</button>
+    <button type="button" data-npc-forge-tab="custom"><i class="fa-solid fa-book-open"></i> {{localize "NPCFORGE.CustomNames.Tab"}}</button>
+  </nav>
+  <div class="npc-forge-standalone-panel" data-npc-forge-panel="generate">
+    <div class="npc-forge-app-host" data-npc-forge-editor-host></div>
+  </div>
+  <div class="npc-forge-standalone-panel" data-npc-forge-panel="custom" hidden>
+    <div class="npc-forge-custom-host" data-npc-forge-custom-host></div>
+  </div>
+</div>

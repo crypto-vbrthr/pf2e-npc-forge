@@ -113,7 +113,14 @@ function resolveCulture({ registry, resolver, ancestryId, locale, allowUntransla
   return cultures.length ? resolver.resolve(cultures) : null;
 }
 
-function generatorFor(pack, part) {
+function generatorFor(pack, part, gender = null) {
+  if (part === "given" && pack?.generators?.givenByGender) {
+    const candidates = gender === "male" ? ["male", "neutral", "female"] : gender === "female" ? ["female", "neutral", "male"] : ["neutral", "female", "male"];
+    for (const key of candidates) {
+      const generator = pack.generators.givenByGender[key];
+      if (generator?.type === "components") return generator;
+    }
+  }
   if (pack?.generators?.[part]?.type === "components") return pack.generators[part];
   if (part === "given" && pack?.generator?.type === "components") return pack.generator;
   return null;
@@ -183,12 +190,20 @@ export function generateNameData({ registry, resolver, ancestry, random, gender 
   const { pack, fallback } = selectPack({ registry, resolver, ancestryId: ancestry?.id, culture, locale, allowUntranslated, request });
   if (!pack) return { name: "Unnamed NPC", nameParts: null, pack: null, culture, fallback };
 
-  const generatedGiven = generateComposite(generatorFor(pack, "given"), random);
-  const given = generatedGiven ?? random.pick(givenPool(pack, gender)) ?? { literal: "Unnamed" };
+  const givenGenerator = generatorFor(pack, "given", gender);
+  const fixedGiven = givenPool(pack, gender);
+  const useGivenComponents = givenGenerator && (!fixedGiven.length || random.chance(0.5));
+  const given = (useGivenComponents ? generateComposite(givenGenerator, random) : null)
+    ?? random.pick(fixedGiven)
+    ?? (givenGenerator ? generateComposite(givenGenerator, random) : null)
+    ?? { literal: "Unnamed" };
 
-  const generatedFamily = generateComposite(generatorFor(pack, "family"), random);
+  const familyGenerator = generatorFor(pack, "family");
   const familyEntries = Array.isArray(pack.family) ? pack.family.map(normalizeEntry).filter(Boolean) : [];
-  const family = generatedFamily ?? (familyEntries.length ? random.pick(familyEntries) : null);
+  const useFamilyComponents = familyGenerator && (!familyEntries.length || random.chance(0.5));
+  const family = (useFamilyComponents ? generateComposite(familyGenerator, random) : null)
+    ?? (familyEntries.length ? random.pick(familyEntries) : null)
+    ?? (familyGenerator ? generateComposite(familyGenerator, random) : null);
 
   const generatedEpithet = generateComposite(generatorFor(pack, "epithet"), random);
   const epithetEntries = Array.isArray(pack.epithets) ? pack.epithets.map(normalizeEntry).filter(Boolean) : [];

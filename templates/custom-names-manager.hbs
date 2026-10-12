@@ -1,0 +1,87 @@
+<section class="npc-forge-custom-names" data-custom-names-root>
+  <header class="npc-forge-panel-header">
+    <h2>{{localize "NPCFORGE.CustomNames.Title"}}</h2>
+    <p>{{localize "NPCFORGE.CustomNames.Intro"}}</p>
+  </header>
+  <div class="npc-forge-custom-toolbar">
+    <button type="button" data-custom-action="new-culture"><i class="fa-solid fa-plus"></i> {{localize "NPCFORGE.CustomNames.NewCulture"}}</button>
+    <button type="button" data-custom-action="new-pack"><i class="fa-solid fa-plus"></i> {{localize "NPCFORGE.CustomNames.NewPack"}}</button>
+    <button type="button" data-custom-action="export"><i class="fa-solid fa-file-export"></i> {{localize "NPCFORGE.CustomNames.Export"}}</button>
+    <label class="npc-forge-custom-file-button"><i class="fa-solid fa-file-import"></i> {{localize "NPCFORGE.CustomNames.Import"}}<input type="file" data-custom-import accept="application/json,.json"></label>
+  </div>
+  <div class="npc-forge-custom-columns">
+    <aside class="npc-forge-custom-sidebar">
+      <h3>{{localize "NPCFORGE.CustomNames.Cultures"}}</h3>
+      {{#each cultures}}
+        <div class="npc-forge-custom-list-item">
+          <button type="button" data-custom-action="edit-culture" data-id="{{id}}">{{title}}</button>
+          <button type="button" data-custom-action="delete-culture" data-id="{{id}}" title="{{localize 'NPCFORGE.CustomNames.Delete'}}"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      {{else}}<p class="npc-forge-muted">{{localize "NPCFORGE.CustomNames.NoCultures"}}</p>{{/each}}
+      <h3>{{localize "NPCFORGE.CustomNames.Packs"}}</h3>
+      {{#each packs}}
+        <div class="npc-forge-custom-list-item">
+          <button type="button" data-custom-action="edit-pack" data-id="{{id}}">{{title}}</button>
+          <button type="button" data-custom-action="delete-pack" data-id="{{id}}" title="{{localize 'NPCFORGE.CustomNames.Delete'}}"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      {{else}}<p class="npc-forge-muted">{{localize "NPCFORGE.CustomNames.NoPacks"}}</p>{{/each}}
+    </aside>
+    <section class="npc-forge-custom-form-area">
+      {{#if editCulture}}
+        <form data-custom-culture-form>
+          <h3>{{localize "NPCFORGE.CustomNames.EditCulture"}}</h3>
+          <label>{{localize "NPCFORGE.CustomNames.Label"}}<input name="title" maxlength="100" required value="{{editCulture.title}}"></label>
+          <label>{{localize "NPCFORGE.CustomNames.Ancestries"}}<select name="ancestries" size="8" multiple required>
+            {{#each ancestryOptions}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select></label>
+          <p class="npc-forge-muted">{{localize "NPCFORGE.CustomNames.MultipleHelp"}}</p>
+          <label class="npc-forge-custom-check"><input type="checkbox" name="automatic" {{#if editCulture.automatic}}checked{{/if}}> {{localize "NPCFORGE.CustomNames.Automatic"}}</label>
+          <div class="npc-forge-custom-form-actions">
+            <button type="button" data-custom-action="save-culture"><i class="fa-solid fa-floppy-disk"></i> {{localize "NPCFORGE.CustomNames.Save"}}</button>
+            <button type="button" data-custom-action="cancel">{{localize "NPCFORGE.CustomNames.Cancel"}}</button>
+          </div>
+        </form>
+      {{else if editPack}}
+        <form data-custom-pack-form>
+          <h3>{{localize "NPCFORGE.CustomNames.EditPack"}}</h3>
+          <label>{{localize "NPCFORGE.CustomNames.Label"}}<input name="title" maxlength="100" required value="{{editPack.title}}"></label>
+          <label>{{localize "NPCFORGE.CustomNames.Culture"}}<select name="cultureId"><option value="">{{localize "NPCFORGE.CustomNames.Universal"}}</option>
+            {{#each cultureOptions}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{title}}</option>{{/each}}
+          </select></label>
+          <label>{{localize "NPCFORGE.CustomNames.Ancestries"}}<select name="ancestries" size="7" multiple required>
+            {{#each ancestryOptions}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{#if labelKey}}{{localize labelKey}}{{else}}{{label}}{{/if}}</option>{{/each}}
+          </select></label>
+          <p class="npc-forge-muted">{{localize "NPCFORGE.CustomNames.MultipleHelp"}}</p>
+          <h4>{{localize "NPCFORGE.CustomNames.GivenNames"}}</h4>
+          <div class="npc-forge-custom-grid">
+            <label>{{localize "NPCFORGE.CustomNames.Male"}}<textarea rows="4" name="givenMale">{{editPack.given.male}}</textarea></label>
+            <label>{{localize "NPCFORGE.CustomNames.Female"}}<textarea rows="4" name="givenFemale">{{editPack.given.female}}</textarea></label>
+            <label>{{localize "NPCFORGE.CustomNames.Neutral"}}<textarea rows="4" name="givenNeutral">{{editPack.given.neutral}}</textarea></label>
+          </div>
+          <p class="npc-forge-muted">{{localize "NPCFORGE.CustomNames.ListHelp"}}</p>
+          <h4>{{localize "NPCFORGE.CustomNames.Components"}}</h4>
+          <p class="npc-forge-muted">{{localize "NPCFORGE.CustomNames.ComponentsHelp"}}</p>
+          <div class="npc-forge-custom-grid">
+            {{#each componentGroups}}
+              <fieldset>
+                <legend>{{label}}</legend>
+                <label>{{localize "NPCFORGE.CustomNames.Prefixes"}}<textarea rows="3" name="{{prefixField}}">{{prefix}}</textarea></label>
+                <label>{{localize "NPCFORGE.CustomNames.Suffixes"}}<textarea rows="3" name="{{suffixField}}">{{suffix}}</textarea></label>
+              </fieldset>
+            {{/each}}
+          </div>
+          <div class="npc-forge-custom-grid">
+            <label>{{localize "NPCFORGE.CustomNames.Family"}}<textarea rows="4" name="family">{{editPack.family}}</textarea></label>
+            <label>{{localize "NPCFORGE.CustomNames.Epithets"}}<textarea rows="4" name="epithets">{{editPack.epithets}}</textarea></label>
+          </div>
+          <div class="npc-forge-custom-form-actions">
+            <button type="button" data-custom-action="save-pack"><i class="fa-solid fa-floppy-disk"></i> {{localize "NPCFORGE.CustomNames.Save"}}</button>
+            <button type="button" data-custom-action="cancel">{{localize "NPCFORGE.CustomNames.Cancel"}}</button>
+          </div>
+        </form>
+      {{else}}
+        <p class="npc-forge-empty">{{localize "NPCFORGE.CustomNames.SelectOrCreate"}}</p>
+      {{/if}}
+    </section>
+  </div>
+</section>

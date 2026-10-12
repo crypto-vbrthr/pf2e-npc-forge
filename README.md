@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 1.1.3 – PF2e Passive Ability Materialization Fix**
+**Version 1.2.0 – Homebrew Name Cultures & Name Parts Editor**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -34,6 +34,7 @@ Suggestions and feature requests are equally welcome. Even small ideas can lead 
 - 16 Player Core / Player Core 2 ancestry profiles with size, Speed, languages, senses, age, and selected intrinsic attacks.
 - Hierarchical professions and profession specializations with equipment profiles.
 - Ancestry-aware, locale-aware semantic name generation with optional cultural name providers and compositional name packs.
+- **Custom Names** tab for GMs: create, edit, export, and import world-level homebrew cultures and name packs, including gendered given names, name prefixes/suffixes, surnames, and epithets.
 - Structured appearance, personality, secrets, and a roleplaying kit.
 - Structured biography, social standing, reputation, community role, current problems, GM hooks, and NPC relationships.
 - Relationship records include reciprocal type metadata and unresolved target constraints for future Crowd/Encounter graph resolution.
@@ -63,6 +64,14 @@ The generation engine remains independent from Foundry documents and optional Fo
 See `docs/ARCHITECTURE.md`, `docs/NPC_MODEL.md`, and `docs/EMBEDDED_EDITOR.md`.
 
 
+
+## 1.2.0 Custom name cultures & homebrew name parts
+
+The standalone NPC Forge window now offers a **Custom Names** tab, available to GMs. Cultures can be assigned to one or more ancestries and can be explicitly selected or optionally enabled for automatic culture resolution. Create multiple name packs per culture, including gender-specific and neutral given-name lists, prefixes and suffixes for composed given names, family names and epithets. Name packs may also be universal (not attached to a culture).
+
+Custom content is saved as a **world setting** and is immediately available in the normal NPC Forge Culture/Name Pack selectors and through the usual content registry. Export/import a JSON library to back up or transfer homebrew names between worlds. External provider packs remain untouched. Existing actor data and the neutral NPC schema remain unchanged at 13.
+
+Plain custom names and components are language-neutral literal text; unlike addon-provided semantic translation keys, they are not automatically translated between German and English. Only GMs can change the world library.
 
 ## 1.1.3 PF2e passive ability materialization fix
 
@@ -165,7 +174,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.1.3**  
+Public API version: **1.2.0**  
 Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.
