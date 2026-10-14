@@ -2,7 +2,7 @@
   "id": "pf2e-npc-forge",
   "title": "PF2E NPC Forge",
   "description": "A modular PF2e NPC generation platform with a shared standalone/embedded editor, independent section locks, reliable manual +/- statistic editing, targeted rerolls, cultural and homebrew name providers, and optional Forge integrations.",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "authors": [
     {
       "name": "crypto-vbrthr"
@@ -45,5 +45,5 @@
   "readme": "README.md",
   "url": "https://github.com/crypto-vbrthr/pf2e-npc-forge",
   "manifest": "https://raw.githubusercontent.com/crypto-vbrthr/pf2e-npc-forge/refs/heads/main/module.json",
-  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/1.4.1/pf2e-npc-forge.zip"
+  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/1.4.2/pf2e-npc-forge.zip"
 }

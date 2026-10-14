@@ -12,7 +12,7 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 1.4.1 release has automated tests covering, among other areas:
+The 1.4.2 release has automated tests covering, among other areas:
 
 - level-scaled fundamental rune progression and opt-out behavior;
 - PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
@@ -75,6 +75,12 @@ The `tests/ui/section-locks.test.js` suite checks session-isolated locks, full G
 
 `tests/ui/stat-adjustments.test.js` validates all supported numeric field categories, positive/negative steps, HP/AC/Speed bounds, rejection of unsupported targets, session isolation, host capability gating, section-lock/reroll behavior, preview control wiring, and PF2e Actor source materialization of edited abilities, defenses, skills and melee bonuses.
 
-### 1.4.1 preview controls & independent locks
+### 1.4.2 preview controls & independent locks
 
 The preview now declares its +/- buttons in the Handlebars template (rather than dynamically injecting them at runtime), with a click/stop-propagation regression test. Attribute and defense lock states, inventory and attack lock states, item/strike coherency, reset semantics of numeric tweaks, and real PF2e actor source materialization are all covered.
+
+### 1.4.2 nested statistic controls
+
+- Verify the Skill/Lore and Strike `{{#each}}` rows read the editor capability via `@root.showStatAdjustments`, not the row-local Handlebars context.
+- Verify that each row has both `−` and `+` controls and that disabling `adjustStats` hides both.
+- Exercise skill and attack click events on the mounted editor core and confirm in-place value updates and Actor source materialization.

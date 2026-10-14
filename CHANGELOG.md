@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.2 – Skills & Strike Adjustment Controls Visibility Fix
+
+- Fixed missing `−`/`+` controls on **every Skill/Lore modifier** and **every Strike attack bonus** in the NPC preview. Within Handlebars `{{#each}}` loops, the editor's `showStatAdjustments` flag must be read from `@root`; unqualified lookups accidentally read the skill/attack row, where the flag does not exist.
+- Kept the existing in-place update logic and Actor materialization unchanged; edits remain independent and survive creation of the PF2e NPC Actor.
+- Added regression tests for the nested Handlebars visibility condition, the disabled-capability behavior, and live click handling for both Skills and Strikes.
+- API updated to **1.4.2**; neutral NPC schema remains **13**. No migration required.
+
+
 ## 1.4.1 – Numeric Controls & Independent Section Locks
 
 - Fixed invisible +/- adjustments: the click handler was locating the clicked button instead of its containing value field, so the model changed but the displayed number did not. The handler now updates the correct value element. The controls are also rendered directly in the Handlebars template instead of being injected after rendering.

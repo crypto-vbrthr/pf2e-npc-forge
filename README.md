@@ -1,8 +1,10 @@
 # PF2E NPC Forge
 
-**Version 1.4.1 – Numeric Controls & Independent Section Locks**
+**Version 1.4.2 – Skills & Strike Adjustment Controls Visibility Fix**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
+
+**1.4.2 hotfix:** Manual `−`/`+` adjustments are now visible for each Skill (including Lore) and each Strike attack bonus. The existing attribute, defense, and saving throw controls continue to work as before. The fix corrects the Handlebars template scope in repeated rows and does not change the NPC model or other editor interactions.
 
 
 ## Part of the Forge Suite
@@ -194,7 +196,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.4.1**  
+Public API version: **1.4.2**  
 Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.

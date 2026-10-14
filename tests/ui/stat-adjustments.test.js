@@ -214,3 +214,93 @@ test("shared editor processes actual +/- button events and updates the value in 
     globalThis.game = previous;
   }
 });
+
+test("nested Skill/Lore and Strike rows look up adjustment visibility in Handlebars root", () => {
+  const template = fs.readFileSync(new URL("../../templates/npc-editor-core.hbs", import.meta.url), "utf8");
+  // These rows have their own Handlebars context inside #each. An unqualified
+  // showStatAdjustments looks on the Skill/Strike data object and is undefined,
+  // hiding the buttons even though the editor itself has the capability on.
+  for (const [collection, kind, variable] of [
+    ["skills", "skill", "slug"],
+    ["attacks", "attack", "id"]
+  ]) {
+    const begin = template.indexOf(`{{#each view.${collection}}}`);
+    assert.notEqual(begin, -1, `missing ${collection} loop`);
+    const end = template.indexOf("{{/each}}", begin);
+    assert.notEqual(end, -1, `unterminated ${collection} loop`);
+    const row = template.slice(begin, end);
+    assert.equal((row.match(/\{\{#if @root\.showStatAdjustments\}\}/g) ?? []).length, 2,
+      `${collection}: each adjustment button must use the root editor capability`);
+    assert.doesNotMatch(row, /\{\{#if showStatAdjustments\}\}/,
+      `${collection}: row-local context must not gate adjustments`);
+    for (const delta of ["-1", "1"]) {
+      const button = `<button type="button" class="npc-forge-adjust-button" data-editor-action="adjustStat" data-stat-kind="${kind}" data-stat-key="{{${variable}}}" data-stat-delta="${delta}"`;
+      assert.ok(row.includes(button), `${collection} missing ${delta} button`);
+    }
+    // Verify the concrete evaluation scenario that caused the bug: when the
+    // row has no such property, @root still retrieves the editor's setting.
+    const rowContext = { [variable]: "example" };
+    const rootContext = { showStatAdjustments: true };
+    assert.equal(rowContext.showStatAdjustments, undefined);
+    assert.equal(rootContext.showStatAdjustments, true);
+  }
+});
+
+test("editor processes Skill, Lore and Strike +/- clicks and updates the displayed modifiers", async () => {
+  const { NpcEditorCore } = await import("../../scripts/ui/npc-editor-core.js");
+  const oldGame = globalThis.game;
+  globalThis.game = { i18n: { localize: (key) => key } };
+  try {
+    const f = fixture();
+    const session = sessionFromFixture(f);
+    const skill = f.npc.skills.find((item) => item.type === "standard");
+    const lore = f.npc.skills.find((item) => item.type === "lore");
+    const attack = f.npc.attacks[0];
+    assert.ok(skill && lore && attack);
+    const handlers = {};
+    const host = {
+      querySelector: () => null,
+      addEventListener: (name, handler) => { handlers[name] = handler; },
+      contains: () => true
+    };
+    const core = new NpcEditorCore({ session, api: {} });
+    core.mountElement = host;
+    core._abortController = new AbortController();
+    core._bindEvents();
+    for (const [kind, key, initial] of [
+      ["skill", skill.slug, skill.modifier],
+      ["skill", lore.slug, lore.modifier],
+      ["attack", attack.id, attack.modifier]
+    ]) {
+      const text = { textContent: "" };
+      const container = {
+        querySelector: (selector) => selector === "strong" ? text : null
+      };
+      const button = {
+        dataset: { editorAction: "adjustStat", statKind: kind, statKey: key, statDelta: "1" },
+        closest: (selector) => selector === ".npc-forge-adjustable" ? container : null
+      };
+      let prevented = 0, stopped = 0;
+      const event = {
+        target: { closest: () => button },
+        preventDefault: () => { prevented++; },
+        stopPropagation: () => { stopped++; }
+      };
+      const getValue = () => kind === "skill"
+        ? session.getNpc().skills.find((item) => item.slug === key).modifier
+        : session.getNpc().attacks.find((item) => item.id === key).modifier;
+      await handlers.click(event);
+      assert.equal(getValue(), initial + 1);
+      assert.equal(text.textContent, `+${initial + 1}`);
+      button.dataset.statDelta = "-1";
+      await handlers.click(event);
+      assert.equal(getValue(), initial);
+      assert.equal(text.textContent, `+${initial}`);
+      assert.equal(prevented, 2);
+      assert.equal(stopped, 2);
+    }
+    session.destroy();
+  } finally {
+    globalThis.game = oldGame;
+  }
+});
