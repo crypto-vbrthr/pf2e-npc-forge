@@ -843,5 +843,7 @@
   "NPCFORGE.Controls.UnlockSection": "Abschnitt entsperren",
   "NPCFORGE.Controls.RerollSection": "Nur diesen Abschnitt neu generieren",
   "NPCFORGE.Controls.LockHelp": "Mit dem Schloss bleiben Abschnitte beim erneuten Generieren erhalten. Mit dem Aktualisieren-Symbol wird nur der jeweilige Abschnitt neu erzeugt.",
-  "NPCFORGE.Background.Biography": "Biografie"
+  "NPCFORGE.Background.Biography": "Biografie",
+  "NPCFORGE.Controls.IncreaseStat": "Erhöhen",
+  "NPCFORGE.Controls.DecreaseStat": "Verringern"
 }

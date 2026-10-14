@@ -1,6 +1,6 @@
 # Neutral NPC Model
 
-NPC Forge 1.3.0 uses **schema version 13**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
+NPC Forge 1.4.1 uses **schema version 13**. `NpcEngine.generate()` returns plain serializable data and never a Foundry document.
 
 Representative top-level shape:
 
@@ -149,3 +149,7 @@ Spellcasting entries contain tradition, prepared/spontaneous mode, casting abili
 ## `integrations`
 
 Schema 13 continues to store **integration intent**, not external module results. The async adapter invokes optional external APIs and stores runtime diagnostics/results in Foundry Actor flags.
+
+## Editor-only manual statistic changes (1.4.0)
+
+The editor can mutate individual numeric entries in `statistics.attributes`, `statistics.ac/hp/perception/speed`, `statistics.saves`, `skills[].modifier`, and `attacks[].modifier`. Changes are applied to a cloned neutral NPC model, validated and reflected directly in the PF2e Actor source. There is no new schema field or automatic PC-style derivation: skills and NPC Strike bonuses remain independently adjustable. Section locks govern preservation across full editor regeneration; engine generation remains deterministic and unchanged.

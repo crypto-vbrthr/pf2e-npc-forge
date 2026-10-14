@@ -1,6 +1,6 @@
 # Architecture
 
-PF2E NPC Forge 1.3.0 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
+PF2E NPC Forge 1.4.1 is organized around a strict separation between content generation, PF2e document materialization, reusable editor UI, and optional integrations.
 
 ## 1. Neutral NPC Engine
 

@@ -71,16 +71,25 @@ test("locked relationship and social content survives rerolling the biography gr
   await assert.rejects(() => session.rerollSection("relationships"), /Unlock.*relationships/);
 });
 
-test("inventory lock keeps attacks and equipment together, with the current spellbook", async () => {
+test("equipment lock and attack lock are separate, with the current spellbook", async () => {
   const session = makeSession();
   session.setSectionLocked("inventory", true, { render: false });
   const after = await session.generate();
   assert.equal(after.inventory.find((i) => i.purpose === "primary-weapon").marker, "base");
-  assert.equal(after.attacks[0].marker, "base");
+  assert.notEqual(after.attacks[0].marker, "base", "the attack is NOT locked by the equipment lock");
+  assert.equal(after.attacks[0].sourceWeaponId, "weapon");
   assert.equal(after.inventory.find((i) => i.purpose === "spellbook").spellbook.spells[0].slug, after.spellcasting[0].spells[0].slug);
   assert.deepEqual(after.integrations, { marker: "base" });
-  assert.equal(session.isSectionLocked("attacks"), true);
+  assert.equal(session.isSectionLocked("attacks"), false);
   await assert.rejects(() => session.rerollSection("inventory"), /Unlock.*inventory/);
+  session.setSectionLocked("attacks", true, { render: false });
+  assert.equal(session.isSectionLocked("inventory"), true);
+  assert.equal(session.isSectionLocked("attacks"), true);
+  session.setSectionLocked("inventory", false, { render: false });
+  assert.equal(session.isSectionLocked("attacks"), true, "unlocking equipment must not unlock attacks");
+  const withAttacksLocked = await session.generate();
+  assert.equal(withAttacksLocked.attacks[0].marker, after.attacks[0].marker);
+  assert.equal(withAttacksLocked.inventory.find((i) => i.id === "weapon")?.marker, "base", "locked attack retains its linked weapon");
 });
 
 test("locking spells preserves spellbook content when inventory is regenerated", async () => {
@@ -135,7 +144,7 @@ test("same fixed seed yields successive reproducible editor generations without 
 test("preview provides keyboard-accessible lock/refresh controls and consistent section ids", () => {
   const template = fs.readFileSync(new URL("../../templates/npc-editor-core.hbs", import.meta.url), "utf8");
   const core = fs.readFileSync(new URL("../../scripts/ui/npc-editor-core.js", import.meta.url), "utf8");
-  for (const section of ["identity", "appearance", "personality", "biography", "relationships", "socialContext", "statistics", "skills", "abilities", "spellcasting", "inventory"]) {
+  for (const section of ["identity", "appearance", "personality", "biography", "relationships", "socialContext", "attributes", "defenses", "skills", "abilities", "spellcasting", "inventory", "attacks"]) {
     assert.match(template, new RegExp(`data-editor-section="${section}"`));
   }
   assert.match(template, /data-editor-action="lockSection"/);
@@ -168,7 +177,7 @@ test("real NPC engine: locked name and personality survive generation and yield 
 
 test("deterministic skill and inventory sections have lock buttons but no misleading refresh icons", () => {
   const template = fs.readFileSync(new URL("../../templates/npc-editor-core.hbs", import.meta.url), "utf8");
-  for (const name of ["statistics", "skills", "abilities", "inventory"]) {
+  for (const name of ["attributes", "defenses", "skills", "abilities", "inventory", "attacks"]) {
     assert.match(template, new RegExp(`data-editor-action="lockSection" data-editor-section="${name}"`));
     assert.doesNotMatch(template, new RegExp(`data-editor-action="rerollSection" data-editor-section="${name}"`));
   }
@@ -197,4 +206,30 @@ test("broad all reroll honors session locks and linked spellbook content", async
   assert.equal(after.spellcasting[0].spells[0].slug, "spell-base");
   assert.equal(after.inventory.find((i) => i.purpose === "spellbook").spellbook.spells[0].slug, "spell-base");
   assert.equal(after.generation.rerolls.all.count, 1);
+});
+
+
+test("attributes and defense locks are independent, with legacy statistics lock supported", async () => {
+  const session = makeSession();
+  session.setNpc({ ...session.getNpc(), statistics: {
+    attributes: { str: 5, dex: 4 }, ac: 24, hp: 44, perception: 12, speed: 25,
+    saves: { fortitude: 12, reflex: 14, will: 11 }
+  } }, { render: false });
+  session.setSectionLocked("attributes", true, { render: false });
+  assert.equal(session.isSectionLocked("defenses"), false);
+  const after = await session.generate();
+  assert.deepEqual(after.statistics.attributes, { str: 5, dex: 4 });
+  assert.equal(after.statistics.hp, 44, "mock candidate hp matches but is not locked");
+  session.setSectionLocked("defenses", true, { render: false });
+  assert.equal(session.isSectionLocked("attributes"), true);
+  session.setSectionLocked("attributes", false, { render: false });
+  assert.equal(session.isSectionLocked("defenses"), true);
+  assert.equal(session.isSectionLocked("attributes"), false);
+  session.setSectionLocked("statistics", true, { render: false });
+  assert.equal(session.isSectionLocked("defenses"), true);
+  assert.equal(session.isSectionLocked("attributes"), true);
+  session.setSectionLocked("attributes", false, { render: false });
+  assert.equal(session.isSectionLocked("defenses"), true);
+  assert.equal(session.isSectionLocked("attributes"), false);
+  session.destroy();
 });

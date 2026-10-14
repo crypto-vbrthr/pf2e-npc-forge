@@ -9,12 +9,13 @@ import { NpcForgeApi } from "../../scripts/api/public-api.js";
 test("public API exposes stable baseline capabilities and registrations", () => {
   const registry = new ContentRegistry(); registerCoreContent(registry);
   const api = new NpcForgeApi({ engine: new NpcEngine({ registry }), registry, documents: new Pf2eDocumentAdapter(), integrations: {}, openApplication: () => null });
-  assert.equal(api.apiVersion, "1.3.0");
+  assert.equal(api.apiVersion, "1.4.1");
   assert.equal(api.schemaVersion, 13);
   assert.equal(api.capabilities.has("embedded-editor"), true);
   assert.ok(api.capabilities.has("editor-session-api"));
   assert.ok(api.capabilities.has("editor-section-reroll"));
   assert.ok(api.capabilities.has("editor-section-locks"));
+  assert.ok(api.capabilities.has("editor-manual-stat-adjustments"));
   assert.ok(api.capabilities.has("host-action-bar"));
   assert.equal(api.capabilities.has("experimental-editor-session"), false);
   assert.ok(api.capabilities.has("content-namespace-enforcement"));

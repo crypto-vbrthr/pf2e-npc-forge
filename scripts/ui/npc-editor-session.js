@@ -1,6 +1,7 @@
 import { deepClone } from "../engine/utils.js";
 import { createEditorRequest } from "./editor-request.js";
 import { NpcEditorCore } from "./npc-editor-core.js";
+import { adjustNpcStat } from "./stat-adjustments.js";
 
 const REROLL_ALIASES = Object.freeze({
   equipment: "inventory",
@@ -23,7 +24,7 @@ export const SUPPORTED_REROLL_SECTIONS = Object.freeze([
   "inventory",
   "attacks",
   "combat",
-  "statistics"
+  "statistics", "attributes", "defenses"
 ]);
 
 export function canonicalSection(section) {
@@ -59,12 +60,11 @@ function resolvedRequestForReroll(request, npc, { rerollIdentity = false } = {})
 // sections. Never leave references to an unrelated random candidate behind.
 const LOCKABLE_SECTIONS = new Set([
   "identity", "appearance", "personality", "background", "relationships",
-  "socialContext", "statistics", "skills", "abilities", "spellcasting", "inventory"
+  "socialContext", "statistics", "attributes", "defenses", "skills", "abilities", "spellcasting", "inventory", "attacks"
 ]);
 
 function lockSectionId(section) {
   const canonical = canonicalSection(section);
-  if (canonical === "attacks") return "inventory";
   if (canonical === "biography") return "background";
   return canonical;
 }
@@ -84,6 +84,42 @@ function synchronizeSpellbooks(npc, spellbookSource) {
   ];
 }
 
+// Preserve the source weapons of locked attacks when the remaining equipment
+// is regenerated. Strikes reference stable inventory IDs and must not end up
+// pointing at a different newly rolled weapon.
+function synchronizeAttackWeapons(npc, attackSource) {
+  const sourceWeapons = new Map((attackSource?.inventory ?? []).map((item) => [item.id, item]));
+  const needed = new Set((npc.attacks ?? []).map((attack) => attack.sourceWeaponId).filter(Boolean));
+  const replacement = new Map([...needed].filter((id) => sourceWeapons.has(id)).map((id) => [id, deepClone(sourceWeapons.get(id))]));
+  if (!replacement.size) return;
+  const replacePurposes = new Set([...replacement.values()].map((item) => item.purpose).filter(Boolean));
+  npc.inventory = (npc.inventory ?? []).filter((item) =>
+    !replacement.has(item.id) && !(["weapon", "unarmed"].includes(item.type) && replacePurposes.has(item.purpose))
+  );
+  npc.inventory.unshift(...replacement.values());
+}
+
+// Equipment can be fixed while attack bonuses are regenerated; in that case
+// keep candidate strike numbers but restore their weapon-facing identity.
+function synchronizeAttacksToInventory(npc, original) {
+  const weapons = new Map((npc.inventory ?? []).map((item) => [item.id, item]));
+  const oldAttacks = new Map((original?.attacks ?? []).map((attack) => [attack.id, attack]));
+  npc.attacks = (npc.attacks ?? []).map((attack) => {
+    if (weapons.has(attack.sourceWeaponId)) {
+      const old = oldAttacks.get(attack.id);
+      if (old?.sourceWeaponId === attack.sourceWeaponId) return {
+        ...attack,
+        label: old.label,
+        labelKey: old.labelKey,
+        traits: deepClone(old.traits),
+        damage: { ...deepClone(attack.damage), type: old.damage?.type ?? attack.damage?.type }
+      };
+      return attack;
+    }
+    return deepClone(oldAttacks.get(attack.id) ?? attack);
+  });
+}
+
 function preserveSection(next, previous, section) {
   switch (section) {
     case "identity": {
@@ -101,17 +137,24 @@ function preserveSection(next, previous, section) {
     case "background": next.biography = deepClone(previous.biography); break;
     case "relationships": next.relationships = deepClone(previous.relationships); break;
     case "socialContext": next.socialContext = deepClone(previous.socialContext); break;
-    case "statistics": next.statistics = deepClone(previous.statistics); break;
+    case "statistics": next.statistics = deepClone(previous.statistics); break; // Legacy full-stat lock
+    case "attributes": next.statistics.attributes = deepClone(previous.statistics?.attributes); break;
+    case "defenses": {
+      for (const key of ["ac", "hp", "perception", "speed", "saves"]) {
+        next.statistics[key] = deepClone(previous.statistics?.[key]);
+      }
+      break;
+    }
     case "skills": next.skills = deepClone(previous.skills); break;
     case "abilities": next.abilities = deepClone(previous.abilities); break;
     case "spellcasting": next.spellcasting = deepClone(previous.spellcasting); break;
     case "inventory": {
       next.inventory = deepClone(regularInventory(previous.inventory ?? []));
-      next.attacks = deepClone(previous.attacks);
       // Preserve the associated request/poison decisions, not just the items.
       next.integrations = deepClone(previous.integrations);
       break;
     }
+    case "attacks": next.attacks = deepClone(previous.attacks); break;
     default: break;
   }
 }
@@ -123,6 +166,8 @@ function withPreservedSections(candidate, previous, lockedSections = []) {
   for (const section of LOCKABLE_SECTIONS) {
     if (lockedSections.includes(section)) preserveSection(next, previous, section);
   }
+  if (lockedSections.includes("attacks")) synchronizeAttackWeapons(next, previous);
+  else if (lockedSections.includes("inventory")) synchronizeAttacksToInventory(next, previous);
   // A Wizard's physical spellbook must always describe the *selected*
   // spellcasting section (whether the inventory or spells were locked).
   const spellSource = lockedSections.includes("spellcasting") ? previous : candidate;
@@ -138,8 +183,8 @@ function requestForLockedGeneration(request, previous, locks) {
   if (!previous || !locks.length) return request;
   const build = previous.build ?? {};
   const frozenCombat = locks.some((section) =>
-    ["statistics", "skills", "abilities", "spellcasting", "inventory"].includes(section));
-  const lockedAncestry = locks.some((section) => ["identity", "appearance", "statistics", "inventory"].includes(section));
+    ["statistics", "attributes", "defenses", "skills", "abilities", "spellcasting", "inventory", "attacks"].includes(section));
+  const lockedAncestry = locks.some((section) => ["identity", "appearance", "statistics", "attributes", "defenses", "inventory", "attacks"].includes(section));
   if (lockedAncestry && requestId(request.ancestry) && requestId(request.ancestry) !== previous.identity?.ancestry?.id) {
     throw new Error("The selected ancestry differs from a locked section. Unlock that section before changing ancestry.");
   }
@@ -185,6 +230,8 @@ function mergeRerolledSection(current, candidate, section) {
   if (section === "relationships") next.relationships = deepClone(candidate.relationships);
   if (section === "socialContext") next.socialContext = deepClone(candidate.socialContext);
   if (section === "statistics") next.statistics = deepClone(candidate.statistics);
+  if (section === "attributes") next.statistics.attributes = deepClone(candidate.statistics.attributes);
+  if (section === "defenses") for (const key of ["ac", "hp", "perception", "speed", "saves"]) next.statistics[key] = deepClone(candidate.statistics[key]);
   if (section === "skills") next.skills = deepClone(candidate.skills);
   if (section === "abilities") next.abilities = deepClone(candidate.abilities);
   if (section === "spellcasting") {
@@ -193,7 +240,6 @@ function mergeRerolledSection(current, candidate, section) {
   }
   if (section === "inventory") {
     next.inventory = deepClone(regularInventory(candidate.inventory ?? []));
-    next.attacks = deepClone(candidate.attacks);
     next.integrations = deepClone(candidate.integrations);
     synchronizeSpellbooks(next, current);
   }
@@ -204,7 +250,6 @@ function mergeRerolledSection(current, candidate, section) {
     next.abilities = deepClone(candidate.abilities);
     next.spellcasting = deepClone(candidate.spellcasting);
     next.inventory = deepClone(candidate.inventory);
-    next.attacks = deepClone(candidate.attacks);
     next.integrations = deepClone(candidate.integrations);
   }
   return next;
@@ -251,6 +296,7 @@ export class NpcEditorSession {
       reroll: capabilities.reroll !== false,
       editInventory: capabilities.editInventory !== false,
       sectionLocks: capabilities.sectionLocks !== false,
+      adjustStats: capabilities.adjustStats !== false,
       ...capabilities
     });
     this.createActorOptions = { ...(createActorOptions ?? {}) };
@@ -287,7 +333,12 @@ export class NpcEditorSession {
   }
 
   getLockedSections() { return [...this._lockedSections]; }
-  isSectionLocked(section) { return this._lockedSections.has(lockSectionId(section)); }
+  isSectionLocked(section) {
+    const id = lockSectionId(section);
+    if (id === "attributes" || id === "defenses") return this._lockedSections.has(id) || this._lockedSections.has("statistics");
+    if (id === "statistics") return this._lockedSections.has("statistics") || (this._lockedSections.has("attributes") && this._lockedSections.has("defenses"));
+    return this._lockedSections.has(id);
+  }
 
   setSectionLocked(section, locked = true, { render = true } = {}) {
     this.#assertActive();
@@ -295,8 +346,24 @@ export class NpcEditorSession {
     const canonical = lockSectionId(section);
     if (!LOCKABLE_SECTIONS.has(canonical)) throw new Error(`Unsupported NPC editor lock section: ${section}`);
     if (locked && !this.npc) throw new Error("Generate an NPC before locking a section");
-    if (locked) this._lockedSections.add(canonical);
-    else this._lockedSections.delete(canonical);
+    if (canonical === "statistics" && locked) {
+      this._lockedSections.delete("attributes");
+      this._lockedSections.delete("defenses");
+      this._lockedSections.add("statistics");
+    } else if (canonical === "attributes" || canonical === "defenses") {
+      if (this._lockedSections.delete("statistics")) {
+        this._lockedSections.add(canonical === "attributes" ? "defenses" : "attributes");
+      }
+      if (locked) this._lockedSections.add(canonical);
+      else this._lockedSections.delete(canonical);
+    } else {
+      if (locked) this._lockedSections.add(canonical);
+      else this._lockedSections.delete(canonical);
+      if (canonical === "statistics") {
+        this._lockedSections.delete("attributes");
+        this._lockedSections.delete("defenses");
+      }
+    }
     if (render) void this.render();
     return this.getLockedSections();
   }
@@ -354,11 +421,13 @@ export class NpcEditorSession {
     const candidate = await this.engine.generate(request);
     const next = mergeRerolledSection(this.npc, candidate, canonical);
     // A broad reroll must not silently overwrite other locked sections.
-    const covered = [canonical];
+    const covered = canonical === "statistics" ? ["statistics", "attributes", "defenses"] : [canonical];
     const preserved = this.getLockedSections().filter((locked) => !covered.includes(locked));
     for (const locked of LOCKABLE_SECTIONS) {
       if (preserved.includes(locked)) preserveSection(next, this.npc, locked);
     }
+    if (this.isSectionLocked("attacks") && canonical !== "attacks") synchronizeAttackWeapons(next, this.npc);
+    else if (this.isSectionLocked("inventory") && canonical !== "inventory") synchronizeAttacksToInventory(next, this.npc);
     if (canonical === "spellcasting" || canonical === "inventory" || canonical === "combat" || canonical === "all") {
       const spellSource = this.isSectionLocked("spellcasting") && canonical !== "spellcasting" ? this.npc : candidate;
       synchronizeSpellbooks(next, spellSource);
@@ -375,6 +444,26 @@ export class NpcEditorSession {
     this.npc = deepClone(next);
     await this.#call("onChange", { npc: this.value, request: this.getRequest(), dirty: true, reason: "reroll", section: canonical });
     await this.render();
+    return this.value;
+  }
+
+  /**
+   * Edit a single already-generated statistic without rebuilding the NPC.
+   * Locks only control future generation; they never prohibit manual edits.
+   * A locked statistics/skills/inventory section will also retain its edits
+   * across subsequent full Generate operations.
+   */
+  async adjustStat(kind, key, delta, { render = true } = {}) {
+    this.#assertActive();
+    if (!this.capabilities.adjustStats) throw new Error("Manual statistic adjustments are disabled for this editor session");
+    const adjusted = adjustNpcStat(this.npc, kind, key, delta);
+    const validation = this.engine?.validate?.(adjusted);
+    if (validation && !validation.valid) {
+      throw new Error(`Edited NPC is invalid: ${validation.errors?.join("; ") ?? "validation failed"}`);
+    }
+    this.npc = adjusted;
+    await this.#call("onChange", { npc: this.value, request: this.getRequest(), dirty: true, reason: "adjustStat", kind, key, delta });
+    if (render) await this.render();
     return this.value;
   }
 

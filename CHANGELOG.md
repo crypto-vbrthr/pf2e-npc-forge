@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.4.1 – Numeric Controls & Independent Section Locks
+
+- Fixed invisible +/- adjustments: the click handler was locating the clicked button instead of its containing value field, so the model changed but the displayed number did not. The handler now updates the correct value element. The controls are also rendered directly in the Handlebars template instead of being injected after rendering.
+- Added clearer error feedback for failed manual adjustments instead of treating them as Actor-creation failures.
+- Split the Attributes and Defenses lock icons into two genuinely independent locks; the legacy public `statistics` lock still locks both for backward compatibility.
+- Split Equipment and Attacks locks. Locked attacks preserve their referenced weapon objects if other gear is regenerated; locked equipment can keep its items while attack modifiers regenerate.
+- Preserved existing wizard spellbook synchronization, section locks, targeted rerolls, and manual-stat Actor materialization.
+- Added DOM event wiring, lock independence, and PF2e materialization regression tests.
+- API version 1.4.1; neutral NPC schema remains 13. No migration required.
+
+
+## 1.4.0 – Manual NPC Statistic Adjustments
+
+- Added compact, keyboard-accessible +/- buttons to all six attribute modifiers, AC, HP, Perception, saves, Speed, each skill/Lore modifier, and each NPC Strike attack modifier.
+- Changes apply to the neutral NPC model immediately and are carried into generated PF2e Actor documents, including the embedded Strike Items.
+- Added `NpcEditorSession.adjustStat(kind, key, delta, { render })`, `adjustStats` editor capability, and `editor-manual-stat-adjustments` public capability.
+- Kept creature NPC statistics independent: changing an ability modifier does not silently modify skills, saves, or attack bonuses. Damage and weapon references remain unchanged.
+- Enforced HP/AC minimum 1, Speed minimum 0 and 5-foot Speed steps; validated target keys and adjustment values.
+- In-place value updates preserve preview scroll and button focus. Existing section locks and selective rerolls govern when manual tweaks survive generation.
+- Added neutral-model, session lifecycle, Actor materialization, validation, lock/reroll, and preview wiring regression tests.
+- API updated to **1.4.0**; NPC schema remains **13** (no migration).
+
 ## 1.3.0 – Section Locks & One-Click Rerolls
 
 - Added accessible lock and refresh controls in the NPC preview for individual generated sections, with localized DE/EN titles and labels.

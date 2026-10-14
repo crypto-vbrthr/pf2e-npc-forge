@@ -99,6 +99,10 @@ export class NpcForgeApp extends HandlebarsApplication {
       return;
     }
     console.error(`PF2E NPC Forge | ${action} failed`, error);
+    if (action === "adjustStat") {
+      ui.notifications.error(error?.message ?? game.i18n.localize("NPCFORGE.Notifications.GenerationFailed"));
+      return;
+    }
     const generationActions = new Set(["generate", "commit", "rerollSection"]);
     const key = generationActions.has(action)
       ? "NPCFORGE.Notifications.GenerationFailed"

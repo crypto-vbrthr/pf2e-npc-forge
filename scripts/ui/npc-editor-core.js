@@ -189,9 +189,10 @@ export class NpcEditorCore {
       showPreviewActions: defaultActions && ((this.session.capabilities.createActor && Boolean(preview)) || this.mode === "embedded"),
       showSectionLocks: this.session.capabilities.sectionLocks !== false,
       showSectionRerolls: this.session.capabilities.reroll !== false,
+      showStatAdjustments: this.session.capabilities.adjustStats !== false,
       locks: Object.fromEntries([
         "identity", "appearance", "personality", "background", "relationships",
-        "socialContext", "statistics", "skills", "abilities", "spellcasting", "inventory"
+        "socialContext", "statistics", "attributes", "defenses", "skills", "abilities", "spellcasting", "inventory", "attacks"
       ].map((id) => [id, this.session.isSectionLocked(id)])),
       ancestryOptions: definitionOptions(this.api.content.list("ancestries"), request.ancestry),
       classOptions: definitionOptions(this.api.content.list("classProfiles"), request.classProfile),
@@ -281,6 +282,23 @@ export class NpcEditorCore {
     raf(() => raf(restoreScroll));
   }
 
+  // One-number adjustments do not need a full Handlebars rerender.
+  // Keeping the existing DOM also preserves the user's scroll and button focus.
+  _updateStatDisplay(container, kind, key) {
+    const valueNode = container?.querySelector?.("strong");
+    if (!valueNode) return;
+    const view = presentNpc(this.session.npc, (id) => game.i18n.localize(id));
+    let value;
+    if (kind === "attribute") value = view.statistics.attributes[key];
+    else if (kind === "save") value = view.statistics.saves[key];
+    else if (kind === "defense") {
+      value = view.statistics[key];
+      if (key === "speed") value = `${value} ${game.i18n.localize("NPCFORGE.Units.Feet")}`;
+    } else if (kind === "skill") value = view.skills.find((entry) => entry.slug === key)?.displayModifier;
+    else if (kind === "attack") value = view.attacks.find((entry) => entry.id === key)?.displayModifier;
+    if (value != null) valueNode.textContent = String(value);
+  }
+
   _bindEvents() {
     if (!this.mountElement) return;
     const signal = this._abortController?.signal;
@@ -367,6 +385,12 @@ export class NpcEditorCore {
     if (!button || !this.mountElement?.contains?.(button) || this._actionPending) return;
     const action = button.dataset.editorAction;
     const section = button.dataset.editorSection;
+    // Prevent Foundry's window handlers and other host actions from treating
+    // these in-preview value controls as generic app button clicks.
+    if (action === "adjustStat") {
+      event.preventDefault?.();
+      event.stopPropagation?.();
+    }
     this._actionPending = true;
     try {
       if (action === "generate") {
@@ -381,6 +405,16 @@ export class NpcEditorCore {
         if (!this.session.capabilities.reroll || this.session.isSectionLocked(section)) return;
         this.captureUiState();
         await this.session.rerollSection(section);
+      } else if (action === "adjustStat") {
+        if (!this.session.capabilities.adjustStats) return;
+        const kind = button.dataset.statKind;
+        const key = button.dataset.statKey;
+        const delta = Number(button.dataset.statDelta);
+        if (delta !== -1 && delta !== 1) throw new Error(`Invalid statistic adjustment step: ${delta}`);
+        await this.session.adjustStat(kind, key, delta, { render: false });
+        // The controls are rendered as part of the template, not injected
+        // later. Updating only <strong> keeps scroll/focus stable.
+        this._updateStatDisplay(button.closest(".npc-forge-adjustable"), kind, key);
       } else if (action === "createActor") {
         await this.session.createActor();
       } else if (action === "commit") {

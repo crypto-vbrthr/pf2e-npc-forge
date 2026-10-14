@@ -1,5 +1,5 @@
 export const MODULE_ID = "pf2e-npc-forge";
-export const API_VERSION = "1.3.0";
+export const API_VERSION = "1.4.1";
 export const SCHEMA_VERSION = 13;
 export const CAPABILITIES = Object.freeze([
   "npc-generation",
@@ -10,6 +10,7 @@ export const CAPABILITIES = Object.freeze([
   "editor-section-reroll",
   "editor-preview-section-controls",
   "editor-section-locks",
+  "editor-manual-stat-adjustments",
   "host-action-bar",
   "profession-registration",
   "profession-category-registration",

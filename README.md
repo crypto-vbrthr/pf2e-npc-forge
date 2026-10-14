@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 1.3.0 – Section Locks & One-Click Rerolls**
+**Version 1.4.1 – Numeric Controls & Independent Section Locks**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -44,13 +44,24 @@ Suggestions and feature requests are equally welcome. Even small ideas can lead 
 - Optional Affliction Forge injury-poison and Item Forge personal-treasure integration.
 - DE/EN UI and generated presentation.
 - **One-click section rerolls and locks:** preserve chosen NPC details when generating again or regenerate a single section directly in the preview.
+- **Manual +/- statistic controls** in the preview for all six ability modifiers, AC, HP, Perception, saving throws, Speed, individual skills and attack bonuses.
 - Production-ready embeddable editor sessions for Encounter Forge, Crowd Forge, and other hosts.
+
+## Manual statistic adjustments (1.4.0)
+
+The NPC preview provides compact **−/+ controls** directly alongside ability modifiers, AC, HP, Perception, Fortitude/Reflex/Will, Speed, individual skills (including Lore), and the hit bonus of every NPC Strike. One click changes only the selected value: one point per click, or **5 feet for Speed**. AC and HP cannot drop below 1; Speed cannot drop below 0. Each control has a localized accessible button label.
+
+The +/- controls are rendered directly in the preview template and immediately update the displayed values. They are **real edits to the neutral NPC model**, not temporary presentation overrides. The resulting Foundry NPC Actor therefore receives the customized values. Altering STR does **not** automatically modify a skill or Strike bonus: PF2e NPC creature-building statistics are independently benchmarked, unlike PC attribute-derived math. Weapon items, damage formulas, and the linkage between equipment and Strikes are not changed when adjusting an attack bonus.
+
+Manual edits remain intact when unrelated sections are rerolled. During **Generate**, an **unlocked** section is regenerated (so its manual changes are replaced); lock **Statistics**, **Skills**, or **Equipment/Attacks** to keep those edited values across subsequent full generations. A closed lock does not stop you from deliberately changing an individual number using +/−. The controls use an in-place update to preserve scroll positions and keyboard focus.
+
+For hosts using the embedded editor, `session.adjustStat(kind, key, delta)` is public. Set `capabilities: { adjustStats: false }` to hide and disable these controls. Changes invoke `onChange` with `reason: "adjustStat"`. `delta` counts clicks: for example `adjustStat("defense", "speed", 1)` adds 5 feet. Pure `api.engine.generate()` is unaffected.
 
 ## Section locks and rerolls (1.3.0)
 
 Each generated NPC preview provides a **lock icon** and a **refresh icon** for individual sections. A closed lock preserves that section when **Generate** is clicked again. The refresh icon regenerates only that section without rerolling the rest of the NPC. A locked section cannot be refreshed until it is unlocked.
 
-Locks are available for identity (including the name), appearance, personality, biography, relationships, social context, statistics, skills, abilities, spellcasting, and equipment. **Equipment and attacks are linked**, preventing the preview or created Actor from showing a weapon with an unrelated Strike. A wizard's spellbook remains synchronized with the spellcasting section when either spells or equipment change. Some PF2e rule-driven sections, such as skill modifiers and combat statistics, are deterministic for a fixed build and therefore may not visibly change from an isolated reroll.
+Locks are available for identity (including the name), appearance, personality, biography, relationships, social context, statistics, skills, abilities, spellcasting, and equipment. Equipment and attacks have **independent lock controls**. When attacks are locked, their referenced weapons remain consistent; when equipment is locked, attacks may be regenerated while remaining associated with the preserved weapons. Attributes and defenses are independently lockable too. A wizard's spellbook remains synchronized with the spellcasting section when either spells or equipment change. Some PF2e rule-driven sections, such as skill modifiers and combat statistics, are deterministic for a fixed build and therefore may not visibly change from an isolated reroll.
 
 Locks are **editor-session state**: they persist across renders and repeated generations in the current editor, but do not change the saved NPC schema or a Foundry Actor. If the GM changes the ancestry or a rules-dependent build choice in a way that conflicts with a locked section, the editor asks them to unlock the relevant section rather than create an internally inconsistent NPC. Embedded editors provide the same UI and a public lock API.
 
@@ -183,7 +194,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.3.0**  
+Public API version: **1.4.1**  
 Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.

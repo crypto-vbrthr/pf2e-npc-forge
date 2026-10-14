@@ -191,3 +191,22 @@
 .npc-forge-header-tools .npc-forge-section-tools { opacity:0.82; }
 
 .npc-forge-lock-help { margin-top:0.35rem !important; font-size:0.82rem; opacity:0.65 !important; }
+
+/* 1.4.0: compact, accessible manual benchmark controls in the preview */
+.npc-forge-adjustable { display:inline-flex; align-items:center; justify-content:flex-start; gap:0.27rem; min-width:0; }
+.npc-forge-adjustable > strong { font-size:1.12rem; font-variant-numeric:tabular-nums; white-space:nowrap; min-width:2ch; text-align:center; }
+.npc-forge-adjust-button {
+  width:1.45rem; height:1.45rem; min-width:1.45rem; min-height:1.45rem;
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:0; border-radius:4px; font-size:0.96rem; line-height:1;
+  border:1px solid color-mix(in srgb, var(--color-border-light-primary) 65%, transparent);
+  color:inherit; background:color-mix(in srgb, var(--color-bg-option,#222) 86%, transparent);
+  cursor:pointer; flex:0 0 auto;
+}
+.npc-forge-adjust-button:hover, .npc-forge-adjust-button:focus-visible {
+  border-color:var(--color-text-hyperlink,#d6ab69);
+  background:color-mix(in srgb, var(--color-bg-option,#555) 82%, transparent);
+}
+.npc-forge-sheet-list-row > .npc-forge-adjustable, .npc-forge-attack header > .npc-forge-adjustable { flex:0 0 auto; }
+.npc-forge-sheet-list-row > span, .npc-forge-attack header > strong:first-child { min-width:0; overflow-wrap:anywhere; }
+.npc-forge-stat-tile { min-width:0; }

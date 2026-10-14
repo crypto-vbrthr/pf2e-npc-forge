@@ -10,7 +10,7 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `1.3.0`
+- Public API version: `1.4.1`
 - Neutral NPC schema: `13`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
@@ -322,6 +322,25 @@ const npc = api.engine.generate({
 Editor section rerolls accept `background`, `relationships`, and `socialContext` in addition to the earlier domains.
 
 
+## Manual NPC statistic adjustments (1.4.0)
+
+A mounted or unmounted editor session can adjust the neutral NPC model directly:
+
+```js
+await session.adjustStat("attribute", "str", 1);       // STR modifier +1
+await session.adjustStat("defense", "ac", -1);         // AC -1
+await session.adjustStat("defense", "hp", 1);          // HP +1 (minimum 1)
+await session.adjustStat("defense", "speed", 1);       // Speed +5 feet (minimum 0)
+await session.adjustStat("defense", "perception", 1);  // Perception +1
+await session.adjustStat("save", "fortitude", 1);      // Fortitude +1
+await session.adjustStat("skill", "athletics", 1);     // one existing skill modifier +1
+await session.adjustStat("attack", "primary-attack", 1); // one existing NPC Strike bonus +1
+```
+
+`delta` is an integer number of +/- presses and only the selected field changes. Keys for skills are their `slug`, and keys for attacks are their stable attack `id`. Editing an attribute does not automatically alter NPC creature-building skills, saves or Strikes. Edits are visible in `session.getNpc()`, `onChange` (with `reason: "adjustStat"`), the preview, and materialized PF2e Actors. For `delta` with magnitude > 1, Speed uses 5 feet * delta.
+
+Use `capabilities: { adjustStats: false }` to hide the preview buttons and disable `adjustStat()`. The method can be called with `{ render: false }` as the fourth argument if the host provides its own rendering. Manual values survive unrelated section rerolls; they are replaced by full regeneration unless their corresponding **Statistics**, **Skills**, or **Equipment/Attacks** section is locked. Locks never prevent intentional manual numeric adjustments. No schema change is required.
+
 ## Editor section locks (1.3.0)
 
 The shared standalone and embedded NPC editor now exposes lock and reroll controls in the preview. Hosts can manage locks programmatically:
@@ -341,7 +360,7 @@ const locked = session.getLockedSections();
 session.clearSectionLocks();
 ```
 
-Use `isSectionLocked(section)` or `toggleSectionLock(section)` for individual UI actions. `sectionLocks: false` disables this capability for hosted sessions; `reroll: false` hides refresh buttons and disables section rerolls. Locks exist only for the editor session, not in the neutral NPC model or Actor documents. `attacks` aliases the `inventory` lock because equipped weapons and their NPC Strikes are a linked unit. `rerollSection("biography")` refreshes just the biography, whereas `rerollSection("background")` refreshes the full social block while retaining any other locked parts. Rerolling `spellcasting` synchronizes the wizard spellbook item. Build-incompatible changes while dependent sections are locked are rejected instead of silently creating mismatched Actor data.
+Use `isSectionLocked(section)` or `toggleSectionLock(section)` for individual UI actions. `sectionLocks: false` disables this capability for hosted sessions; `reroll: false` hides refresh buttons and disables section rerolls. Locks exist only for the editor session, not in the neutral NPC model or Actor documents. `attributes` and `defenses` are independent lock scopes. For backward compatibility `statistics` still locks both scopes together. `attacks` and `inventory` are independent lock scopes; materialization preserves the referenced weapon Items of locked attacks and aligns unlocked attacks to any locked equipment. The `equipment` reroll alias still maps to `inventory`. `rerollSection("biography")` refreshes just the biography, whereas `rerollSection("background")` refreshes the full social block while retaining any other locked parts. Rerolling `spellcasting` synchronizes the wizard spellbook item. Build-incompatible changes while dependent sections are locked are rejected instead of silently creating mismatched Actor data.
 
 ## GM-defined world name library (1.2.0)
 
