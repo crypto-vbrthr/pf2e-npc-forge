@@ -94,8 +94,12 @@ export class NpcForgeApp extends HandlebarsApplication {
   }
 
   _onEditorError(action, error) {
+    if (error?.message?.includes("locked") || error?.message?.includes("Unlock")) {
+      ui.notifications.warn(error.message);
+      return;
+    }
     console.error(`PF2E NPC Forge | ${action} failed`, error);
-    const generationActions = new Set(["generate", "commit"]);
+    const generationActions = new Set(["generate", "commit", "rerollSection"]);
     const key = generationActions.has(action)
       ? "NPCFORGE.Notifications.GenerationFailed"
       : "NPCFORGE.Notifications.ActorCreationFailed";

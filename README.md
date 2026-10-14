@@ -1,6 +1,6 @@
 # PF2E NPC Forge
 
-**Version 1.2.0 – Homebrew Name Cultures & Name Parts Editor**
+**Version 1.3.0 – Section Locks & One-Click Rerolls**
 
 PF2E NPC Forge generates roleplaying-ready Pathfinder 2e NPCs from a neutral, deterministic model and can materialize them as Foundry PF2e NPC Actors. It is designed as a platform for other Forge modules rather than a single monolithic generator.
 
@@ -43,7 +43,16 @@ Suggestions and feature requests are equally welcome. Even small ideas can lead 
 - NPC melee statistics remain creature-benchmark owned, so equipment runes never double-scale generated Strike damage.
 - Optional Affliction Forge injury-poison and Item Forge personal-treasure integration.
 - DE/EN UI and generated presentation.
+- **One-click section rerolls and locks:** preserve chosen NPC details when generating again or regenerate a single section directly in the preview.
 - Production-ready embeddable editor sessions for Encounter Forge, Crowd Forge, and other hosts.
+
+## Section locks and rerolls (1.3.0)
+
+Each generated NPC preview provides a **lock icon** and a **refresh icon** for individual sections. A closed lock preserves that section when **Generate** is clicked again. The refresh icon regenerates only that section without rerolling the rest of the NPC. A locked section cannot be refreshed until it is unlocked.
+
+Locks are available for identity (including the name), appearance, personality, biography, relationships, social context, statistics, skills, abilities, spellcasting, and equipment. **Equipment and attacks are linked**, preventing the preview or created Actor from showing a weapon with an unrelated Strike. A wizard's spellbook remains synchronized with the spellcasting section when either spells or equipment change. Some PF2e rule-driven sections, such as skill modifiers and combat statistics, are deterministic for a fixed build and therefore may not visibly change from an isolated reroll.
+
+Locks are **editor-session state**: they persist across renders and repeated generations in the current editor, but do not change the saved NPC schema or a Foundry Actor. If the GM changes the ancestry or a rules-dependent build choice in a way that conflicts with a locked section, the editor asks them to unlock the relevant section rather than create an internally inconsistent NPC. Embedded editors provide the same UI and a public lock API.
 
 ## Architecture
 
@@ -174,7 +183,7 @@ const npc = api.engine.generate({
 const actor = await api.documents.createActor(npc);
 ```
 
-Public API version: **1.2.0**  
+Public API version: **1.3.0**  
 Neutral model schema: **13**
 
 See `docs/API.md` and `docs/EMBEDDED_EDITOR.md`.

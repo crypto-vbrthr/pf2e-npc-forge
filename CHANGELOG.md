@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.0 – Section Locks & One-Click Rerolls
+
+- Added accessible lock and refresh controls in the NPC preview for individual generated sections, with localized DE/EN titles and labels.
+- Locked sections survive subsequent **Generate** operations; the refresh icon uses the existing public `rerollSection()` pipeline.
+- Added editor-session lock API: `getLockedSections()`, `isSectionLocked()`, `setSectionLocked()`, `toggleSectionLock()`, and `clearSectionLocks()`.
+- Split background locking into biography, relationships, and social context; preserved independent appearance when rerolling identity.
+- Coupled equipment with attacks and synchronized wizard spellbooks with selected spells on full generation and section rerolls.
+- Added safeguards against incompatible ancestry/build changes while sections are locked; editor state stays scoped to each session.
+- Improved repeated fixed-seed editor generations with deterministic indexed variants, without changing the underlying NPC engine or request seed.
+- Preserved editor scroll positions and expanded sections during lock and reroll actions.
+- Added regression tests for locks, generation, rerolls, concurrency safeguards, embedded session controls, and spellbook/attack consistency.
+- API updated to **1.3.0**; neutral NPC schema remains **13** (no migration).
+
 ## 1.2.0 – Custom Name Cultures & Homebrew Name Parts
 
 - Added a GM-only **Custom Names** tab in the standalone NPC Forge window for homebrew cultures and gender-aware name packs.

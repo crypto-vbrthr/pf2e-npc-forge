@@ -837,5 +837,11 @@
   "NPCFORGE.CustomNames.Import": "Import JSON",
   "NPCFORGE.CustomNames.ConfirmImport": "Replace the entire custom name library for this world with the imported file?",
   "NPCFORGE.CustomNames.Imported": "Custom name library imported.",
-  "NPCFORGE.CustomNames.Error": "Custom names could not be saved"
+  "NPCFORGE.CustomNames.Error": "Custom names could not be saved",
+  "NPCFORGE.Controls.SectionActions": "Section controls",
+  "NPCFORGE.Controls.LockSection": "Lock section for regeneration",
+  "NPCFORGE.Controls.UnlockSection": "Unlock section",
+  "NPCFORGE.Controls.RerollSection": "Regenerate only this section",
+  "NPCFORGE.Controls.LockHelp": "Use the lock icon to keep a section when generating again. Use the refresh icon to regenerate only that section.",
+  "NPCFORGE.Background.Biography": "Biography"
 }

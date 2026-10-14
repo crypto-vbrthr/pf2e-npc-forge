@@ -1,6 +1,6 @@
 # Embedded Editor API
 
-**Status in 1.2.0: Public production API.**
+**Status in 1.3.0: Public production API.**
 
 NPC Forge now exposes the same complete editor core used by the standalone NPC Forge window. Encounter Forge, Crowd Forge, or another host can mount it inside any suitable HTML element without opening a second Foundry window.
 
@@ -17,7 +17,8 @@ const session = api.ui.createEditor({
   capabilities: {
     createActor: false,
     reroll: true,
-    editInventory: true
+    editInventory: true,
+  sectionLocks: true
   },
   onChange: ({ npc, request, reason, section }) => {
     console.log("NPC changed", { npc, request, reason, section });
@@ -44,8 +45,11 @@ A session is isolated. No global `currentNpc` or shared editor state is used.
 - `getNpc()` returns a deep clone of the current neutral NPC model.
 - `setRequest(request)` replaces the current request.
 - `setNpc(npc)` replaces the current preview/model.
-- `generate()` generates a complete NPC and refreshes the mounted editor.
-- `rerollSection(section)` regenerates a supported section while preserving the rest of the NPC.
+- `generate()` generates a complete NPC and refreshes the mounted editor, preserving currently locked sections.
+- `rerollSection(section)` regenerates a supported section while preserving the rest of the NPC (locked sections cannot be rerolled until unlocked).
+- `getLockedSections()` and `isSectionLocked(section)` return the session's preview locks.
+- `setSectionLocked(section, locked)` and `toggleSectionLock(section)` update individual locks.
+- `clearSectionLocks()` releases all locks.
 - `createActor(options)` materializes the current NPC if Actor creation is allowed.
 - `commit()` calls the host commit callback and returns the current NPC.
 - `cancel()` calls the host cancel callback.
@@ -58,6 +62,11 @@ A session is isolated. No global `currentNpc` or shared editor state is used.
 - `identity`
 - `appearance`
 - `personality`
+- `background` (all three social sections; respects individual locks)
+- `biography` (biography only; `background` lock alias)
+- `relationships`
+- `socialContext`
+- `statistics`
 - `skills`
 - `abilities`
 - `spellcasting`
@@ -80,6 +89,9 @@ capabilities: {
 - `createActor: false` removes/blocks Actor creation for the session.
 - `reroll: false` rejects `rerollSection()` calls.
 - `editInventory: false` hides inventory-generation controls while leaving generated inventory visible in the preview.
+- `sectionLocks: false` hides lock icons and rejects lock API calls.
+
+The lock/refresh icons appear in both standalone and embedded previews. Lock state belongs to the editor session only. `attacks` locks share the `inventory` lock so weapons and strikes remain coherent. Wizard spellbooks are refreshed alongside the chosen spellcasting data. Rule-derived sections can regenerate to identical values if their build has not changed.
 
 ## Action bars
 

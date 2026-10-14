@@ -1,8 +1,8 @@
 {
   "id": "pf2e-npc-forge",
   "title": "PF2E NPC Forge",
-  "description": "A modular PF2e NPC generation platform with cultural name-provider support, deduplicated name pools, level-scaled equipment, structured background and relationships, extensible content, optional Forge integrations, and a shared standalone/embedded editor API. World-managed homebrew name cultures and gender-aware name-component libraries.",
-  "version": "1.2.0",
+  "description": "A modular PF2e NPC generation platform with a shared standalone/embedded editor, section locks and targeted rerolls, cultural and homebrew name providers, level-scaled equipment, structured social details, and optional Forge integrations.",
+  "version": "1.3.0",
   "authors": [
     {
       "name": "crypto-vbrthr"
@@ -45,5 +45,5 @@
   "readme": "README.md",
   "url": "https://github.com/crypto-vbrthr/pf2e-npc-forge",
   "manifest": "https://raw.githubusercontent.com/crypto-vbrthr/pf2e-npc-forge/refs/heads/main/module.json",
-  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/1.2.0/pf2e-npc-forge.zip"
+  "download": "https://github.com/crypto-vbrthr/pf2e-npc-forge/releases/download/1.3.0/pf2e-npc-forge.zip"
 }

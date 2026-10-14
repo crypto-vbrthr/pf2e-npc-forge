@@ -4,6 +4,7 @@
     <header class="npc-forge-panel-header">
       <h2>{{localize "NPCFORGE.App.CreateHeading"}}</h2>
       <p>{{localize "NPCFORGE.App.CreateText"}}</p>
+      {{#if hasPreview}}<p class="npc-forge-lock-help">{{localize "NPCFORGE.Controls.LockHelp"}}</p>{{/if}}
     </header>
 
     <details class="npc-forge-section" data-section-id="basics" open>
@@ -157,6 +158,10 @@
         <div class="npc-forge-sheet-title">
           <h1>{{view.name}}</h1>
           <p>{{view.identityLine}}</p>
+          <div class="npc-forge-header-tools"><div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.identity}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="identity" aria-pressed="{{#if locks.identity}}true{{else}}false{{/if}}" aria-label="{{#if locks.identity}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Identity"}}" title="{{#if locks.identity}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.identity}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="identity" {{#if locks.identity}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Sections.Identity"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div></div>
         </div>
         <div class="npc-forge-sheet-level">{{localize "NPCFORGE.Fields.Level"}} {{view.level}}</div>
       </article>
@@ -176,7 +181,13 @@
 
       {{#if view.identity.appearance}}
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Sections.Appearance"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Sections.Appearance"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.appearance}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="appearance" aria-pressed="{{#if locks.appearance}}true{{else}}false{{/if}}" aria-label="{{#if locks.appearance}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Appearance"}}" title="{{#if locks.appearance}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.appearance}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="appearance" {{#if locks.appearance}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Sections.Appearance"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-appearance-list">
           {{#each view.identity.appearance.traits}}
             <div class="npc-forge-sheet-list-row npc-forge-appearance-row"><span>{{displayCategory}}</span><strong>{{displayName}}</strong></div>
@@ -187,7 +198,13 @@
 
       {{#if view.personality}}
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Sections.Personality"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Sections.Personality"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.personality}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="personality" aria-pressed="{{#if locks.personality}}true{{else}}false{{/if}}" aria-label="{{#if locks.personality}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Personality"}}" title="{{#if locks.personality}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.personality}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="personality" {{#if locks.personality}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Sections.Personality"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        </div>
         <div class="npc-forge-personality-grid">
           {{#if view.personality.demeanor}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Demeanor"}}</span><strong>{{view.personality.demeanor.displayName}}</strong><p>{{view.personality.demeanor.displayDescription}}</p></article>{{/if}}
           {{#if view.personality.motivation}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Personality.Category.Motivation"}}</span><strong>{{view.personality.motivation.displayName}}</strong><p>{{view.personality.motivation.displayDescription}}</p></article>{{/if}}
@@ -210,6 +227,13 @@
       <section class="npc-forge-sheet-section npc-forge-background-section">
         <h2>{{localize "NPCFORGE.Sections.Background"}}</h2>
         {{#if view.background.biography}}
+        <div class="npc-forge-preview-section-heading npc-forge-preview-subheading">
+          <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.Biography"}}</h3>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.background}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="biography" aria-pressed="{{#if locks.background}}true{{else}}false{{/if}}" aria-label="{{#if locks.background}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Background.Biography"}}" title="{{#if locks.background}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.background}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="biography" {{#if locks.background}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Background.Biography"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        </div>
         <div class="npc-forge-personality-grid npc-forge-background-grid">
           {{#if view.background.biography.origin}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Origin"}}</span><strong>{{view.background.biography.origin.displayName}}</strong><p>{{view.background.biography.origin.displayDescription}}</p></article>{{/if}}
           {{#if view.background.biography.formative}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Formative"}}</span><strong>{{view.background.biography.formative.displayName}}</strong><p>{{view.background.biography.formative.displayDescription}}</p></article>{{/if}}
@@ -220,7 +244,13 @@
         {{/if}}
 
         {{#if view.background.socialContext}}
-        <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.SocialContext"}}</h3>
+        <div class="npc-forge-preview-section-heading npc-forge-preview-subheading">
+          <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.SocialContext"}}</h3>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.socialContext}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="socialContext" aria-pressed="{{#if locks.socialContext}}true{{else}}false{{/if}}" aria-label="{{#if locks.socialContext}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Background.SocialContext"}}" title="{{#if locks.socialContext}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.socialContext}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="socialContext" {{#if locks.socialContext}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Background.SocialContext"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        </div>
         <div class="npc-forge-personality-grid npc-forge-social-grid">
           {{#if view.background.socialContext.standing}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.Standing"}}</span><strong>{{view.background.socialContext.standing.displayName}}</strong><p>{{view.background.socialContext.standing.displayDescription}}</p></article>{{/if}}
           {{#if view.background.socialContext.communityRole}}<article class="npc-forge-personality-tile"><span>{{localize "NPCFORGE.Background.Category.CommunityRole"}}</span><strong>{{view.background.socialContext.communityRole.displayName}}</strong><p>{{view.background.socialContext.communityRole.displayDescription}}</p></article>{{/if}}
@@ -229,7 +259,13 @@
         {{/if}}
 
         {{#if view.background.relationships.length}}
-        <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.Relationships"}}</h3>
+        <div class="npc-forge-preview-section-heading npc-forge-preview-subheading">
+          <h3 class="npc-forge-subheading">{{localize "NPCFORGE.Background.Relationships"}}</h3>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.relationships}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="relationships" aria-pressed="{{#if locks.relationships}}true{{else}}false{{/if}}" aria-label="{{#if locks.relationships}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Background.Relationships"}}" title="{{#if locks.relationships}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.relationships}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="relationships" {{#if locks.relationships}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Background.Relationships"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-relationship-list">
           {{#each view.background.relationships}}
           <article class="npc-forge-sheet-entry npc-forge-relationship{{#if private}} npc-forge-private-entry{{/if}}">
@@ -243,7 +279,13 @@
       {{/if}}
 
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Sections.Attributes"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Sections.Attributes"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.statistics}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="statistics" aria-pressed="{{#if locks.statistics}}true{{else}}false{{/if}}" aria-label="{{#if locks.statistics}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Attributes"}}" title="{{#if locks.statistics}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.statistics}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            
+          </div>
+        </div>
         <div class="npc-forge-stat-grid npc-forge-stat-grid-attributes">
           <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.STR"}}</span><strong>{{view.statistics.attributes.str}}</strong></div>
           <div class="npc-forge-stat-tile"><span>{{localize "NPCFORGE.Attributes.DEX"}}</span><strong>{{view.statistics.attributes.dex}}</strong></div>
@@ -255,7 +297,13 @@
       </section>
 
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Sections.Defenses"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Sections.Defenses"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.statistics}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="statistics" aria-pressed="{{#if locks.statistics}}true{{else}}false{{/if}}" aria-label="{{#if locks.statistics}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Defenses"}}" title="{{#if locks.statistics}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.statistics}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            
+          </div>
+        </div>
         <div class="npc-forge-stat-grid npc-forge-stat-grid-defense">
           <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Stats.AC"}}</span><strong>{{view.statistics.ac}}</strong></div>
           <div class="npc-forge-stat-tile npc-forge-stat-tile-wide"><span>{{localize "NPCFORGE.Stats.HP"}}</span><strong>{{view.statistics.hp}}</strong></div>
@@ -268,7 +316,13 @@
       </section>
 
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Fields.Skills"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Fields.Skills"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.skills}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="skills" aria-pressed="{{#if locks.skills}}true{{else}}false{{/if}}" aria-label="{{#if locks.skills}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Fields.Skills"}}" title="{{#if locks.skills}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.skills}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-sheet-list-grid">
           {{#each view.skills}}
             <div class="npc-forge-sheet-list-row"><span>{{displayName}}</span><strong>{{displayModifier}}</strong></div>
@@ -277,7 +331,13 @@
       </section>
 
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Fields.Abilities"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Fields.Abilities"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.abilities}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="abilities" aria-pressed="{{#if locks.abilities}}true{{else}}false{{/if}}" aria-label="{{#if locks.abilities}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Fields.Abilities"}}" title="{{#if locks.abilities}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.abilities}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-ability-list">
           {{#each view.abilities}}
             <article class="npc-forge-sheet-entry npc-forge-ability">
@@ -292,7 +352,13 @@
 
       {{#if view.spellcasting.length}}
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Sections.Spellcasting"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Sections.Spellcasting"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.spellcasting}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="spellcasting" aria-pressed="{{#if locks.spellcasting}}true{{else}}false{{/if}}" aria-label="{{#if locks.spellcasting}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Spellcasting"}}" title="{{#if locks.spellcasting}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.spellcasting}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            {{#if showSectionRerolls}}<button type="button" class="npc-forge-tool-button" data-editor-action="rerollSection" data-editor-section="spellcasting" {{#if locks.spellcasting}}disabled{{/if}} aria-label="{{localize "NPCFORGE.Controls.RerollSection"}}: {{localize "NPCFORGE.Sections.Spellcasting"}}" title="{{localize "NPCFORGE.Controls.RerollSection"}}"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-spellcasting-list">
           {{#each view.spellcasting}}
             <article class="npc-forge-sheet-entry npc-forge-spellcasting">
@@ -308,7 +374,13 @@
       {{/if}}
 
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Sections.Equipment"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Sections.Equipment"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.inventory}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="inventory" aria-pressed="{{#if locks.inventory}}true{{else}}false{{/if}}" aria-label="{{#if locks.inventory}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Sections.Equipment"}}" title="{{#if locks.inventory}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.inventory}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-inventory-list">
           {{#each view.inventory}}
             <div class="npc-forge-sheet-list-row"><span>{{displayName}}</span><span class="npc-forge-muted">{{displayType}}{{#if displayRunes}} · {{displayRunes}}{{/if}}{{#if quantity}} · ×{{quantity}}{{/if}}</span></div>
@@ -318,7 +390,13 @@
       </section>
 
       <section class="npc-forge-sheet-section">
-        <h2>{{localize "NPCFORGE.Fields.Attacks"}}</h2>
+        <div class="npc-forge-preview-section-heading">
+          <h2>{{localize "NPCFORGE.Fields.Attacks"}}</h2>
+          <div class="npc-forge-section-tools" role="group" aria-label="{{localize "NPCFORGE.Controls.SectionActions"}}">
+            {{#if showSectionLocks}}<button type="button" class="npc-forge-tool-button{{#if locks.inventory}} is-locked{{/if}}" data-editor-action="lockSection" data-editor-section="inventory" aria-pressed="{{#if locks.inventory}}true{{else}}false{{/if}}" aria-label="{{#if locks.inventory}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}: {{localize "NPCFORGE.Fields.Attacks"}}" title="{{#if locks.inventory}}{{localize "NPCFORGE.Controls.UnlockSection"}}{{else}}{{localize "NPCFORGE.Controls.LockSection"}}{{/if}}"><i class="fa-solid {{#if locks.inventory}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i></button>{{/if}}
+            
+          </div>
+        </div>
         <div class="npc-forge-sheet-list npc-forge-attack-list">
           {{#each view.attacks}}
             <article class="npc-forge-sheet-entry npc-forge-attack">

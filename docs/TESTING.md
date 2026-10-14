@@ -12,7 +12,7 @@ npm run check
 
 `npm test` runs unit, integration, adapter, API-contract, content, integration-service, and UI-contract tests.
 
-The 1.2.0 release has automated tests covering, among other areas:
+The 1.3.0 release has automated tests covering, among other areas:
 
 - level-scaled fundamental rune progression and opt-out behavior;
 - PF2e weapon/armor/shield rune materialization without double-scaling NPC strikes;
@@ -66,3 +66,7 @@ Node tests mock Foundry/PF2e document behavior. Releases still require a live Fo
 ## RC generation matrix
 
 The final release includes a deterministic cross-product smoke test across every core ancestry and class profile at representative levels from -1 through 24. Professions and roles are rotated through the matrix, every generated model is validated and JSON-serialized, and repeated generation with the same request must be byte-for-byte deterministic. This catches interaction failures that isolated feature tests can miss.
+
+### 1.3.0 editor locks and rerolls
+
+The `tests/ui/section-locks.test.js` suite checks session-isolated locks, full Generate preservation, partial rerolls, identity/appearance independence, relationship/social preservation, equipment/attack coupling, wizard spellbook consistency, seeded editor generation, capability gating, UI wiring and conflict rejection.

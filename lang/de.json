@@ -837,5 +837,11 @@
   "NPCFORGE.CustomNames.Import": "JSON importieren",
   "NPCFORGE.CustomNames.ConfirmImport": "Die gesamte eigene Namensbibliothek dieser Welt durch die importierte Datei ersetzen?",
   "NPCFORGE.CustomNames.Imported": "Eigene Namensbibliothek importiert.",
-  "NPCFORGE.CustomNames.Error": "Eigene Namen konnten nicht gespeichert werden"
+  "NPCFORGE.CustomNames.Error": "Eigene Namen konnten nicht gespeichert werden",
+  "NPCFORGE.Controls.SectionActions": "Abschnittsaktionen",
+  "NPCFORGE.Controls.LockSection": "Abschnitt beim Generieren beibehalten",
+  "NPCFORGE.Controls.UnlockSection": "Abschnitt entsperren",
+  "NPCFORGE.Controls.RerollSection": "Nur diesen Abschnitt neu generieren",
+  "NPCFORGE.Controls.LockHelp": "Mit dem Schloss bleiben Abschnitte beim erneuten Generieren erhalten. Mit dem Aktualisieren-Symbol wird nur der jeweilige Abschnitt neu erzeugt.",
+  "NPCFORGE.Background.Biography": "Biografie"
 }

@@ -10,7 +10,7 @@ or listen for `pf2eNpcForgeReady`.
 
 ## Versions
 
-- Public API version: `1.2.0`
+- Public API version: `1.3.0`
 - Neutral NPC schema: `13`
 
 Consumers should check `api.capabilities` instead of inferring features from the module version.
@@ -321,6 +321,27 @@ const npc = api.engine.generate({
 
 Editor section rerolls accept `background`, `relationships`, and `socialContext` in addition to the earlier domains.
 
+
+## Editor section locks (1.3.0)
+
+The shared standalone and embedded NPC editor now exposes lock and reroll controls in the preview. Hosts can manage locks programmatically:
+
+```js
+const session = api.ui.createEditor({
+  mode: "embedded",
+  capabilities: { reroll: true, sectionLocks: true }
+});
+await session.generate();
+session.setSectionLocked("identity", true);
+session.setSectionLocked("personality", true);
+await session.generate(); // keeps name/identity and personality
+session.setSectionLocked("personality", false);
+await session.rerollSection("personality");
+const locked = session.getLockedSections();
+session.clearSectionLocks();
+```
+
+Use `isSectionLocked(section)` or `toggleSectionLock(section)` for individual UI actions. `sectionLocks: false` disables this capability for hosted sessions; `reroll: false` hides refresh buttons and disables section rerolls. Locks exist only for the editor session, not in the neutral NPC model or Actor documents. `attacks` aliases the `inventory` lock because equipped weapons and their NPC Strikes are a linked unit. `rerollSection("biography")` refreshes just the biography, whereas `rerollSection("background")` refreshes the full social block while retaining any other locked parts. Rerolling `spellcasting` synchronizes the wizard spellbook item. Build-incompatible changes while dependent sections are locked are rejected instead of silently creating mismatched Actor data.
 
 ## GM-defined world name library (1.2.0)
 

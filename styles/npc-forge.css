@@ -41,7 +41,8 @@
 .npc-forge-sheet-title h1 { margin: 0; font-size: 2rem; line-height: 1.05; }
 .npc-forge-sheet-title p { margin: 0.3rem 0 0; font-weight: 600; opacity: 0.72; }
 .npc-forge-sheet-level { position: absolute; top: 0.75rem; right: 0.85rem; font-weight: 800; white-space: nowrap; }
-.npc-forge-sheet-section > h2 { margin: 0 0 0.55rem; padding: 0 0 0.12rem; font-size: 1.65rem; line-height: 1.1; border-bottom: 1px solid color-mix(in srgb, var(--color-border-light-primary) 28%, transparent); }
+.npc-forge-sheet-section > h2,
+.npc-forge-preview-section-heading > h2 { margin: 0 0 0.55rem; padding: 0 0 0.12rem; font-size: 1.65rem; line-height: 1.1; border-bottom: 1px solid color-mix(in srgb, var(--color-border-light-primary) 28%, transparent); }
 
 .npc-forge-stat-grid { display: grid; gap: 0.55rem; }
 .npc-forge-stat-grid-attributes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -174,3 +175,19 @@
 .npc-forge-custom-grid fieldset { min-width:0; border:1px solid var(--color-border-light-primary); border-radius:5px; padding:0.55rem; }
 .npc-forge-custom-form-actions { display:flex; gap:0.5rem; margin-top:1.2rem; }
 @media (max-width:800px) { .npc-forge-custom-columns { grid-template-columns:1fr; } .npc-forge-custom-grid { grid-template-columns:1fr; } }
+
+/* 1.3.0: independent, keyboard-accessible preview lock and reroll controls */
+.npc-forge-preview-section-heading { display:flex; align-items:center; justify-content:space-between; gap:0.55rem; min-width:0; border-bottom:1px solid color-mix(in srgb, var(--color-border-light-primary) 28%, transparent); margin-bottom:0.55rem; }
+.npc-forge-preview-section-heading > h2 { flex:1 1 auto; min-width:0; border:0; margin:0; }
+.npc-forge-preview-section-heading.npc-forge-preview-subheading { margin:0.8rem 0 0.4rem; }
+.npc-forge-preview-section-heading > h3 { flex:1 1 auto; min-width:0; margin:0; border:0; }
+.npc-forge-section-tools { display:inline-flex; align-items:center; gap:0.18rem; flex:0 0 auto; }
+.npc-forge-tool-button { display:inline-flex; align-items:center; justify-content:center; width:1.9rem; height:1.9rem; min-height:1.9rem; padding:0; border:1px solid transparent; border-radius:4px; background:transparent; color:inherit; cursor:pointer; }
+.npc-forge-tool-button:hover:not(:disabled), .npc-forge-tool-button:focus-visible { border-color:var(--color-border-light-primary); background:color-mix(in srgb, var(--color-bg-option,#333) 85%, transparent); }
+.npc-forge-tool-button.is-locked { color:var(--color-text-hyperlink,#d6ab69); background:color-mix(in srgb, var(--color-bg-option,#555) 85%, transparent); }
+.npc-forge-tool-button:disabled { opacity:0.3; cursor:not-allowed; }
+
+.npc-forge-header-tools { display:inline-flex; margin-top:0.25rem; }
+.npc-forge-header-tools .npc-forge-section-tools { opacity:0.82; }
+
+.npc-forge-lock-help { margin-top:0.35rem !important; font-size:0.82rem; opacity:0.65 !important; }

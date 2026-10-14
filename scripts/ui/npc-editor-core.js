@@ -61,6 +61,7 @@ export class NpcEditorCore {
     this._integrationInspectionCache = null;
     this._renderToken = 0;
     this._renderPromise = Promise.resolve();
+    this._actionPending = false;
   }
 
   mount(element) {
@@ -186,6 +187,12 @@ export class NpcEditorCore {
       showCommit: defaultActions && this.mode === "embedded",
       showCancel: defaultActions && this.mode === "embedded",
       showPreviewActions: defaultActions && ((this.session.capabilities.createActor && Boolean(preview)) || this.mode === "embedded"),
+      showSectionLocks: this.session.capabilities.sectionLocks !== false,
+      showSectionRerolls: this.session.capabilities.reroll !== false,
+      locks: Object.fromEntries([
+        "identity", "appearance", "personality", "background", "relationships",
+        "socialContext", "statistics", "skills", "abilities", "spellcasting", "inventory"
+      ].map((id) => [id, this.session.isSectionLocked(id)])),
       ancestryOptions: definitionOptions(this.api.content.list("ancestries"), request.ancestry),
       classOptions: definitionOptions(this.api.content.list("classProfiles"), request.classProfile),
       roleOptions: definitionOptions(this.api.content.list("roles"), request.role),
@@ -357,12 +364,23 @@ export class NpcEditorCore {
 
   async _onClick(event) {
     const button = event.target?.closest?.("[data-editor-action]");
-    if (!button || !this.mountElement?.contains?.(button)) return;
+    if (!button || !this.mountElement?.contains?.(button) || this._actionPending) return;
     const action = button.dataset.editorAction;
+    const section = button.dataset.editorSection;
+    this._actionPending = true;
     try {
       if (action === "generate") {
         this.captureUiState();
         await this.session.generate();
+      } else if (action === "lockSection") {
+        if (!this.session.capabilities.sectionLocks) return;
+        this.captureUiState();
+        this.session.toggleSectionLock(section, { render: false });
+        await this.render({ preserveUiState: false });
+      } else if (action === "rerollSection") {
+        if (!this.session.capabilities.reroll || this.session.isSectionLocked(section)) return;
+        this.captureUiState();
+        await this.session.rerollSection(section);
       } else if (action === "createActor") {
         await this.session.createActor();
       } else if (action === "commit") {
@@ -372,6 +390,8 @@ export class NpcEditorCore {
       }
     } catch (error) {
       await this.session.reportError(action, error);
+    } finally {
+      this._actionPending = false;
     }
   }
 }
